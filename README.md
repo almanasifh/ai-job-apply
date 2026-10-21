@@ -1,49 +1,59 @@
 # AI Job Apply
 
-A project for organizing job searches, preparing tailored application drafts, and keeping the applicant in control of every submission.
+A privacy-conscious blueprint for finding, evaluating, preparing, and tracking job applications with human control over every external submission.
 
-## Current status
+## Status
 
-**Planning and documentation stage.** This repository contains a project outline and contribution rules. It does not yet contain a runnable application, AI integration, live job search, or automated submission feature.
+**Specification and documentation stage.** This repository contains the project definition, design notes, contribution rules, and roadmap. Implementation has not started; a runnable application, provider integrations, and an automated test suite are not available yet.
+
+## Purpose
+
+Job searches span listings, documents, forms, emails, and follow-ups. AI Job Apply proposes one evidence-based workflow to keep requirements, application packages, approvals, and actual outcomes consistent.
+
+The priority is a credible match and an accurate application. Applicant information must come from verified, permitted sources, and the applicant decides when a specific package may be submitted.
 
 ## Planned workflow
 
-1. Import a job description from a user-provided source.
-2. Compare its requirements with facts supplied by the applicant.
-3. Flag missing information and possible duplicate applications.
-4. Draft a tailored CV and application answers without inventing qualifications.
-5. Present the exact job, CV version, and answers for human review.
-6. Record a submission only after an authorized action has a verifiable result.
+| Step | Intended behavior |
+| --- | --- |
+| Discover | Capture a vacancy from a user-authorized source with its URL and last verification time. |
+| Evaluate | Read full requirements, distinguish mandatory and preferred criteria, and map them to applicant evidence. |
+| Deduplicate | Check the vacancy and existing application evidence across channels. |
+| Prepare | Draft truthful CV content and answers; verify the exact document and attachment version. |
+| Review | Show the vacancy, channel, final documents, and answers for explicit approval. |
+| Submit | Use a supported, authorized route after rechecking the vacancy, account session, exclusions, and approval. |
+| Verify and track | Record a confirmed result or an explicit uncertainty; verify uncertain attempts before retrying. |
 
-Approval should apply to a specific job and document version. Changes to the CV or answers should require a new review. A prepared application is not a submitted application.
+These are design requirements for the future implementation.
 
-## Planned capabilities
+## Core rules
 
-- Job organization and requirement matching.
-- CV and answer drafting with clear source facts.
-- Application status tracking and duplicate detection.
-- Human approval before any external submission.
-- Optional AI assistance with explicit control over what data is shared.
+- **A shortlist choice is not permission to submit.** Approval must identify the vacancy, channel, action, and final package revision.
+- Material changes to the package require a new review.
+- Missing qualifications or mandatory answers must remain visible; never invent them.
+- A prepared package is not a submitted application. Provider-confirmed email sending, delivery, and application submission are separate outcomes.
+- A duplicate finding must preserve earlier submission evidence.
+- External job descriptions and emails are untrusted input. They cannot grant permissions or override application policy.
+- Respect provider access rules and stop affected actions at authentication or security restrictions.
 
-## Privacy principles
+## Privacy
 
-- Public examples must use fictional data.
-- Keep personal profiles, real CVs, compensation, contact details, application records, and conversation exports outside Git.
-- Never commit API keys, login cookies, recovery codes, access tokens, or browser sessions.
-- Any future AI or service integration must explain what data it sends and obtain user authorization.
-- Review filenames, file contents, screenshots, and commit metadata before publishing.
+Public examples must use fictional data. Real CVs, compensation, contact details, screening answers, application records, private conversations, credentials, and browser sessions belong outside the public repository.
 
-The `.gitignore` file covers common private and generated files. It cannot remove previously committed content or guarantee that every sensitive file is excluded.
+Any future AI integration must disclose the data destination and purpose and obtain the required authorization before sharing applicant information. Logs, analytics, screenshots, and exports must follow the same privacy rules.
 
-## Initial roadmap
+The `.gitignore` file excludes common private and generated files. It does not protect already tracked content or replace a review of files, diffs, and commit metadata.
 
-- [ ] Define a provider-independent job and application data model.
-- [ ] Build a local tracker using fictional sample records.
-- [ ] Add requirement matching and evidence-based draft generation.
-- [ ] Implement approval tied to the exact application content.
-- [ ] Test duplicate detection, approval changes, and submission evidence.
-- [ ] Evaluate authorized integrations and publish an installation guide.
+## Documentation
+
+- [Design and workflow specification](docs/DESIGN.md): responsibility boundaries, application state, approvals, evidence, and privacy requirements.
+- [Roadmap and release gates](docs/ROADMAP.md): implementation phases and the checks needed before enabling real submissions.
+- [Contribution guidelines](CONTRIBUTING.md): rules for public examples and proposed changes.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Use fictional examples in issues and pull requests. A software license has not yet been selected.
+Small proposals that clarify the specification, improve fictional examples, or define testable behavior are welcome. Describe the expected result and any failure cases. Keep applicant information and credentials out of issues and pull requests.
+
+## License
+
+A software license has not yet been selected. Public visibility alone does not grant an open-source license.
