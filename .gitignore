@@ -1,0 +1,57 @@
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+*token*.json
+
+# Personal profiles, CVs, application records, and exports
+private/
+.private/
+data/
+uploads/
+resumes/
+cvs/
+applications/
+exports/
+profile.json
+profile.local.*
+answers.json
+applications.json
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.csv
+*.tsv
+*.db
+*.sqlite
+*.sqlite3
+
+# Browser authentication and recovery data
+.auth/
+playwright/.auth/
+storageState*.json
+*cookies*.json
+*recovery-codes*
+
+# Logs, dependencies, builds, and caches
+*.log
+logs/
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+Thumbs.db
