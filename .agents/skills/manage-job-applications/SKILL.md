@@ -1,6 +1,6 @@
 ---
 name: manage-job-applications
-description: "Prepare, review, authorize, and track evidence-based job applications while protecting applicant data and preventing unsupported claims, stale approvals, duplicate submissions, and unsafe retries. Use for vacancy intake, requirement matching, CV or answer drafting, package review, approval binding, submission handoff, and application checkpoint updates."
+description: Prepare, review, authorize, and track evidence-based job applications while protecting applicant data and preventing unsupported claims, stale approvals, duplicate submissions, and unsafe retries. Use for vacancy intake, requirement matching, CV or answer drafting, package review, approval binding, submission handoff, and application checkpoint updates.
 ---
 
 # Manage Job Applications
@@ -74,4 +74,4 @@ python scripts/validate_application.py assets/fictional-profile-pack/application
 python scripts/hash_artifacts.py <artifact> [<artifact> ...]
 ```
 
-The formal data contracts are in [references/schemas](references/schemas). The included fixture is fictional and is safe for tests and demonstrations.
+The formal data contracts are the `*.schema.json` files in [references](references). The included fixture is fictional and is safe for tests and demonstrations.

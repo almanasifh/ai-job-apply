@@ -2,7 +2,11 @@
 
 A privacy-conscious, evidence-based skill for preparing, authorizing, packaging, and tracking job applications without inventing candidate facts or confusing preparation with submission.
 
-This repository packages an **agent skill and workflow**, not a standalone application, dashboard, database, scheduler, or background service.
+## Scope
+
+**What this is:** an agent skill and human-reviewed workflow for preparing, authorizing, packaging, and tracking evidence-based job applications.
+
+**What this is not:** a standalone application, auto-apply bot, dashboard, database, scheduler, background service, or bundled job-board client.
 
 ## Status
 
@@ -19,6 +23,24 @@ The repository now includes a working core release:
 - a standard-library `unittest` suite.
 
 It does **not** bundle job-board, browser, email, or portal automation. The skill may use compatible host tools when they are available and explicitly authorized. Otherwise, it prepares a manual handoff and must not claim that an application was sent or submitted.
+
+## Install and use a release
+
+Choose the package that matches the host:
+
+- **Portable Markdown:** download `job-application-manager-portable.zip`, extract it, and add `manage-job-applications.md` as an instruction or knowledge file in an instruction-capable assistant.
+- **Portable Agent Plugin:** use the `job-application-manager/` folder in the same portable ZIP with a host that supports Agent Plugins 1.0 root `plugin.json` discovery.
+- **Codex:** download `job-application-manager-codex.zip`, extract it, and add the `job-application-manager/` folder through Codex's local plugin installation flow. Start a new task after installation so the skill is discovered.
+
+Ask the host to use `manage-job-applications`, then provide the vacancy and a private candidate profile. Review the exact package before approving any external action. If the host has no authorized submission connector, the correct result is a `READY` manual handoff, not a claim that the application was sent.
+
+### Typical session
+
+1. Provide a vacancy and a private candidate profile.
+2. Review evidence-backed requirement matching and resolve unknowns.
+3. Review the exact CV, answers, destination, account reference, and artifact hashes.
+4. Approve only the exact package you want used.
+5. Receive verified submission evidence or a `READY` manual handoff.
 
 ## Core rules
 
@@ -59,16 +81,6 @@ python -m unittest discover -s tests -v
 
 Generated output is written to `dist/` and intentionally excluded from version control.
 
-## Install and use a release
-
-Choose the package that matches the host:
-
-- **Portable Markdown:** download `job-application-manager-portable.zip`, extract it, and add `manage-job-applications.md` as an instruction or knowledge file in an instruction-capable assistant.
-- **Portable Agent Plugin:** use the `job-application-manager/` folder in the portable ZIP with a host that supports Agent Plugins 1.0 root `plugin.json` discovery.
-- **Codex:** download `job-application-manager-codex.zip`, extract it, and add the `job-application-manager/` folder through Codex's local plugin installation flow. Start a new task after installation so the skill is discovered.
-
-Ask the host to use `manage-job-applications`, then provide the vacancy and a private candidate profile. Review the exact package before approving any external action. If the host has no authorized submission connector, the correct result is a `READY` manual handoff, not a claim that the application was sent.
-
 ## Formats
 
 - **Repo skill:** canonical source for agents that discover `.agents/skills/`.
@@ -86,6 +98,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [Compatibility](docs/COMPATIBILITY.md)
 - [Behavioral evaluations](docs/EVALUATIONS.md)
 - [0.2.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.2.0.md)
+- [0.2.1 release validation](docs/RELEASE_VALIDATION_V0.2.1.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

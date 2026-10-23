@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import stage_plugin
+import build_portable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -68,15 +69,25 @@ def scan_tree(root: Path) -> None:
                 raise ValueError(f"Release contains {label}: {relative}")
 
 
-def validate_zip(path: Path, expected_prefix: str) -> None:
+def validate_zip(path: Path, staged_root: Path) -> None:
+    expected_files = {
+        f"{staged_root.name}/{source.relative_to(staged_root).as_posix()}": source
+        for source in staged_root.rglob("*")
+        if source.is_file()
+    }
     with zipfile.ZipFile(path) as archive:
         names = archive.namelist()
         if names != sorted(names):
             raise ValueError(f"Archive entries are not sorted: {path}")
-        if not names or any(not name.startswith(expected_prefix + "/") for name in names):
-            raise ValueError(f"Archive has an unexpected root: {path}")
+        if names != sorted(expected_files):
+            missing = sorted(set(expected_files) - set(names))
+            unexpected = sorted(set(names) - set(expected_files))
+            raise ValueError(f"Archive file set mismatch: {path}; missing={missing}, unexpected={unexpected}")
         if any(info.date_time != (1980, 1, 1, 0, 0, 0) for info in archive.infolist()):
             raise ValueError(f"Archive timestamps are not normalized: {path}")
+        for name, source in expected_files.items():
+            if archive.read(name) != source.read_bytes():
+                raise ValueError(f"Archive entry does not match staged content: {path}!{name}")
 
 
 def validate_license(path: Path, expected: bytes) -> None:
@@ -127,14 +138,17 @@ def main() -> int:
     license_content = (REPO_ROOT / "LICENSE").read_bytes()
     validate_license(portable / "LICENSE", license_content)
     validate_license(codex / "LICENSE", license_content)
+    portable_markdown = portable / f"{metadata['skill_name']}.md"
+    if portable_markdown.read_bytes() != build_portable.render():
+        raise ValueError(f"{portable_markdown} does not match the canonical portable Markdown build")
     portable_skill = portable / "skills" / metadata["skill_name"]
     codex_skill = codex / "skills" / metadata["skill_name"]
     validate_staged_skill(portable_skill)
     validate_staged_skill(codex_skill)
     scan_tree(portable)
     scan_tree(codex)
-    validate_zip(args.dist / f"{metadata['name']}-portable.zip", metadata["name"])
-    validate_zip(args.dist / f"{metadata['name']}-codex.zip", metadata["name"])
+    validate_zip(args.dist / f"{metadata['name']}-portable.zip", portable)
+    validate_zip(args.dist / f"{metadata['name']}-codex.zip", codex)
 
     for skill in (portable_skill, codex_skill):
         assets = skill / "assets" / "fictional-profile-pack"

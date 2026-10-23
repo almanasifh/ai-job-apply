@@ -86,7 +86,7 @@ class ContractTests(unittest.TestCase):
             validate_checkpoint(events)
 
     def test_all_schema_documents_are_json(self) -> None:
-        schemas = SKILL_ROOT / "references" / "schemas"
+        schemas = SKILL_ROOT / "references"
         for path in schemas.glob("*.schema.json"):
             with self.subTest(path=path.name):
                 data = json.loads(path.read_text(encoding="utf-8"))

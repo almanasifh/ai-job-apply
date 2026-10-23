@@ -8,6 +8,8 @@ import subprocess
 import zipfile
 from pathlib import Path
 
+import build_portable
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DIST_ROOT = REPO_ROOT / "dist"
@@ -84,6 +86,7 @@ def build() -> list[Path]:
 
     write_json(portable_root / "plugin.json", portable_manifest)
     write_json(codex_root / ".codex-plugin" / "plugin.json", codex_manifest)
+    (portable_root / f"{metadata['skill_name']}.md").write_bytes(build_portable.render())
     copy_tree(SKILL_ROOT, portable_root / "skills" / metadata["skill_name"])
     copy_tree(SKILL_ROOT, codex_root / "skills" / metadata["skill_name"])
     shutil.copyfile(REPO_ROOT / "LICENSE", portable_root / "LICENSE")

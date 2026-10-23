@@ -4,9 +4,8 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 from pathlib import Path
-
-import stage_plugin
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -25,11 +24,26 @@ def skill_body(text: str) -> str:
     return text[match.end():].strip()
 
 
+def tracked_files(source: Path) -> list[Path]:
+    relative_source = source.relative_to(REPO_ROOT).as_posix()
+    completed = subprocess.run(
+        ["git", "ls-files", "-z", "--", f"{relative_source}/"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    files = [REPO_ROOT / relative for relative in completed.stdout.split("\0") if relative]
+    if not files:
+        raise ValueError(f"No tracked files found under {source}")
+    return sorted(files, key=lambda path: path.relative_to(source).as_posix())
+
+
 def source_files() -> list[Path]:
-    tracked = set(stage_plugin.tracked_files(SKILL_ROOT))
+    tracked = set(tracked_files(SKILL_ROOT))
     files = [SKILL_ROOT / "SKILL.md"]
     files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.md") if path in tracked), key=lambda path: path.name))
-    files.extend(sorted((path for path in (SKILL_ROOT / "references" / "schemas").glob("*.schema.json") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.schema.json") if path in tracked), key=lambda path: path.name))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*") if path in tracked), key=lambda path: path.name))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt") if path in tracked), key=lambda path: path.name))
     files.extend(

@@ -55,6 +55,8 @@ class PackagingTests(unittest.TestCase):
         license_content = (REPO_ROOT / "LICENSE").read_bytes()
         self.assertEqual((REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
         self.assertEqual((REPO_ROOT / "dist" / "codex-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
+        portable_markdown = REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / f"{metadata['skill_name']}.md"
+        self.assertEqual(portable_markdown.read_bytes(), build_portable.render())
         for package_type in ("portable-plugin", "codex-plugin"):
             staged_skill = REPO_ROOT / "dist" / package_type / metadata["name"] / "skills" / metadata["skill_name"]
             self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
@@ -66,10 +68,12 @@ class PackagingTests(unittest.TestCase):
         stage_plugin.build()
         second = [hashlib.sha256(path.read_bytes()).hexdigest() for path in archives]
         self.assertEqual(first, second)
-        for path in archives:
+        for index, path in enumerate(archives):
             with zipfile.ZipFile(path) as archive:
                 self.assertEqual(archive.namelist(), sorted(archive.namelist()))
                 self.assertTrue(all(info.date_time == stage_plugin.FIXED_ZIP_TIME for info in archive.infolist()))
+                portable_name = f"{metadata['name']}/{metadata['skill_name']}.md"
+                self.assertEqual(portable_name in archive.namelist(), index == 0)
 
     def test_staging_excludes_untracked_skill_files(self) -> None:
         metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))

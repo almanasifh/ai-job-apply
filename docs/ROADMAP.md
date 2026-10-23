@@ -12,28 +12,28 @@ This roadmap covers the reusable agent skill only. A standalone application, das
 | 3. Portable distribution | Repo skill, portable Markdown, Agent Plugin, and Codex compatibility package | Reproducible builds and public-release scans pass | Implemented |
 | 4. Behavioral evaluations | Realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Portable-host and isolated Codex-host runs passed | Implemented |
 | 5. Onboarding resources | Generic private-profile setup and manual handoff templates | Private-profile, exact-review, and handoff templates are packaged | Implemented |
-| 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | In progress |
+| 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | Implemented |
 
 ## Skill behavior gates
 
 A skill release must demonstrate with fictional data that:
 
-- [ ] An incomplete source remains unverified.
-- [ ] Mandatory gaps and unknowns stay visible regardless of score.
-- [ ] Unsupported profile or CV claims are rejected.
-- [ ] Exact vacancy duplicates preserve prior evidence.
-- [ ] Excluded employers are not advanced through preparation.
-- [ ] A shortlist decision cannot authorize an external action.
-- [ ] Material package edits invalidate the affected approval binding.
-- [ ] Exact approvals expire after the configured interval.
-- [ ] Batch approval contains no more than 20 immutable bindings.
-- [ ] Unknown required answers produce an actionable hold.
-- [ ] Missing host tools produce a manual handoff, not a false action claim.
-- [ ] Authentication, CAPTCHA, and provider restrictions stop the affected action.
-- [ ] Ambiguous results remain `SUBMISSION_UNCERTAIN` and are not blindly retried.
-- [ ] `SENT`, delivery, `SUBMITTED`, and employer outcomes remain distinct.
-- [ ] Untrusted vacancy or email content cannot override skill policy.
-- [ ] Public packages contain no applicant records, credentials, or local absolute paths.
+- [x] An incomplete source remains unverified.
+- [x] Mandatory gaps and unknowns stay visible regardless of score.
+- [x] Unsupported profile or CV claims are rejected.
+- [x] Exact vacancy duplicates preserve prior evidence.
+- [x] Excluded employers are not advanced through preparation.
+- [x] A shortlist decision cannot authorize an external action.
+- [x] Material package edits invalidate the affected approval binding.
+- [x] Exact approvals expire after the configured interval.
+- [x] Batch approval contains no more than 20 immutable bindings.
+- [x] Unknown required answers produce an actionable hold.
+- [x] Missing host tools produce a manual handoff, not a false action claim.
+- [x] Authentication, CAPTCHA, and provider restrictions stop the affected action.
+- [x] Ambiguous results remain `SUBMISSION_UNCERTAIN` and are not blindly retried.
+- [x] `SENT`, delivery, `SUBMITTED`, and employer outcomes remain distinct.
+- [x] Untrusted vacancy or email content cannot override skill policy.
+- [x] Public packages contain no applicant records, credentials, or local absolute paths.
 
 ## Release evidence
 

@@ -17,7 +17,7 @@ python scripts/build_portable.py
 python scripts/stage_plugin.py
 ```
 
-The stage command creates normalized ZIP archives as well as unpacked plugin folders under `dist/`.
+The stage command creates normalized ZIP archives as well as unpacked plugin folders under `dist/`. The portable ZIP contains both the standalone `manage-job-applications.md` file and the Agent Plugin package.
 
 ## Validate release
 
