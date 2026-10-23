@@ -6,6 +6,8 @@ import json
 import re
 from pathlib import Path
 
+import stage_plugin
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
@@ -24,17 +26,20 @@ def skill_body(text: str) -> str:
 
 
 def source_files() -> list[Path]:
+    tracked = set(stage_plugin.tracked_files(SKILL_ROOT))
     files = [SKILL_ROOT / "SKILL.md"]
-    files.extend(sorted((SKILL_ROOT / "references").glob("*.md"), key=lambda path: path.name))
-    files.extend(sorted((SKILL_ROOT / "references" / "schemas").glob("*.schema.json"), key=lambda path: path.name))
-    files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*"), key=lambda path: path.name))
-    files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt"), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.md") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references" / "schemas").glob("*.schema.json") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt") if path in tracked), key=lambda path: path.name))
     files.extend(
         sorted(
-            (path for path in (SKILL_ROOT / "assets" / "templates").rglob("*") if path.is_file()),
+            (path for path in (SKILL_ROOT / "assets" / "templates").rglob("*") if path.is_file() and path in tracked),
             key=lambda path: path.relative_to(SKILL_ROOT).as_posix(),
         )
     )
+    if files[0] not in tracked:
+        raise ValueError("Canonical SKILL.md is not tracked")
     return files
 
 

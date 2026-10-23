@@ -10,9 +10,9 @@ This roadmap covers the reusable agent skill only. A standalone application, das
 | 1. Contracts and fixtures | Profile, job, match, artifact, package, authorization, and event contracts | Fictional examples validate and contain no private applicant data | Implemented |
 | 2. Deterministic helpers | Profile, package, artifact, approval, and checkpoint validation | Tampering, stale bindings, and invalid hash chains are detected | Implemented |
 | 3. Portable distribution | Repo skill, portable Markdown, Agent Plugin, and Codex compatibility package | Reproducible builds and public-release scans pass | Implemented |
-| 4. Behavioral evaluations | Realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Portable-host run passed; isolated Codex-host run remains | In progress |
+| 4. Behavioral evaluations | Realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Portable-host and isolated Codex-host runs passed | Implemented |
 | 5. Onboarding resources | Generic private-profile setup and manual handoff templates | Private-profile, exact-review, and handoff templates are packaged | Implemented |
-| 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | Planned |
+| 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | In progress |
 
 ## Skill behavior gates
 

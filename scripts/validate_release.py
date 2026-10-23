@@ -9,10 +9,11 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+import stage_plugin
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
-ASSETS = SKILL_ROOT / "assets" / "fictional-profile-pack"
 DIST_ROOT = REPO_ROOT / "dist"
 BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".sqlite", ".sqlite3", ".db"}
 BLOCKED_PARTS = {"private", "credentials", "cookies", "sessions", "auth"}
@@ -86,6 +87,25 @@ def validate_license(path: Path, expected: bytes) -> None:
         raise ValueError(f"{path} is not an MIT license")
 
 
+def validate_staged_skill(path: Path) -> None:
+    expected_files = {
+        source.relative_to(SKILL_ROOT): source
+        for source in stage_plugin.tracked_files(SKILL_ROOT)
+    }
+    actual_files = {
+        source.relative_to(path): source
+        for source in path.rglob("*")
+        if source.is_file()
+    }
+    if actual_files.keys() != expected_files.keys():
+        missing = sorted(item.as_posix() for item in expected_files.keys() - actual_files.keys())
+        unexpected = sorted(item.as_posix() for item in actual_files.keys() - expected_files.keys())
+        raise ValueError(f"{path} file set mismatch; missing={missing}, unexpected={unexpected}")
+    for relative, source in expected_files.items():
+        if actual_files[relative].read_bytes() != source.read_bytes():
+            raise ValueError(f"{path / relative} does not match the tracked skill source")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate staged public release artifacts.")
     parser.add_argument("--dist", type=Path, default=DIST_ROOT)
@@ -107,19 +127,25 @@ def main() -> int:
     license_content = (REPO_ROOT / "LICENSE").read_bytes()
     validate_license(portable / "LICENSE", license_content)
     validate_license(codex / "LICENSE", license_content)
+    portable_skill = portable / "skills" / metadata["skill_name"]
+    codex_skill = codex / "skills" / metadata["skill_name"]
+    validate_staged_skill(portable_skill)
+    validate_staged_skill(codex_skill)
     scan_tree(portable)
     scan_tree(codex)
     validate_zip(args.dist / f"{metadata['name']}-portable.zip", metadata["name"])
     validate_zip(args.dist / f"{metadata['name']}-codex.zip", metadata["name"])
 
-    profile_validator.validate_profile(common.load_json(ASSETS / "profile.json"))
-    validated = application_validator.validate_application(common.load_json(ASSETS / "application.json"), ASSETS)
-    application_validator.validate_authorization(
-        common.load_json(ASSETS / "authorization.json"),
-        validated,
-        common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
-    )
-    checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(ASSETS / "checkpoint.jsonl"))
+    for skill in (portable_skill, codex_skill):
+        assets = skill / "assets" / "fictional-profile-pack"
+        profile_validator.validate_profile(common.load_json(assets / "profile.json"))
+        validated = application_validator.validate_application(common.load_json(assets / "application.json"), assets)
+        application_validator.validate_authorization(
+            common.load_json(assets / "authorization.json"),
+            validated,
+            common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
+        )
+        checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(assets / "checkpoint.jsonl"))
     evaluation_validator.validate_catalog(
         evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
         repo_root=REPO_ROOT,

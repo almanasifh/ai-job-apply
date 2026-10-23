@@ -4,6 +4,7 @@ import argparse
 import json
 import shutil
 import stat
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -24,19 +25,31 @@ def safe_reset(path: Path) -> None:
     resolved.mkdir(parents=True)
 
 
+def tracked_files(source: Path) -> list[Path]:
+    relative_source = source.relative_to(REPO_ROOT).as_posix()
+    completed = subprocess.run(
+        ["git", "ls-files", "-z", "--", f"{relative_source}/"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    files = [REPO_ROOT / relative for relative in completed.stdout.split("\0") if relative]
+    if not files:
+        raise ValueError(f"No tracked files found under {source}")
+    return sorted(files, key=lambda path: path.relative_to(source).as_posix())
+
+
 def copy_tree(source: Path, destination: Path) -> None:
-    for path in sorted(source.rglob("*"), key=lambda item: item.relative_to(source).as_posix()):
-        if path.name == "__pycache__" or "__pycache__" in path.parts or path.suffix == ".pyc":
-            continue
+    for path in tracked_files(source):
         relative = path.relative_to(source)
         target = destination / relative
         if path.is_symlink():
             raise ValueError(f"Refusing to package symlink: {path}")
-        if path.is_dir():
-            target.mkdir(parents=True, exist_ok=True)
-        else:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(path, target)
+        if not path.is_file():
+            raise ValueError(f"Tracked skill path is not a file: {path}")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, target)
 
 
 def write_json(path: Path, value: dict[str, object]) -> None:

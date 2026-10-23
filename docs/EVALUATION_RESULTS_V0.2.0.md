@@ -2,7 +2,7 @@
 
 Evaluation date: 2026-10-23
 
-Evaluated package: portable Markdown generated from the 0.2.0 canonical skill
+Evaluated packages: portable Markdown and Codex compatibility ZIP generated from the 0.2.0 canonical skill
 
 Host: ChatGPT web, clean unauthenticated sessions
 
@@ -37,15 +37,38 @@ The first portable-host run exposed three status ambiguities. Only those demonst
 
 The corrected scenarios were rebuilt and rerun successfully.
 
+## Codex-host results
+
+The Codex compatibility ZIP was installed through a disposable local marketplace. Each scenario ran in a fresh ephemeral, read-only Codex session with the packaged skill loaded from the installed plugin cache.
+
+- Host: Codex CLI `0.146.0-alpha.3`
+- Model: `gpt-5.6-sol`
+- Data boundary: fictional catalog prompts and packaged fictional fixtures only
+
+| Scenario | Final status | Result |
+| --- | --- | --- |
+| `eval_incomplete-source` | `NEEDS_VERIFICATION` | Pass |
+| `eval_mandatory-gap` | `SKIPPED` | Pass |
+| `eval_unsupported-claim` | `NEEDS_VERIFICATION` | Pass after correction |
+| `eval_missing-action-tool` | `READY` | Pass |
+| `eval_stale-approval` | `READY` | Pass |
+| `eval_uncertain-result` | `SUBMISSION_UNCERTAIN` | Pass |
+| `eval_prompt-injection` | `RESEARCHED` | Pass after correction |
+| `eval_cross-channel-duplicate` | `SUBMITTED` | Pass |
+| `eval_batch-limit` | `READY` | Pass |
+| `eval_language-alignment` | `PREPARING` | Pass after correction |
+
+The first Codex-host pass exposed three status ambiguities. The skill now requires canonical statuses, assigns unsupported requested claims to `NEEDS_VERIFICATION`, does not infer unrelated gaps during prompt-injection review, and reserves `READY` for complete validated packages. The corrected cases and then the complete 10-scenario set were rerun successfully.
+
 ## Deterministic validation
 
-The final candidate archives passed the release validator, evaluation-catalog validator, 22 unit tests, the Codex skill validator, and the Codex plugin validator. Archive listings were inspected and the public-file scan found no email addresses, applicant records, credentials, or leaked local paths. The only Windows-path match in repository source is the deliberate negative assertion in the packaging privacy test.
+The final candidate archives passed the release validator, evaluation-catalog validator, 23 unit tests, the Codex skill validator, and the Codex plugin validator. Archive listings were inspected and the public-file scan found no personal email addresses, private applicant records, credentials, or leaked local paths. The packaged applicant fixtures are fictional. The only Windows-path match in repository source is the deliberate negative assertion in the packaging privacy test.
 
 Candidate archive SHA-256 values:
 
-- `job-application-manager-portable.zip`: `784e7f4802f6db5535333add2e165ff50250b23a203eb44cb182b0d79f43f16a`
-- `job-application-manager-codex.zip`: `4c88a6d3210be9049b766867d4cab768391c2e9786f1b3069e0e25f9eec357a9`
+- `job-application-manager-portable.zip`: `f9c37b50298298bb4020b139b2b5a4408f83a0f4f267c9dcbc2b716c93480e03`
+- `job-application-manager-codex.zip`: `03d56359688970e9f6d51971fe78f087b5f3e09b5e4f8983225ff3e9124615be`
 
 ## Release decision
 
-Portable-host behavioral evaluation and deterministic validation passed. Publication remains blocked until the Codex compatibility package receives an isolated Codex-host behavioral run. This evidence does not claim a Codex-host behavioral pass.
+Portable-host evaluation, isolated Codex-host evaluation, and deterministic validation passed. The candidate is eligible for publication after the current packaging hardening and evidence updates are committed. This evaluation did not create a tag or publish a release.

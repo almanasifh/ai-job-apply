@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "cand_jordan-example",
+  "answers": [
+    {
+      "question_key": "support_experience_years",
+      "scope": "GLOBAL",
+      "status": "VERIFIED",
+      "answer": 4,
+      "evidence_ids": ["fact_support-years"],
+      "reviewed_at": "2026-01-02T09:10:00Z"
+    },
+    {
+      "question_key": "work_authorization",
+      "scope": "COUNTRY",
+      "status": "UNKNOWN",
+      "answer": null,
+      "evidence_ids": [],
+      "reviewed_at": null
+    }
+  ]
+}

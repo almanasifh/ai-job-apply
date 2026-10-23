@@ -55,6 +55,9 @@ class PackagingTests(unittest.TestCase):
         license_content = (REPO_ROOT / "LICENSE").read_bytes()
         self.assertEqual((REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
         self.assertEqual((REPO_ROOT / "dist" / "codex-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
+        for package_type in ("portable-plugin", "codex-plugin"):
+            staged_skill = REPO_ROOT / "dist" / package_type / metadata["name"] / "skills" / metadata["skill_name"]
+            self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
         archives = [
             REPO_ROOT / "dist" / f"{metadata['name']}-portable.zip",
             REPO_ROOT / "dist" / f"{metadata['name']}-codex.zip",
@@ -67,6 +70,20 @@ class PackagingTests(unittest.TestCase):
             with zipfile.ZipFile(path) as archive:
                 self.assertEqual(archive.namelist(), sorted(archive.namelist()))
                 self.assertTrue(all(info.date_time == stage_plugin.FIXED_ZIP_TIME for info in archive.infolist()))
+
+    def test_staging_excludes_untracked_skill_files(self) -> None:
+        metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+        local_file = stage_plugin.SKILL_ROOT / "assets" / "fictional-profile-pack" / "untracked-local-test.json"
+        self.assertFalse(local_file.exists())
+        try:
+            local_file.write_text('{"private": "must not be packaged"}\n', encoding="utf-8")
+            self.assertNotIn(b"must not be packaged", build_portable.render())
+            stage_plugin.build()
+            for package_type in ("portable-plugin", "codex-plugin"):
+                staged_skill = REPO_ROOT / "dist" / package_type / metadata["name"] / "skills" / metadata["skill_name"]
+                self.assertFalse((staged_skill / "assets" / "fictional-profile-pack" / local_file.name).exists())
+        finally:
+            local_file.unlink(missing_ok=True)
 
     def test_cli_build_writes_requested_portable_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

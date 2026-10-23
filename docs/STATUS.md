@@ -27,6 +27,8 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added portable Markdown and dual plugin staging with reproducible ZIP archives.
 - Added fictional behavioral evaluations and deterministic catalog validation.
 - Added private-profile, answer, exact-review, and manual-handoff templates.
+- Passed all 10 scenarios on both the portable host and isolated Codex host after narrow demonstrated corrections.
+- Hardened release builders to package only tracked skill files and validate the staged package contents.
 - Added MIT licensing and skill-only documentation.
 
 ## Failed attempts
@@ -34,12 +36,14 @@ The skill can use compatible host tools when they are available and authorized. 
 - The environment did not include `jsonschema` or `rfc8785`, so deterministic helpers use a dependency-free RFC 8785-compatible integer-only JSON subset.
 - An app-style SQLite tracker was briefly started after an ambiguous continuation request. It was never committed and has been completely removed after scope clarification.
 - The first GitHub push was rejected by email-privacy protection; the unpushed commit was amended to use the repository-local GitHub noreply address and then pushed successfully.
+- The first isolated Codex attempt could not access the protected credential store. Authentication later succeeded, and the complete isolated run passed.
+- Updating the local marketplace source did not refresh the installed Codex cache; removing and reinstalling the disposable test plugin loaded the corrected candidate.
 
 ## Next steps
 
-1. Complete the isolated Codex-host behavioral run; the portable-host run and its three demonstrated corrections are recorded in `docs/EVALUATION_RESULTS_V0.2.0.md`.
-2. Rebuild and validate the final archives after the behavioral gate passes.
-3. Publish the validated 0.2.0 skill packages.
+1. Review and commit the Codex-host corrections, packaging hardening, and final evidence.
+2. Push the commit and create the `v0.2.0` tag.
+3. Publish the validated archives and checksum file in the GitHub release.
 
 ## Evidence boundary
 

@@ -8,6 +8,8 @@ Use append-only JSON Lines. Each line is one event. Sequence numbers are contigu
 
 `DUPLICATE` is a review disposition, not a workflow status. Approval state, attempt state, delivery state, and employer outcome are orthogonal fields or events.
 
+Use only the listed workflow statuses; never create compound or descriptive alternatives. `PREPARING` covers drafting and artifact work before a complete package is validated and reviewed. `READY` requires a complete validated package that is awaiting approval, submission, or manual handoff.
+
 ## Hash chain
 
 The first event uses `previous_event_hash: null`. Every later event carries the prior event's `event_hash`. To calculate `event_hash`, omit that field, canonicalize the remaining event with RFC 8785, encode as UTF-8, and calculate lowercase SHA-256.
