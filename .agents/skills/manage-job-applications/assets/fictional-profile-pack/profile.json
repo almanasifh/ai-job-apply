@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "cand_jordan-example",
+  "display_name": "Jordan Example",
+  "facts": [
+    {
+      "id": "fact_support-years",
+      "key": "customer_support_years",
+      "value": 4,
+      "status": "VERIFIED",
+      "source": "fictional candidate questionnaire",
+      "verified_at": "2099-01-01T00:00:00Z",
+      "allowed_uses": ["CV", "COVER_LETTER", "SCREENING"]
+    },
+    {
+      "id": "fact_python",
+      "key": "python_automation",
+      "value": "Experience automating support workflows with Python",
+      "status": "VERIFIED",
+      "source": "fictional candidate questionnaire",
+      "verified_at": "2099-01-01T00:00:00Z",
+      "allowed_uses": ["CV", "COVER_LETTER", "SCREENING"]
+    }
+  ],
+  "preferences": {
+    "target_roles": ["Software Support Specialist"],
+    "locations": ["Remote"],
+    "channels": ["MANUAL", "PORTAL"]
+  },
+  "exclusions": []
+}

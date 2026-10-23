@@ -59,6 +59,16 @@ python -m unittest discover -s tests -v
 
 Generated output is written to `dist/` and intentionally excluded from version control.
 
+## Install and use a release
+
+Choose the package that matches the host:
+
+- **Portable Markdown:** download `job-application-manager-portable.zip`, extract it, and add `manage-job-applications.md` as an instruction or knowledge file in an instruction-capable assistant.
+- **Portable Agent Plugin:** use the `job-application-manager/` folder in the portable ZIP with a host that supports Agent Plugins 1.0 root `plugin.json` discovery.
+- **Codex:** download `job-application-manager-codex.zip`, extract it, and add the `job-application-manager/` folder through Codex's local plugin installation flow. Start a new task after installation so the skill is discovered.
+
+Ask the host to use `manage-job-applications`, then provide the vacancy and a private candidate profile. Review the exact package before approving any external action. If the host has no authorized submission connector, the correct result is a `READY` manual handoff, not a claim that the application was sent.
+
 ## Formats
 
 - **Repo skill:** canonical source for agents that discover `.agents/skills/`.
@@ -75,6 +85,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [Current status](docs/STATUS.md)
 - [Compatibility](docs/COMPATIBILITY.md)
 - [Behavioral evaluations](docs/EVALUATIONS.md)
+- [0.2.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.2.0.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

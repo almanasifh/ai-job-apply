@@ -19,6 +19,7 @@ cvs/
 applications/
 exports/
 profile.json
+!.agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
 profile.local.*
 answers.json
 applications.json

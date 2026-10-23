@@ -10,6 +10,8 @@ An exact approval contains one binding and normally expires 15 minutes after iss
 
 A batch contains 1 to 20 complete immutable bindings. Approval of a search, filter, shortlist, employer, or template is not a batch approval.
 
+Reject an approval request containing more than 20 bindings and perform no action under it. If the individual packages are otherwise complete and immutable, keep their workflow status `READY`; split them into valid batches and obtain separate approval rather than assigning a technical hold.
+
 Changing one package invalidates only its affected binding; unchanged bindings remain usable until expiry or explicit revocation. Adding a new application requires a new binding.
 
 ## Preflight

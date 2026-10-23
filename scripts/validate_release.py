@@ -82,7 +82,7 @@ def validate_license(path: Path, expected: bytes) -> None:
     content = path.read_bytes()
     if content != expected:
         raise ValueError(f"{path} does not match the repository license")
-    if not content.startswith(b"MIT License\n"):
+    if not content.splitlines() or content.splitlines()[0] != b"MIT License":
         raise ValueError(f"{path} is not an MIT license")
 
 

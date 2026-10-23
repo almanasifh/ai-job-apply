@@ -14,10 +14,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import build_portable
+import validate_release
 import stage_plugin
 
 
 class PackagingTests(unittest.TestCase):
+    def test_mit_license_validation_accepts_windows_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            license_path = Path(directory) / "LICENSE"
+            content = b"MIT License\r\n\r\nPermission is hereby granted\r\n"
+            license_path.write_bytes(content)
+            validate_release.validate_license(license_path, content)
+
     def test_portable_markdown_is_reproducible(self) -> None:
         first = build_portable.render()
         second = build_portable.render()
@@ -39,7 +47,7 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(metadata["license"], "MIT")
         self.assertEqual(portable_manifest["license"], metadata["license"])
         self.assertEqual(codex_manifest["license"], metadata["license"])
-        self.assertTrue(license_content.startswith(b"MIT License\n"))
+        self.assertEqual(license_content.splitlines()[0], b"MIT License")
 
     def test_staged_archives_are_reproducible(self) -> None:
         stage_plugin.build()

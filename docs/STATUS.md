@@ -37,8 +37,8 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Execute and record the fictional scenarios across documented compatible hosts.
-2. Add any narrow skill corrections demonstrated by those runs.
+1. Complete the isolated Codex-host behavioral run; the portable-host run and its three demonstrated corrections are recorded in `docs/EVALUATION_RESULTS_V0.2.0.md`.
+2. Rebuild and validate the final archives after the behavioral gate passes.
 3. Publish the validated 0.2.0 skill packages.
 
 ## Evidence boundary

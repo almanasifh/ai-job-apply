@@ -15,3 +15,5 @@ Capture a vacancy only from a user-authorized source. Store both `captured_at` a
 Compare source identifiers first, then canonical URL, then employer/role/location and content similarity. A duplicate is a review disposition, not a workflow status. Preserve the earlier record and its submission evidence.
 
 Never submit through a second channel merely because the first channel's result is slow or ambiguous. Resolve the existing attempt first.
+
+When first-party evidence already establishes `SUBMITTED`, a newly discovered route is recorded with a duplicate review disposition while the workflow status remains `SUBMITTED`. Do not replace that status with `SKIPPED` or `DUPLICATE`.
