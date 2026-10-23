@@ -94,6 +94,10 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 
 All committed examples are fictional. The implementation was informed by a private instruction package used only as requirements context; no private source file is copied into this repository. Review staged files, diffs, and commit metadata before publishing because `.gitignore` cannot protect already tracked data.
 
+## Creator
+
+**Hussain Almanasif** — [almanasifh@gmail.com](mailto:almanasifh@gmail.com) · [LinkedIn](https://www.linkedin.com/in/almanasifh)
+
 ## رسالة
 
 الأداة مفتوحة المصدر، ادعُ لي في ظهر الغيب، والله يوفقنا معاكم.
