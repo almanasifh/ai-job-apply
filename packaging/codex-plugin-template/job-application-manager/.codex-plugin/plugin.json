@@ -1,7 +1,7 @@
 {
   "name": "job-application-manager",
-  "version": "0.1.0",
-  "description": "Prepare, authorize, and track evidence-based job applications with privacy and submission safeguards.",
+  "version": "0.1.1",
+  "description": "Agent skill for preparing, authorizing, and tracking evidence-based job applications safely.",
   "author": {
     "name": "AI Job Apply contributors"
   },

@@ -5,7 +5,7 @@ description: "Prepare, review, authorize, and track evidence-based job applicati
 
 # Manage Job Applications
 
-Use this skill as a policy and workflow layer. Do not assume access to email, job boards, browsers, files, or private profiles; use only tools and data explicitly available in the current session.
+Use this agent skill as a policy and workflow layer, not as a standalone application or background service. Do not assume access to email, job boards, browsers, files, persistent storage, or private profiles; use only tools and data explicitly available in the current session.
 
 ## Non-negotiable rules
 

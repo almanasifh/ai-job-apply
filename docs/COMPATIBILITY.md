@@ -15,6 +15,8 @@
 
 The portable Markdown file is non-executable. It embeds policy, contracts, and fictional examples, but an assistant still needs separate, explicitly authorized tools to read private files or act on external services.
 
+Compatibility means the host can load and follow the skill. It does not mean the repository installs an application runtime or grants the host new account access.
+
 ## Capability boundaries
 
 - No OpenAI API key is required for local validation or packaging.

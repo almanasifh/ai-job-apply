@@ -2,6 +2,8 @@
 
 A privacy-conscious, evidence-based skill for preparing, authorizing, packaging, and tracking job applications without inventing candidate facts or confusing preparation with submission.
 
+This repository packages an **agent skill and workflow**, not a standalone application, dashboard, database, scheduler, or background service.
+
 ## Status
 
 The repository now includes a working core release:
@@ -14,7 +16,7 @@ The repository now includes a working core release:
 - reproducible ZIP archives and a public-release privacy scan;
 - a standard-library `unittest` suite.
 
-It does **not** include job-board, browser, email, or portal automation. Without an authorized connector, it prepares a manual handoff and must not claim that an application was sent or submitted.
+It does **not** bundle job-board, browser, email, or portal automation. The skill may use compatible host tools when they are available and explicitly authorized. Otherwise, it prepares a manual handoff and must not claim that an application was sent or submitted.
 
 ## Core rules
 

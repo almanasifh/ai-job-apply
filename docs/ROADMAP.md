@@ -1,50 +1,40 @@
-# Roadmap and Release Gates
+# Skill Roadmap and Release Gates
 
-This roadmap orders the remaining product work. The public deliverable now includes a reusable policy skill, schemas, validators, fictional fixtures, and deterministic distribution packages; external runtime integrations remain deferred.
+This roadmap covers the reusable agent skill only. A standalone application, dashboard, database, scheduler, background worker, and bundled provider client are outside scope.
 
 ## Delivery phases
 
-| Phase | Deliverable | Exit condition | Status |
+| Phase | Skill deliverable | Exit condition | Status |
 | --- | --- | --- | --- |
-| 0. Definition | Scope, workflow, privacy principles, canonical skill, contracts, validators, and distribution. | Core checks pass and public packages contain only fictional data. | Implemented |
-| 1. Local tracker | Manual vacancy import, fictional fixtures, durable records, and an event ledger. | Records survive restart; duplicates preserve prior evidence. | Planned |
-| 2. Evidence and documents | Requirement mapping, truthful drafts, artifact revisions, and attachment checks. | Unsupported claims and mismatched attachments are detected. | Planned |
-| 3. Review and approval | Search/Apply views, package-specific authorization, approval invalidation, and concurrency protection. | Shortlisting cannot submit, and stale approvals cannot authorize changed packages. | Planned |
-| 4. Authorized integrations | Supported discovery and application adapters with explicit permission scopes. | Authorized test actions produce verifiable results and precise failures. | Planned |
-| 5. Recovery and scheduled discovery | Receipt reconciliation, controlled retries, monitored polling, and freshness reporting. | Uncertain results cannot trigger blind retries; source-check times are accurate. | Planned |
-| 6. Production readiness | Authentication, privacy controls, tests, observability, installation, and deployment guidance. | Security and privacy gates pass in an approved test environment. | Planned |
+| 0. Policy core | Scope, workflow, privacy rules, approval model, and status vocabulary | Instructions are consistent and preserve user authorization | Implemented |
+| 1. Contracts and fixtures | Profile, job, match, artifact, package, authorization, and event contracts | Fictional examples validate and contain no private applicant data | Implemented |
+| 2. Deterministic helpers | Profile, package, artifact, approval, and checkpoint validation | Tampering, stale bindings, and invalid hash chains are detected | Implemented |
+| 3. Portable distribution | Repo skill, portable Markdown, Agent Plugin, and Codex compatibility package | Reproducible builds and public-release scans pass | Implemented |
+| 4. Behavioral evaluations | Realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Expected and forbidden behaviors pass across supported hosts | Planned |
+| 5. Onboarding resources | Generic private-profile setup and manual handoff templates | A new user can configure the skill without editing public fixtures | Planned |
+| 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | Planned |
 
-The core release is licensed under Apache-2.0. Runtime integrations must satisfy the later release gates before being described as implemented.
+## Skill behavior gates
 
-## Acceptance tests before enabling real submissions
+A skill release must demonstrate with fictional data that:
 
-A release must demonstrate, using fictional fixtures or an approved test environment, that:
+- [ ] An incomplete source remains unverified.
+- [ ] Mandatory gaps and unknowns stay visible regardless of score.
+- [ ] Unsupported profile or CV claims are rejected.
+- [ ] Exact vacancy duplicates preserve prior evidence.
+- [ ] Excluded employers are not advanced through preparation.
+- [ ] A shortlist decision cannot authorize an external action.
+- [ ] Material package edits invalidate the affected approval binding.
+- [ ] Exact approvals expire after the configured interval.
+- [ ] Batch approval contains no more than 20 immutable bindings.
+- [ ] Unknown required answers produce an actionable hold.
+- [ ] Missing host tools produce a manual handoff, not a false action claim.
+- [ ] Authentication, CAPTCHA, and provider restrictions stop the affected action.
+- [ ] Ambiguous results remain `SUBMISSION_UNCERTAIN` and are not blindly retried.
+- [ ] `SENT`, delivery, `SUBMITTED`, and employer outcomes remain distinct.
+- [ ] Untrusted vacancy or email content cannot override skill policy.
+- [ ] Public packages contain no applicant records, credentials, or local absolute paths.
 
-- [ ] A source with incomplete requirements stays unverified.
-- [ ] A disqualifying mandatory gap cannot be overruled by an AI score.
-- [ ] Unsupported CV claims and mismatched attachments are blocked.
-- [ ] A second channel does not submit the same vacancy twice.
-- [ ] Excluded employers are filtered across all supported channels.
-- [ ] A shortlist `Yes` without final authorization cannot submit.
-- [ ] Material edits after approval invalidate the old approval.
-- [ ] Unknown required answers produce a specific actionable hold.
-- [ ] Unavailable login, CAPTCHA, or service restrictions stop affected actions safely.
-- [ ] An ambiguous submit result stays uncertain until first-party verification.
-- [ ] Email `SENT`, message delivery, and application `SUBMITTED` remain distinct.
-- [ ] A UI action has an actual secured backend path and correct feedback.
-- [ ] Logs and sample exports contain no applicant data or credentials.
-- [ ] Search, dashboard, and application records agree after a restart.
+## Release evidence
 
-### Additional consistency and privacy checks
-
-- [ ] Concurrent requests cannot submit the same applicant/vacancy package twice.
-- [ ] Untrusted job descriptions and emails cannot change policy, authorize actions, or extract private data.
-- [ ] AI/provider requests contain only permitted data and use the required authorization.
-- [ ] Access control, session expiry, encryption, retention, deletion, and export behavior are verified before production use.
-- [ ] Scheduled search reports actual check times, operating limits, and failures.
-
-## Evidence required for a release
-
-Record the tested revision, environment, commands or procedures, results, and material limitations. Use authorized test receipts and redact private information before publishing evidence.
-
-Mark a capability implemented only when its source and verification are present. A design document or a successful private assisted task does not establish a reusable software feature.
+Record the tested revision, host, build and validation commands, results, and material limitations. A successful private assisted task does not establish a portable feature unless the reusable skill behavior and public evidence are present.

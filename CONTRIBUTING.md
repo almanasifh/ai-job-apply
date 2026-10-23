@@ -1,6 +1,6 @@
 # Contributing
 
-This project is in the planning and documentation stage. Please keep proposed changes small and describe the behavior they add.
+This project packages a reusable agent skill. Keep proposed changes focused on skill behavior, references, deterministic helpers, fictional fixtures, compatibility, or distribution.
 
 ## Before publishing
 
@@ -10,13 +10,14 @@ This project is in the planning and documentation stage. Please keep proposed ch
 - Check staged files and their diff; `.gitignore` does not protect files already tracked by Git.
 - Use a GitHub-provided `noreply` address for public commit metadata if you want to keep your email private.
 
-## Product behavior
+## Skill behavior
 
 - Separate planned capabilities from working features in documentation.
 - Never invent an applicant's employment history, qualifications, answers, or submission results.
 - Keep human approval tied to a specific job, CV version, and set of answers.
 - Treat changed application content as requiring renewed approval.
-- Use only integrations the user has authorized and the service permits.
+- Use only host tools the user has authorized and the service permits.
+- Do not add a standalone app, dashboard, database, scheduler, or provider client without a separate explicit scope change.
 
 ## Reporting issues
 

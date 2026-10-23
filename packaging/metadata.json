@@ -1,8 +1,8 @@
 {
   "name": "job-application-manager",
   "skill_name": "manage-job-applications",
-  "version": "0.1.0",
-  "description": "Prepare, authorize, and track evidence-based job applications with privacy and submission safeguards.",
+  "version": "0.1.1",
+  "description": "Agent skill for preparing, authorizing, and tracking evidence-based job applications safely.",
   "author": "AI Job Apply contributors",
   "license": "Apache-2.0"
 }
