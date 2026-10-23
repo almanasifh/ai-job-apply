@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job_example-support-101",
+  "source_url": "https://jobs.example.invalid/example-support-101",
+  "source_job_id": "EX-101",
+  "employer": "Example Systems",
+  "role": "Software Support Specialist",
+  "location": "Remote",
+  "captured_at": "2026-01-02T10:00:00Z",
+  "checked_at": "2026-01-02T10:05:00Z",
+  "requirements": [
+    {
+      "id": "req_support",
+      "kind": "MANDATORY",
+      "text": "At least three years of customer support experience"
+    },
+    {
+      "id": "req_python",
+      "kind": "PREFERRED",
+      "text": "Experience automating workflows with Python"
+    }
+  ],
+  "content_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "canonical_identity": "example-systems|software-support-specialist|remote|EX-101"
+}

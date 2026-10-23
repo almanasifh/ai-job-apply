@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/event.schema.json",
+  "title": "Checkpoint event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "sequence", "application_id", "occurred_at", "event_type", "workflow_status", "actor", "attempt_id", "evidence_refs", "previous_event_hash", "event_hash"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "event_id": { "type": "string", "pattern": "^event_[a-z0-9-]+$" },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "application_id": { "type": "string" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "event_type": { "type": "string", "minLength": 1 },
+    "workflow_status": {
+      "enum": ["RESEARCHED", "ROUTED", "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION", "TECHNICAL_HOLD", "SUBMISSION_UNCERTAIN", "SENT", "SUBMITTED", "DELIVERY_FAILED", "SUBMISSION_FAILED", "SKIPPED"]
+    },
+    "actor": { "type": "string", "minLength": 1 },
+    "attempt_id": { "type": ["string", "null"] },
+    "evidence_refs": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "previous_event_hash": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+    "event_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

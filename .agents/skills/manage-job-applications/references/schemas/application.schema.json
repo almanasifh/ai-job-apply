@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/application.schema.json",
+  "title": "Immutable application package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "application_id", "version", "candidate_id", "job_id", "channel", "sender_account_ref", "destination", "message", "answers", "artifacts", "payload_digest"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "application_id": { "type": "string", "pattern": "^app_[a-z0-9-]+$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "candidate_id": { "type": "string" },
+    "job_id": { "type": "string" },
+    "channel": { "enum": ["EMAIL", "PORTAL", "LINKEDIN", "MANUAL"] },
+    "sender_account_ref": { "type": ["string", "null"] },
+    "destination": { "type": "string", "minLength": 1 },
+    "message": { "type": "string" },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question", "answer", "status", "evidence_ids"],
+        "properties": {
+          "question": { "type": "string", "minLength": 1 },
+          "answer": { "type": ["string", "number", "integer", "boolean", "null"] },
+          "status": { "enum": ["VERIFIED", "UNKNOWN"] },
+          "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+        }
+      }
+    },
+    "artifacts": { "type": "array", "items": { "$ref": "artifact.schema.json" } },
+    "payload_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

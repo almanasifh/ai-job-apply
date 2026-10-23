@@ -1,12 +1,12 @@
 # Roadmap and Release Gates
 
-This roadmap orders the proposed software work. The public deliverable currently consists of documentation and contribution/ignore safeguards.
+This roadmap orders the remaining product work. The public deliverable now includes a reusable policy skill, schemas, validators, fictional fixtures, and deterministic distribution packages; external runtime integrations remain deferred.
 
 ## Delivery phases
 
 | Phase | Deliverable | Exit condition | Status |
 | --- | --- | --- | --- |
-| 0. Definition | Scope, workflow, privacy principles, design, and contribution rules. | Documentation is consistent and contains no applicant records. | Documented |
+| 0. Definition | Scope, workflow, privacy principles, canonical skill, contracts, validators, and distribution. | Core checks pass and public packages contain only fictional data. | Implemented |
 | 1. Local tracker | Manual vacancy import, fictional fixtures, durable records, and an event ledger. | Records survive restart; duplicates preserve prior evidence. | Planned |
 | 2. Evidence and documents | Requirement mapping, truthful drafts, artifact revisions, and attachment checks. | Unsupported claims and mismatched attachments are detected. | Planned |
 | 3. Review and approval | Search/Apply views, package-specific authorization, approval invalidation, and concurrency protection. | Shortlisting cannot submit, and stale approvals cannot authorize changed packages. | Planned |
@@ -14,7 +14,7 @@ This roadmap orders the proposed software work. The public deliverable currently
 | 5. Recovery and scheduled discovery | Receipt reconciliation, controlled retries, monitored polling, and freshness reporting. | Uncertain results cannot trigger blind retries; source-check times are accurate. | Planned |
 | 6. Production readiness | Authentication, privacy controls, tests, observability, installation, and deployment guidance. | Security and privacy gates pass in an approved test environment. | Planned |
 
-Choose a software license before presenting a release as licensed open-source software. This roadmap does not select a license.
+The core release is licensed under Apache-2.0. Runtime integrations must satisfy the later release gates before being described as implemented.
 
 ## Acceptance tests before enabling real submissions
 

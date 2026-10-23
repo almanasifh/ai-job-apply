@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/job.schema.json",
+  "title": "Captured vacancy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "job_id", "source_url", "source_job_id", "employer", "role", "location", "captured_at", "checked_at", "requirements", "content_digest", "canonical_identity"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "job_id": { "type": "string", "pattern": "^job_[a-z0-9-]+$" },
+    "source_url": { "type": "string", "format": "uri" },
+    "source_job_id": { "type": ["string", "null"] },
+    "employer": { "type": "string", "minLength": 1 },
+    "role": { "type": "string", "minLength": 1 },
+    "location": { "type": "string", "minLength": 1 },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "checked_at": { "type": "string", "format": "date-time" },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "text"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^req_[a-z0-9-]+$" },
+          "kind": { "enum": ["MANDATORY", "PREFERRED"] },
+          "text": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "content_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "canonical_identity": { "type": "string", "minLength": 1 }
+  }
+}

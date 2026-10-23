@@ -1,0 +1,4 @@
+interface:
+  display_name: "Job Application Manager"
+  short_description: "Prepare and track evidence-based applications"
+  default_prompt: "Use $manage-job-applications to prepare and track an evidence-based job application."

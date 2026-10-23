@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/answers.schema.json",
+  "title": "Candidate answer library",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "answers"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "candidate_id": { "type": "string", "pattern": "^cand_[a-z0-9-]+$" },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question_key", "scope", "status", "answer", "evidence_ids", "reviewed_at"],
+        "properties": {
+          "question_key": { "type": "string", "minLength": 1 },
+          "scope": { "enum": ["GLOBAL", "COUNTRY", "EMPLOYER", "JOB"] },
+          "status": { "enum": ["VERIFIED", "UNKNOWN", "CONFLICTING"] },
+          "answer": { "type": ["string", "number", "integer", "boolean", "null"] },
+          "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "reviewed_at": { "type": ["string", "null"], "format": "date-time" }
+        }
+      }
+    }
+  }
+}

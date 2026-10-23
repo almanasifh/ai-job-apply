@@ -1,0 +1,18 @@
+{
+  "name": "job-application-manager",
+  "version": "0.1.0",
+  "description": "Prepare, authorize, and track evidence-based job applications with privacy and submission safeguards.",
+  "author": {
+    "name": "AI Job Apply contributors"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Job Application Manager",
+    "shortDescription": "Prepare evidence-based job applications safely.",
+    "longDescription": "Adds a privacy-conscious workflow for job discovery, evidence matching, package preparation, exact approvals, and checkpoint tracking.",
+    "developerName": "AI Job Apply contributors",
+    "category": "Productivity",
+    "capabilities": ["Skills"],
+    "defaultPrompt": "Use $manage-job-applications to prepare and track an evidence-based job application."
+  }
+}

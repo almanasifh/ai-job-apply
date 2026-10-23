@@ -1,0 +1,81 @@
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
+DEFAULT_OUTPUT = REPO_ROOT / "dist" / "portable" / "manage-job-applications.md"
+
+
+def read_text(path: Path) -> str:
+    return path.read_text(encoding="utf-8").replace("\r\n", "\n").rstrip() + "\n"
+
+
+def skill_body(text: str) -> str:
+    match = re.match(r"\A---\n.*?\n---\n", text, flags=re.DOTALL)
+    if not match:
+        raise ValueError("SKILL.md must start with YAML frontmatter")
+    return text[match.end():].strip()
+
+
+def source_files() -> list[Path]:
+    files = [SKILL_ROOT / "SKILL.md"]
+    files.extend(sorted((SKILL_ROOT / "references").glob("*.md"), key=lambda path: path.name))
+    files.extend(sorted((SKILL_ROOT / "references" / "schemas").glob("*.schema.json"), key=lambda path: path.name))
+    files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*"), key=lambda path: path.name))
+    files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt"), key=lambda path: path.name))
+    return files
+
+
+def render() -> bytes:
+    metadata = json.loads(read_text(REPO_ROOT / "packaging" / "metadata.json"))
+    files = source_files()
+    source_digest = hashlib.sha256()
+    for path in files:
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        source_digest.update(relative.encode("utf-8") + b"\0")
+        source_digest.update(path.read_bytes().replace(b"\r\n", b"\n") + b"\0")
+
+    sections = [
+        "# Job Application Manager — Portable Skill",
+        "",
+        f"Version: `{metadata['version']}`  ",
+        f"License: `{metadata['license']}`  ",
+        f"Source digest: `{source_digest.hexdigest()}`",
+        "",
+        "This generated file is a self-contained, non-executable edition of the canonical repository skill. It uses fictional examples only. Keep private profiles and credentials outside this file.",
+        "",
+        skill_body(read_text(SKILL_ROOT / "SKILL.md")),
+    ]
+
+    for path in files[1:]:
+        relative = path.relative_to(SKILL_ROOT).as_posix()
+        content = read_text(path).strip()
+        sections.extend(["", "---", "", f"## Embedded Source: `{relative}`", ""])
+        if path.suffix == ".md":
+            sections.append(content)
+        else:
+            language = "json" if ".json" in path.name else "text"
+            sections.extend([f"```{language}", content, "```"])
+
+    return ("\n".join(sections).rstrip() + "\n").encode("utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build the deterministic portable Markdown skill.")
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    args = parser.parse_args()
+    output = args.output.resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(render())
+    print(f"BUILT: {output}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "application_id": "app_example-support-101",
+  "version": 1,
+  "candidate_id": "cand_jordan-example",
+  "job_id": "job_example-support-101",
+  "channel": "MANUAL",
+  "sender_account_ref": null,
+  "destination": "Example Systems careers portal",
+  "message": "Please consider my application for the Software Support Specialist role.",
+  "answers": [
+    {
+      "question": "How many years of customer support experience do you have?",
+      "answer": 4,
+      "status": "VERIFIED",
+      "evidence_ids": ["fact_support-years"]
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "artifact_fictional-resume",
+      "candidate_id": "cand_jordan-example",
+      "application_id": "app_example-support-101",
+      "path": "fictional-resume.txt",
+      "media_type": "text/plain",
+      "byte_count": 129,
+      "sha256": "6a3bf9d043b5e78556e2155eb7aa4cfefbac72295367b99156d4bdaba3b21553",
+      "qa_status": "PASSED",
+      "source_fact_ids": ["fact_support-years", "fact_python"]
+    }
+  ],
+  "payload_digest": "5173cb762ca5ebb90cec3a4f11d40f547ff54ca3e1b4e40e23627d016dcdd657"
+}

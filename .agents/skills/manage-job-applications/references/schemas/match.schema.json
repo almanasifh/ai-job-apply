@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/match.schema.json",
+  "title": "Requirement evidence mapping",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "job_id", "decision", "requirements"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "candidate_id": { "type": "string" },
+    "job_id": { "type": "string" },
+    "decision": { "enum": ["PROCEED", "REVIEW", "BLOCKED", "SKIP"] },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["requirement_id", "state", "evidence_ids", "note"],
+        "properties": {
+          "requirement_id": { "type": "string" },
+          "state": { "enum": ["SUPPORTED", "PARTIAL", "GAP", "UNKNOWN", "NOT_APPLICABLE"] },
+          "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

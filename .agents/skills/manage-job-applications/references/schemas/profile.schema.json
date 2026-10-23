@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/profile.schema.json",
+  "title": "Candidate profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "display_name", "facts", "preferences", "exclusions"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "candidate_id": { "type": "string", "pattern": "^cand_[a-z0-9-]+$" },
+    "display_name": { "type": "string", "minLength": 1 },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "key", "value", "status", "source", "verified_at", "allowed_uses"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^fact_[a-z0-9-]+$" },
+          "key": { "type": "string", "minLength": 1 },
+          "value": {},
+          "status": { "enum": ["VERIFIED", "UNKNOWN", "CONFLICTING"] },
+          "source": { "type": "string", "minLength": 1 },
+          "verified_at": { "type": ["string", "null"], "format": "date-time" },
+          "allowed_uses": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "enum": ["CV", "COVER_LETTER", "SCREENING", "CONTACT"] }
+          }
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_roles", "locations", "channels"],
+      "properties": {
+        "target_roles": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "locations": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "channels": { "type": "array", "uniqueItems": true, "items": { "enum": ["EMAIL", "PORTAL", "LINKEDIN", "MANUAL"] } }
+      }
+    },
+    "exclusions": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+  }
+}

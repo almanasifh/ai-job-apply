@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "cand_jordan-example",
+  "job_id": "job_example-support-101",
+  "decision": "PROCEED",
+  "requirements": [
+    {
+      "requirement_id": "req_support",
+      "state": "SUPPORTED",
+      "evidence_ids": ["fact_support-years"],
+      "note": "Four verified years satisfy the three-year requirement."
+    },
+    {
+      "requirement_id": "req_python",
+      "state": "SUPPORTED",
+      "evidence_ids": ["fact_python"],
+      "note": "The fictional project record supports Python automation experience."
+    }
+  ]
+}

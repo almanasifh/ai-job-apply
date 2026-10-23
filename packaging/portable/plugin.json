@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "job-application-manager",
+  "version": "0.1.0",
+  "description": "Prepare, authorize, and track evidence-based job applications with privacy and submission safeguards.",
+  "author": {
+    "name": "AI Job Apply contributors"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "job-applications",
+    "privacy",
+    "approvals",
+    "evidence"
+  ]
+}
