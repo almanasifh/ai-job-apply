@@ -27,7 +27,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added portable Markdown and dual plugin staging with reproducible ZIP archives.
 - Added fictional behavioral evaluations and deterministic catalog validation.
 - Added private-profile, answer, exact-review, and manual-handoff templates.
-- Added Apache-2.0 licensing and skill-only documentation.
+- Added MIT licensing and skill-only documentation.
 
 ## Failed attempts
 

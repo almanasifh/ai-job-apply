@@ -31,9 +31,22 @@ class PackagingTests(unittest.TestCase):
         manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
 
+    def test_release_metadata_uses_mit_license(self) -> None:
+        metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+        portable_manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
+        codex_manifest = json.loads((REPO_ROOT / "packaging" / "codex-plugin-template" / metadata["name"] / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        license_content = (REPO_ROOT / "LICENSE").read_bytes()
+        self.assertEqual(metadata["license"], "MIT")
+        self.assertEqual(portable_manifest["license"], metadata["license"])
+        self.assertEqual(codex_manifest["license"], metadata["license"])
+        self.assertTrue(license_content.startswith(b"MIT License\n"))
+
     def test_staged_archives_are_reproducible(self) -> None:
         stage_plugin.build()
         metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+        license_content = (REPO_ROOT / "LICENSE").read_bytes()
+        self.assertEqual((REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
+        self.assertEqual((REPO_ROOT / "dist" / "codex-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
         archives = [
             REPO_ROOT / "dist" / f"{metadata['name']}-portable.zip",
             REPO_ROOT / "dist" / f"{metadata['name']}-codex.zip",

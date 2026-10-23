@@ -5,6 +5,7 @@
   "author": {
     "name": "AI Job Apply contributors"
   },
+  "license": "MIT",
   "skills": "./skills/",
   "interface": {
     "displayName": "Job Application Manager",

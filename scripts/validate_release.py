@@ -33,7 +33,7 @@ def load_module(name: str, path: Path) -> Any:
     return module
 
 
-def validate_manifest(path: Path, *, portable: bool) -> None:
+def validate_manifest(path: Path, *, portable: bool, expected_license: str) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     required = {"name", "version", "description", "author"}
     missing = required - data.keys()
@@ -41,6 +41,8 @@ def validate_manifest(path: Path, *, portable: bool) -> None:
         raise ValueError(f"{path} is missing {sorted(missing)}")
     if portable and data.get("$schema") != "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json":
         raise ValueError(f"{path} has the wrong portable schema")
+    if data.get("license") != expected_license:
+        raise ValueError(f"{path} does not declare {expected_license}")
     if not portable and "interface" not in data:
         raise ValueError(f"{path} is missing interface metadata")
     if "TODO" in path.read_text(encoding="utf-8"):
@@ -76,6 +78,14 @@ def validate_zip(path: Path, expected_prefix: str) -> None:
             raise ValueError(f"Archive timestamps are not normalized: {path}")
 
 
+def validate_license(path: Path, expected: bytes) -> None:
+    content = path.read_bytes()
+    if content != expected:
+        raise ValueError(f"{path} does not match the repository license")
+    if not content.startswith(b"MIT License\n"):
+        raise ValueError(f"{path} is not an MIT license")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate staged public release artifacts.")
     parser.add_argument("--dist", type=Path, default=DIST_ROOT)
@@ -88,10 +98,15 @@ def main() -> int:
     evaluation_validator = load_module("evaluation_validator", REPO_ROOT / "scripts" / "validate_evals.py")
 
     metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+    if metadata.get("license") != "MIT":
+        raise ValueError("packaging/metadata.json must declare MIT")
     portable = args.dist / "portable-plugin" / metadata["name"]
     codex = args.dist / "codex-plugin" / metadata["name"]
-    validate_manifest(portable / "plugin.json", portable=True)
-    validate_manifest(codex / ".codex-plugin" / "plugin.json", portable=False)
+    validate_manifest(portable / "plugin.json", portable=True, expected_license=metadata["license"])
+    validate_manifest(codex / ".codex-plugin" / "plugin.json", portable=False, expected_license=metadata["license"])
+    license_content = (REPO_ROOT / "LICENSE").read_bytes()
+    validate_license(portable / "LICENSE", license_content)
+    validate_license(codex / "LICENSE", license_content)
     scan_tree(portable)
     scan_tree(codex)
     validate_zip(args.dist / f"{metadata['name']}-portable.zip", metadata["name"])

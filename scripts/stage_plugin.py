@@ -66,6 +66,8 @@ def build() -> list[Path]:
     codex_manifest = json.loads((REPO_ROOT / "packaging" / "codex-plugin-template" / metadata["name"] / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
     if portable_manifest["version"] != metadata["version"] or codex_manifest["version"] != metadata["version"]:
         raise ValueError("Manifest versions must match packaging/metadata.json")
+    if portable_manifest.get("license") != metadata["license"] or codex_manifest.get("license") != metadata["license"]:
+        raise ValueError("Manifest licenses must match packaging/metadata.json")
 
     write_json(portable_root / "plugin.json", portable_manifest)
     write_json(codex_root / ".codex-plugin" / "plugin.json", codex_manifest)
