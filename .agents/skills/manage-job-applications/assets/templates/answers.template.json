@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "cand_replace-me",
+  "answers": [
+    {
+      "question_key": "replace_with_stable_question_key",
+      "scope": "GLOBAL",
+      "status": "UNKNOWN",
+      "answer": null,
+      "evidence_ids": [],
+      "reviewed_at": null
+    }
+  ]
+}

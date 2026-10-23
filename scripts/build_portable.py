@@ -29,6 +29,12 @@ def source_files() -> list[Path]:
     files.extend(sorted((SKILL_ROOT / "references" / "schemas").glob("*.schema.json"), key=lambda path: path.name))
     files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*"), key=lambda path: path.name))
     files.extend(sorted((SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt"), key=lambda path: path.name))
+    files.extend(
+        sorted(
+            (path for path in (SKILL_ROOT / "assets" / "templates").rglob("*") if path.is_file()),
+            key=lambda path: path.relative_to(SKILL_ROOT).as_posix(),
+        )
+    )
     return files
 
 

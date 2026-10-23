@@ -85,6 +85,7 @@ def main() -> int:
     profile_validator = load_module("profile_validator", SKILL_ROOT / "scripts" / "validate_profile.py")
     application_validator = load_module("application_validator", SKILL_ROOT / "scripts" / "validate_application.py")
     checkpoint_validator = load_module("checkpoint_validator", SKILL_ROOT / "scripts" / "validate_checkpoint.py")
+    evaluation_validator = load_module("evaluation_validator", REPO_ROOT / "scripts" / "validate_evals.py")
 
     metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
     portable = args.dist / "portable-plugin" / metadata["name"]
@@ -104,7 +105,11 @@ def main() -> int:
         common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
     )
     checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(ASSETS / "checkpoint.jsonl"))
-    print("VALID: staged release, manifests, archives, fixtures, and hash chains")
+    evaluation_validator.validate_catalog(
+        evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
+        repo_root=REPO_ROOT,
+    )
+    print("VALID: staged release, manifests, archives, fixtures, hash chains, and evaluation catalog")
     return 0
 
 

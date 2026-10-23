@@ -24,6 +24,7 @@ Use this agent skill as a policy and workflow layer, not as a standalone applica
 
 - Confirm the candidate, target roles, locations, exclusions, channels, and permitted facts.
 - Read [profiles.md](references/profiles.md) before using profile data.
+- If no private profile exists or the user asks to configure one, read [onboarding.md](references/onboarding.md) and copy its templates to a private location.
 - If the source profile is incomplete or contradictory, create a specific `NEEDS_INPUT` or `NEEDS_VERIFICATION` hold.
 
 ### 2. Capture and verify the vacancy
@@ -54,7 +55,7 @@ Use this agent skill as a policy and workflow layer, not as a standalone applica
 
 - Read [channels.md](references/channels.md) before any external action.
 - Verify the active account/session and destination immediately before submission.
-- If no authorized connector exists, produce a handoff package instead of claiming submission.
+- If no authorized connector exists, use the manual handoff template described in [onboarding.md](references/onboarding.md) instead of claiming submission.
 
 ### 7. Record evidence and state
 

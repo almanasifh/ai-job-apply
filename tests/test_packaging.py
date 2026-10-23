@@ -23,6 +23,8 @@ class PackagingTests(unittest.TestCase):
         second = build_portable.render()
         self.assertEqual(first, second)
         self.assertIn(b"Portable Skill", first)
+        self.assertIn(b"application-review.template.md", first)
+        self.assertIn(b"manual-handoff.template.md", first)
         self.assertNotIn(b"C:\\Users\\", first)
 
     def test_portable_manifest_uses_standard_schema(self) -> None:

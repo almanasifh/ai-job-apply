@@ -23,6 +23,7 @@ The stage command creates normalized ZIP archives as well as unpacked plugin fol
 
 ```powershell
 python scripts/validate_release.py
+python scripts/validate_evals.py
 python -m unittest discover -s tests -v
 $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
 python (Join-Path $codexHome 'skills\.system\skill-creator\scripts\quick_validate.py') .agents\skills\manage-job-applications

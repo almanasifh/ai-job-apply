@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "cand_replace-me",
+  "display_name": "Replace with candidate display name",
+  "facts": [
+    {
+      "id": "fact_replace-me",
+      "key": "replace_me",
+      "value": null,
+      "status": "UNKNOWN",
+      "source": "candidate input pending",
+      "verified_at": null,
+      "allowed_uses": []
+    }
+  ],
+  "preferences": {
+    "target_roles": [],
+    "locations": [],
+    "channels": []
+  },
+  "exclusions": []
+}

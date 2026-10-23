@@ -43,11 +43,11 @@ Missing host capabilities result in analysis, preparation, validation, or a manu
 
 ### Phase 4 — Behavioral evaluations
 
-Add fictional evaluation scenarios that test evidence grounding, exclusions, duplicate handling, exact approval, batch limits, host-tool absence, prompt injection, and uncertain outcomes.
+The fictional scenario catalog and deterministic catalog validator are implemented. Cross-host behavior runs still need recorded evidence for evidence grounding, exclusions, duplicate handling, exact approval, batch limits, host-tool absence, prompt injection, uncertain outcomes, and language alignment.
 
 ### Phase 5 — Onboarding and handoff assets
 
-Add generic templates for creating a private candidate profile, collecting unresolved answers, reviewing an exact package, and handing off a manual application without copying private examples into the repository.
+Generic templates are implemented for a private candidate profile, scoped answers, exact-package review, and manual application handoff. The onboarding reference directs agents to copy them into private working locations rather than editing public fixtures.
 
 ### Phase 6 — Compatibility hardening
 

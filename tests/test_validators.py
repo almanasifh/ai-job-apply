@@ -31,6 +31,10 @@ class ContractTests(unittest.TestCase):
     def test_fictional_profile_is_valid(self) -> None:
         validate_profile(load_json(ASSETS / "profile.json"))
 
+    def test_private_profile_template_is_valid(self) -> None:
+        template = SKILL_ROOT / "assets" / "templates" / "profile.template.json"
+        validate_profile(load_json(template))
+
     def test_duplicate_profile_fact_is_rejected(self) -> None:
         profile = load_json(ASSETS / "profile.json")
         profile["facts"].append(copy.deepcopy(profile["facts"][0]))

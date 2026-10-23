@@ -11,6 +11,8 @@ The repository now includes a working core release:
 - a canonical repo skill at `.agents/skills/manage-job-applications/`;
 - formal JSON data contracts and fictional fixtures;
 - deterministic profile, package, approval, artifact, and checkpoint validators;
+- fictional behavioral evaluation scenarios with expected and forbidden outcomes;
+- generic private-profile, exact-review, and manual-handoff templates;
 - a self-contained portable Markdown builder;
 - portable Agent Plugin and Codex compatibility package builders;
 - reproducible ZIP archives and a public-release privacy scan;
@@ -38,6 +40,7 @@ Validate the fictional example:
 python .agents/skills/manage-job-applications/scripts/validate_profile.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
 python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_checkpoint.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/checkpoint.jsonl
+python scripts/validate_evals.py
 ```
 
 Build all distributable forms:
@@ -71,6 +74,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
 - [Current status](docs/STATUS.md)
 - [Compatibility](docs/COMPATIBILITY.md)
+- [Behavioral evaluations](docs/EVALUATIONS.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

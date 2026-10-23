@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-The skill core and four distribution forms are implemented. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Skill-only version 0.2.0 includes the core workflow, four distribution forms, a fictional behavioral evaluation catalog, and generic onboarding/handoff templates. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
@@ -16,6 +16,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - `packaging/` — portable Agent Plugin and Codex compatibility manifest sources.
 - `scripts/` — deterministic skill builders and release checks.
 - `tests/` — contract and packaging tests.
+- `evals/` — fictional behavioral scenarios with expected and forbidden outcomes.
 - `docs/` — skill scope, design, compatibility, and release guidance.
 
 ## Changes made
@@ -24,6 +25,8 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added formal contracts and fictional end-to-end fixtures.
 - Added RFC 8785-subset canonicalization, SHA-256 hashing, and semantic validators.
 - Added portable Markdown and dual plugin staging with reproducible ZIP archives.
+- Added fictional behavioral evaluations and deterministic catalog validation.
+- Added private-profile, answer, exact-review, and manual-handoff templates.
 - Added Apache-2.0 licensing and skill-only documentation.
 
 ## Failed attempts
@@ -34,10 +37,9 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Add fictional behavioral evaluation scenarios for the skill.
-2. Add generic private-profile onboarding and manual-handoff templates.
-3. Test skill loading across documented compatible hosts.
-4. Publish a versioned skill package after the release gates pass.
+1. Execute and record the fictional scenarios across documented compatible hosts.
+2. Add any narrow skill corrections demonstrated by those runs.
+3. Publish the validated 0.2.0 skill packages.
 
 ## Evidence boundary
 
