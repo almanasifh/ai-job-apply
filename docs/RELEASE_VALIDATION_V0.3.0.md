@@ -29,7 +29,12 @@ The original ten scenarios retain their recorded version 0.2.0 cross-host eviden
 
 ## Continuous integration
 
-Protected-branch Windows and Linux CI must pass before merge and publication. The final CI result is recorded in the pull request and GitHub Actions run history.
+Pull request [#1](https://github.com/almanasifh/ai-job-apply/pull/1) passed both matrix jobs in GitHub Actions run `40087724726`:
+
+- `Validate on ubuntu-latest`: passed;
+- `Validate on windows-latest`: passed.
+
+The implementation commit was `cb73e33`. Any later commit in the pull request is limited to release evidence and must pass the same protected checks before merge.
 
 ## Privacy
 
@@ -42,4 +47,4 @@ All packaged examples are fictional. The generated archives contain no creator c
 
 ## Release decision
 
-Local deterministic and behavioral gates pass. Publication is authorized after the protected pull request passes both CI jobs and is merged without changing packaged content.
+Local deterministic, cross-format behavioral, and protected CI gates pass. Version 0.3.0 is eligible for merge, tagging, and publication if later pull-request checks remain green and packaged content does not change.

@@ -39,6 +39,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Hardened portable manifest validation and privacy scanning.
 - Expanded the behavioral catalog from ten to eighteen scenarios and added cross-platform CI.
 - Passed all eight added scenarios against both the canonical skill and standalone portable Markdown.
+- Passed the version 0.3.0 pull request on both Windows and Linux CI.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
 ## Failed attempts
