@@ -8,6 +8,7 @@ from typing import Any
 from common import (
     ValidationError,
     load_json,
+    require_enum,
     require_list,
     require_object,
     require_string,
@@ -16,6 +17,10 @@ from common import (
 )
 from validate_job import validate_job
 from validate_profile import validate_profile
+
+
+REQUIREMENT_STATES = {"SUPPORTED", "PARTIAL", "GAP", "UNKNOWN", "NOT_APPLICABLE"}
+BLOCKING_STATES = {"GAP", "UNKNOWN"}
 
 
 def validate_match(match: Any, job: Any, profile: Any) -> None:
@@ -49,7 +54,7 @@ def validate_match(match: Any, job: Any, profile: Any) -> None:
         if requirement_id in mapped_ids:
             raise ValidationError(f"{label}.requirement_id is duplicated")
         mapped_ids.add(requirement_id)
-        state = mapping["state"]
+        state = require_enum(mapping["state"], REQUIREMENT_STATES, f"{label}.state")
         mapped_states[requirement_id] = state
         evidence_ids = unique_strings(mapping["evidence_ids"], f"{label}.evidence_ids")
         missing_evidence = sorted(set(evidence_ids) - profile_facts.keys())
@@ -76,7 +81,7 @@ def validate_match(match: Any, job: Any, profile: Any) -> None:
         blocking = sorted(
             requirement_id
             for requirement_id, requirement in job_requirements.items()
-            if requirement["kind"] == "MANDATORY" and mapped_states[requirement_id] in {"GAP", "UNKNOWN"}
+            if requirement["kind"] == "MANDATORY" and mapped_states[requirement_id] in BLOCKING_STATES
         )
         if blocking:
             raise ValidationError(f"match.decision cannot be PROCEED with unresolved mandatory requirements: {', '.join(blocking)}")

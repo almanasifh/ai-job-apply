@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +14,7 @@ SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 ASSETS = SKILL_ROOT / "assets" / "fictional-profile-pack"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
+import common
 from common import ValidationError, canonical_digest, canonical_json_bytes, load_json, parse_datetime
 from validate_answers import validate_answers
 from validate_application import validate_application, validate_authorization
@@ -36,6 +38,17 @@ class CanonicalJsonTests(unittest.TestCase):
             path.write_text('{"candidate_id":"first","candidate_id":"second"}', encoding="utf-8")
             with self.assertRaisesRegex(ValidationError, "duplicate key"):
                 load_json(path)
+
+    def test_schema_documents_are_cached_until_changed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            schema_root = Path(directory)
+            schema_path = schema_root / "test.schema.json"
+            schema_path.write_text('{"type":"string"}', encoding="utf-8")
+            common._load_schema_cached.cache_clear()
+            with mock.patch.object(common, "load_json", wraps=common.load_json) as loader:
+                common.validate_against_schema("first", "test.schema.json", "value", schema_root=schema_root)
+                common.validate_against_schema("second", "test.schema.json", "value", schema_root=schema_root)
+            self.assertEqual(loader.call_count, 1)
 
 
 class ContractTests(unittest.TestCase):
@@ -90,8 +103,9 @@ class ContractTests(unittest.TestCase):
         application = load_json(ASSETS / "application.json")
         application["artifacts"][0]["qa_status"] = "FAILED"
         application["payload_digest"] = canonical_digest(application, omit={"payload_digest"})
-        with self.assertRaisesRegex(ValidationError, "PASSED"):
-            validate_application(application, ASSETS)
+        with mock.patch("validate_application.validate_against_schema"):
+            with self.assertRaisesRegex(ValidationError, "PASSED"):
+                validate_application(application, ASSETS)
 
     def test_material_application_change_invalidates_digest(self) -> None:
         application = load_json(ASSETS / "application.json")
@@ -129,6 +143,20 @@ class ContractTests(unittest.TestCase):
                 parse_datetime("2098-12-31T23:59:59Z", "test time"),
             )
 
+    def test_batch_authorization_rejects_duplicate_targets(self) -> None:
+        validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
+        authorization = load_json(ASSETS / "authorization.json")
+        authorization["scope"] = "BATCH"
+        duplicate = copy.deepcopy(authorization["bindings"][0])
+        duplicate["payload_digest"] = "0" * 64
+        authorization["bindings"].append(duplicate)
+        with self.assertRaisesRegex(ValidationError, "duplicates an application target"):
+            validate_authorization(
+                authorization,
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
     def test_unknown_answer_cannot_claim_a_value(self) -> None:
         answers = load_json(ASSETS / "answers.json")
         answers["answers"][1]["answer"] = "yes"
@@ -143,6 +171,15 @@ class ContractTests(unittest.TestCase):
         match["requirements"][0]["evidence_ids"] = []
         with self.assertRaisesRegex(ValidationError, "cannot be PROCEED"):
             validate_match(match, job, profile)
+
+    def test_match_state_is_code_enforced_when_schema_is_bypassed(self) -> None:
+        profile = load_json(ASSETS / "profile.json")
+        job = load_json(ASSETS / "job.json")
+        match = load_json(ASSETS / "match.json")
+        match["requirements"][0]["state"] = "WAIVED"
+        with mock.patch("validate_match.validate_against_schema"):
+            with self.assertRaisesRegex(ValidationError, "must be one of"):
+                validate_match(match, job, profile)
 
     def test_checkpoint_hash_chain_is_valid(self) -> None:
         validate_checkpoint(load_events(ASSETS / "checkpoint.jsonl"))
@@ -176,6 +213,12 @@ class ContractTests(unittest.TestCase):
         events[1]["event_hash"] = canonical_digest(events[1], omit={"event_hash"})
         with self.assertRaisesRegex(ValidationError, "earlier than"):
             validate_checkpoint(events)
+
+    def test_checkpoint_equal_timestamps_use_sequence_order(self) -> None:
+        events = load_events(ASSETS / "checkpoint.jsonl")
+        events[1]["occurred_at"] = events[0]["occurred_at"]
+        events[1]["event_hash"] = canonical_digest(events[1], omit={"event_hash"})
+        validate_checkpoint(events)
 
     def test_all_schema_documents_are_json(self) -> None:
         schemas = SKILL_ROOT / "references"

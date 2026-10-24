@@ -96,9 +96,7 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
         require_string(artifact["media_type"], f"{label}.media_type")
         expected_bytes = require_integer(artifact["byte_count"], f"{label}.byte_count", minimum=0)
         expected_hash = require_sha256(artifact["sha256"], f"{label}.sha256")
-        qa_status = require_enum(artifact["qa_status"], {"PASSED", "FAILED", "PENDING"}, f"{label}.qa_status")
-        if qa_status != "PASSED":
-            raise ValidationError(f"{label}.qa_status must be PASSED for an immutable application package")
+        require_enum(artifact["qa_status"], {"PASSED"}, f"{label}.qa_status")
         unique_strings(artifact["source_fact_ids"], f"{label}.source_fact_ids")
         resolved = resolve_within(artifact_root, relative_path)
         if not resolved.is_file():
@@ -144,13 +142,23 @@ def validate_authorization(authorization: Any, validated: dict[str, Any], at: da
 
     application = validated["application"]
     matching = 0
+    binding_keys: set[tuple[str, int, str, str | None, str]] = set()
     for index, raw_binding in enumerate(bindings):
         label = f"authorization.bindings[{index}]"
         binding = require_object(raw_binding, label)
         require_keys(binding, BINDING_FIELDS, label)
         reject_extra_keys(binding, BINDING_FIELDS, label)
-        require_integer(binding["version"], f"{label}.version", minimum=1)
-        require_enum(binding["channel"], CHANNELS, f"{label}.channel")
+        application_id = require_string(binding["application_id"], f"{label}.application_id")
+        version = require_integer(binding["version"], f"{label}.version", minimum=1)
+        channel = require_enum(binding["channel"], CHANNELS, f"{label}.channel")
+        sender_account_ref = binding["sender_account_ref"]
+        if sender_account_ref is not None:
+            sender_account_ref = require_string(sender_account_ref, f"{label}.sender_account_ref")
+        destination = require_string(binding["destination"], f"{label}.destination")
+        binding_key = (application_id, version, channel, sender_account_ref, destination)
+        if binding_key in binding_keys:
+            raise ValidationError(f"{label} duplicates an application target in the authorization batch")
+        binding_keys.add(binding_key)
         require_sha256(binding["payload_digest"], f"{label}.payload_digest")
         artifact_hashes = require_list(binding["artifact_hashes"], f"{label}.artifact_hashes")
         for hash_index, digest in enumerate(artifact_hashes):
