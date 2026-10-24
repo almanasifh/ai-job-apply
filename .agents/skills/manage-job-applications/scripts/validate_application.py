@@ -22,6 +22,7 @@ from common import (
     require_string,
     resolve_within,
     unique_strings,
+    validate_against_schema,
 )
 
 
@@ -46,6 +47,7 @@ AUTHORIZATION_FIELDS = {
 
 
 def validate_application(application: Any, artifact_root: Path) -> dict[str, Any]:
+    validate_against_schema(application, "application.schema.json", "application")
     data = require_object(application, "application")
     require_keys(data, APPLICATION_FIELDS, "application")
     reject_extra_keys(data, APPLICATION_FIELDS, "application")
@@ -94,7 +96,9 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
         require_string(artifact["media_type"], f"{label}.media_type")
         expected_bytes = require_integer(artifact["byte_count"], f"{label}.byte_count", minimum=0)
         expected_hash = require_sha256(artifact["sha256"], f"{label}.sha256")
-        require_enum(artifact["qa_status"], {"PASSED", "FAILED", "PENDING"}, f"{label}.qa_status")
+        qa_status = require_enum(artifact["qa_status"], {"PASSED", "FAILED", "PENDING"}, f"{label}.qa_status")
+        if qa_status != "PASSED":
+            raise ValidationError(f"{label}.qa_status must be PASSED for an immutable application package")
         unique_strings(artifact["source_fact_ids"], f"{label}.source_fact_ids")
         resolved = resolve_within(artifact_root, relative_path)
         if not resolved.is_file():
@@ -112,6 +116,7 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
 
 
 def validate_authorization(authorization: Any, validated: dict[str, Any], at: datetime) -> None:
+    validate_against_schema(authorization, "authorization.schema.json", "authorization")
     data = require_object(authorization, "authorization")
     require_keys(data, AUTHORIZATION_FIELDS, "authorization")
     reject_extra_keys(data, AUTHORIZATION_FIELDS, "authorization")
@@ -124,7 +129,12 @@ def validate_authorization(authorization: Any, validated: dict[str, Any], at: da
     expires_at = parse_datetime(data["expires_at"], "authorization.expires_at")
     if expires_at <= issued_at:
         raise ValidationError("authorization.expires_at must be after issued_at")
-    if at.astimezone(timezone.utc) >= expires_at.astimezone(timezone.utc):
+    if at.tzinfo is None:
+        raise ValidationError("authorization validation time must include a timezone")
+    validation_time = at.astimezone(timezone.utc)
+    if validation_time < issued_at.astimezone(timezone.utc):
+        raise ValidationError("authorization is not active before issued_at")
+    if validation_time >= expires_at.astimezone(timezone.utc):
         raise ValidationError("authorization has expired")
     bindings = require_list(data["bindings"], "authorization.bindings")
     if not 1 <= len(bindings) <= 20:

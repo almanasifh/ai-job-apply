@@ -11,6 +11,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 DEFAULT_OUTPUT = REPO_ROOT / "dist" / "portable" / "manage-job-applications.md"
+MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)]+)\)")
 
 
 def read_text(path: Path) -> str:
@@ -54,7 +55,35 @@ def source_files() -> list[Path]:
     )
     if files[0] not in tracked:
         raise ValueError("Canonical SKILL.md is not tracked")
+    for path in files:
+        if path.is_symlink():
+            raise ValueError(f"Refusing to embed symlink: {path}")
+        if not path.is_file():
+            raise ValueError(f"Portable source is not a file: {path}")
     return files
+
+
+def source_anchor(relative: str) -> str:
+    return "source-" + re.sub(r"[^a-z0-9]+", "-", relative.lower()).strip("-")
+
+
+def portable_skill_body(text: str, files: list[Path]) -> str:
+    body = skill_body(text)
+    anchors = {
+        path.relative_to(SKILL_ROOT).as_posix(): source_anchor(path.relative_to(SKILL_ROOT).as_posix())
+        for path in files[1:]
+    }
+
+    def replace_link(match: re.Match[str]) -> str:
+        label, target = match.groups()
+        if target == "references":
+            return f"[{label}](#embedded-sources)"
+        anchor = anchors.get(target)
+        if anchor is None:
+            return match.group(0)
+        return f"[{label}](#{anchor})"
+
+    return MARKDOWN_LINK_PATTERN.sub(replace_link, body)
 
 
 def render() -> bytes:
@@ -75,13 +104,19 @@ def render() -> bytes:
         "",
         "This generated file is a self-contained, non-executable edition of the canonical repository skill. It uses fictional examples only. Keep private profiles and credentials outside this file.",
         "",
-        skill_body(read_text(SKILL_ROOT / "SKILL.md")),
+        portable_skill_body(read_text(SKILL_ROOT / "SKILL.md"), files),
+        "",
+        '<a id="embedded-sources"></a>',
+        "## Embedded Sources",
     ]
 
     for path in files[1:]:
         relative = path.relative_to(SKILL_ROOT).as_posix()
         content = read_text(path).strip()
-        sections.extend(["", "---", "", f"## Embedded Source: `{relative}`", ""])
+        sections.extend([
+            "", "---", "", f'<a id="{source_anchor(relative)}"></a>',
+            f"## Embedded Source: `{relative}`", "",
+        ])
         if path.suffix == ".md":
             sections.append(content)
         else:

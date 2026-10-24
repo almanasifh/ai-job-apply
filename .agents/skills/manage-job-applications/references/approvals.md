@@ -18,7 +18,7 @@ Changing one package invalidates only its affected binding; unchanged bindings r
 
 Immediately before action, verify:
 
-- approval is active and unexpired;
+- approval has reached `issued_at` and is still unexpired;
 - binding fields exactly match the current package;
 - canonical digest and every artifact hash match;
 - account/session, destination, and job remain valid;

@@ -19,6 +19,13 @@ This project packages a reusable agent skill. Keep proposed changes focused on s
 - Use only host tools the user has authorized and the service permits.
 - Do not add a standalone app, dashboard, database, scheduler, or provider client without a separate explicit scope change.
 
+## Validation
+
+- Add regression tests for contract, policy, packaging, or privacy changes.
+- Run `python -m unittest discover -s tests -v`, `python scripts/stage_plugin.py`, `python scripts/validate_release.py`, and `python scripts/validate_evals.py` before opening a pull request.
+- Keep the Windows and Linux CI checks passing before merge.
+- Submit changes through a pull request because `main` is protected from direct pushes.
+
 ## Reporting issues
 
 Explain the expected behavior, actual behavior, and steps to reproduce using fictional data. Remove personal information and secrets from logs before sharing them. Never post live credentials in a public issue.

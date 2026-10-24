@@ -13,7 +13,7 @@
     "media_type": { "type": "string", "minLength": 1 },
     "byte_count": { "type": "integer", "minimum": 0 },
     "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "qa_status": { "enum": ["PASSED", "FAILED", "PENDING"] },
+    "qa_status": { "const": "PASSED" },
     "source_fact_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
   }
 }

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 from typing import Any
@@ -10,6 +9,7 @@ from common import (
     ValidationError,
     canonical_digest,
     parse_datetime,
+    parse_json_text,
     reject_extra_keys,
     require_enum,
     require_integer,
@@ -18,6 +18,7 @@ from common import (
     require_sha256,
     require_string,
     unique_strings,
+    validate_against_schema,
 )
 
 
@@ -31,6 +32,10 @@ EVENT_FIELDS = {
     "event_type", "workflow_status", "actor", "attempt_id", "evidence_refs",
     "previous_event_hash", "event_hash",
 }
+ACTION_STATUSES = {
+    "SUBMISSION_UNCERTAIN", "SENT", "SUBMITTED", "DELIVERY_FAILED",
+    "SUBMISSION_FAILED",
+}
 
 
 def load_events(path: Path) -> list[dict[str, Any]]:
@@ -42,10 +47,7 @@ def load_events(path: Path) -> list[dict[str, Any]]:
     for line_number, line in enumerate(lines, 1):
         if not line.strip():
             continue
-        try:
-            events.append(require_object(json.loads(line), f"line {line_number}"))
-        except json.JSONDecodeError as exc:
-            raise ValidationError(f"line {line_number} is not valid JSON: {exc}") from exc
+        events.append(require_object(parse_json_text(line, f"line {line_number}"), f"line {line_number}"))
     if not events:
         raise ValidationError("checkpoint must contain at least one event")
     return events
@@ -53,10 +55,12 @@ def load_events(path: Path) -> list[dict[str, Any]]:
 
 def validate_checkpoint(events: list[dict[str, Any]]) -> None:
     previous_hash: str | None = None
+    previous_time = None
     event_ids: set[str] = set()
     application_id: str | None = None
     for index, event in enumerate(events, 1):
         label = f"event {index}"
+        validate_against_schema(event, "event.schema.json", label)
         require_keys(event, EVENT_FIELDS, label)
         reject_extra_keys(event, EVENT_FIELDS, label)
         if event["schema_version"] != "1.0":
@@ -72,13 +76,21 @@ def validate_checkpoint(events: list[dict[str, Any]]) -> None:
             application_id = current_application
         elif current_application != application_id:
             raise ValidationError(f"{label}.application_id changed within the checkpoint")
-        parse_datetime(event["occurred_at"], f"{label}.occurred_at")
+        occurred_at = parse_datetime(event["occurred_at"], f"{label}.occurred_at")
+        if previous_time is not None and occurred_at < previous_time:
+            raise ValidationError(f"{label}.occurred_at is earlier than the prior event")
+        previous_time = occurred_at
         require_string(event["event_type"], f"{label}.event_type")
-        require_enum(event["workflow_status"], STATUSES, f"{label}.workflow_status")
+        workflow_status = require_enum(event["workflow_status"], STATUSES, f"{label}.workflow_status")
         require_string(event["actor"], f"{label}.actor")
         if event["attempt_id"] is not None:
             require_string(event["attempt_id"], f"{label}.attempt_id")
-        unique_strings(event["evidence_refs"], f"{label}.evidence_refs")
+        evidence_refs = unique_strings(event["evidence_refs"], f"{label}.evidence_refs")
+        if workflow_status in ACTION_STATUSES:
+            if event["attempt_id"] is None:
+                raise ValidationError(f"{label}.attempt_id is required for {workflow_status}")
+            if not evidence_refs:
+                raise ValidationError(f"{label}.evidence_refs is required for {workflow_status}")
         if event["previous_event_hash"] != previous_hash:
             raise ValidationError(f"{label}.previous_event_hash does not match the prior event")
         event_hash = require_sha256(event["event_hash"], f"{label}.event_hash")

@@ -9,21 +9,57 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-import stage_plugin
 import build_portable
+import stage_plugin
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 DIST_ROOT = REPO_ROOT / "dist"
 BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".sqlite", ".sqlite3", ".db"}
-BLOCKED_PARTS = {"private", "credentials", "cookies", "sessions", "auth"}
+BLOCKED_PARTS = {".git", "private", "credentials", "cookies", "sessions", "auth", "secrets"}
 SECRET_PATTERNS = {
-    "absolute Windows user path": re.compile(rb"[A-Za-z]:\\Users\\[^\\\s]+\\"),
+    "email address": re.compile(rb"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+    "absolute Windows user path": re.compile(rb"[A-Za-z]:[\\/]Users[\\/][^\\/\s]+[\\/]"),
+    "absolute Unix user path": re.compile(rb"(?:/Users/|/home/)[^/\s]+/"),
     "private key": re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "OpenAI-style secret": re.compile(rb"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}"),
+    "GitHub token": re.compile(rb"\bgh[pousr]_[A-Za-z0-9]{20,}"),
     "Google OAuth token": re.compile(rb"\bya29\.[A-Za-z0-9_-]+"),
+    "AWS access key": re.compile(rb"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b"),
+    "Slack token": re.compile(rb"\bxox[baprs]-[A-Za-z0-9-]{20,}"),
 }
+PORTABLE_MANIFEST_FIELDS = {
+    "$schema", "name", "version", "description", "author", "homepage",
+    "repository", "license", "keywords", "extensions",
+}
+PLUGIN_NAME_PATTERN = re.compile(r"^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$")
+SEMVER_PATTERN = re.compile(
+    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
+    r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$"
+)
+
+
+def load_json_object(path: Path) -> dict[str, Any]:
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError(f"{path} contains duplicate JSON key: {key}")
+            result[key] = value
+        return result
+
+    def reject_nonfinite(value: str) -> None:
+        raise ValueError(f"{path} contains unsupported numeric constant: {value}")
+
+    data = json.loads(
+        path.read_text(encoding="utf-8"),
+        object_pairs_hook=reject_duplicates,
+        parse_constant=reject_nonfinite,
+    )
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return data
 
 
 def load_module(name: str, path: Path) -> Any:
@@ -36,13 +72,33 @@ def load_module(name: str, path: Path) -> Any:
 
 
 def validate_manifest(path: Path, *, portable: bool, expected_license: str) -> None:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = load_json_object(path)
     required = {"name", "version", "description", "author"}
     missing = required - data.keys()
     if missing:
         raise ValueError(f"{path} is missing {sorted(missing)}")
     if portable and data.get("$schema") != "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json":
         raise ValueError(f"{path} has the wrong portable schema")
+    if portable:
+        extra = sorted(data.keys() - PORTABLE_MANIFEST_FIELDS)
+        if extra:
+            raise ValueError(f"{path} has unsupported portable fields: {', '.join(extra)}")
+        name = data.get("name")
+        if not isinstance(name, str) or not 1 <= len(name) <= 64 or not PLUGIN_NAME_PATTERN.fullmatch(name):
+            raise ValueError(f"{path} has an invalid portable plugin name")
+        if not isinstance(data.get("version"), str) or not SEMVER_PATTERN.fullmatch(data["version"]):
+            raise ValueError(f"{path} version must use semantic versioning")
+        author = data.get("author")
+        if not isinstance(author, dict) or set(author) - {"name", "email", "url"}:
+            raise ValueError(f"{path} has invalid portable author metadata")
+        if any(not isinstance(value, str) for value in author.values()):
+            raise ValueError(f"{path} portable author fields must be strings")
+        keywords = data.get("keywords", [])
+        if not isinstance(keywords, list) or any(not isinstance(item, str) for item in keywords):
+            raise ValueError(f"{path} keywords must be a string array")
+        extensions = data.get("extensions", {})
+        if not isinstance(extensions, dict) or any(not isinstance(value, dict) for value in extensions.values()):
+            raise ValueError(f"{path} extensions must map namespaces to objects")
     if data.get("license") != expected_license:
         raise ValueError(f"{path} does not declare {expected_license}")
     if not portable and "interface" not in data:
@@ -124,17 +180,31 @@ def main() -> int:
     sys.path.insert(0, str(SKILL_ROOT / "scripts"))
     common = load_module("skill_common", SKILL_ROOT / "scripts" / "common.py")
     profile_validator = load_module("profile_validator", SKILL_ROOT / "scripts" / "validate_profile.py")
+    answers_validator = load_module("answers_validator", SKILL_ROOT / "scripts" / "validate_answers.py")
+    job_validator = load_module("job_validator", SKILL_ROOT / "scripts" / "validate_job.py")
+    match_validator = load_module("match_validator", SKILL_ROOT / "scripts" / "validate_match.py")
     application_validator = load_module("application_validator", SKILL_ROOT / "scripts" / "validate_application.py")
     checkpoint_validator = load_module("checkpoint_validator", SKILL_ROOT / "scripts" / "validate_checkpoint.py")
     evaluation_validator = load_module("evaluation_validator", REPO_ROOT / "scripts" / "validate_evals.py")
 
-    metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+    metadata = load_json_object(REPO_ROOT / "packaging" / "metadata.json")
     if metadata.get("license") != "MIT":
         raise ValueError("packaging/metadata.json must declare MIT")
     portable = args.dist / "portable-plugin" / metadata["name"]
     codex = args.dist / "codex-plugin" / metadata["name"]
     validate_manifest(portable / "plugin.json", portable=True, expected_license=metadata["license"])
     validate_manifest(codex / ".codex-plugin" / "plugin.json", portable=False, expected_license=metadata["license"])
+    portable_manifest = load_json_object(portable / "plugin.json")
+    codex_manifest = load_json_object(codex / ".codex-plugin" / "plugin.json")
+    for manifest_path, manifest in (
+        (portable / "plugin.json", portable_manifest),
+        (codex / ".codex-plugin" / "plugin.json", codex_manifest),
+    ):
+        for field in ("name", "version", "description", "license"):
+            if manifest.get(field) != metadata[field]:
+                raise ValueError(f"{manifest_path} {field} does not match packaging/metadata.json")
+        if manifest.get("author", {}).get("name") != metadata["author"]:
+            raise ValueError(f"{manifest_path} author does not match packaging/metadata.json")
     license_content = (REPO_ROOT / "LICENSE").read_bytes()
     validate_license(portable / "LICENSE", license_content)
     validate_license(codex / "LICENSE", license_content)
@@ -152,7 +222,12 @@ def main() -> int:
 
     for skill in (portable_skill, codex_skill):
         assets = skill / "assets" / "fictional-profile-pack"
-        profile_validator.validate_profile(common.load_json(assets / "profile.json"))
+        profile = common.load_json(assets / "profile.json")
+        job = common.load_json(assets / "job.json")
+        profile_validator.validate_profile(profile)
+        answers_validator.validate_answers(common.load_json(assets / "answers.json"))
+        job_validator.validate_job(job)
+        match_validator.validate_match(common.load_json(assets / "match.json"), job, profile)
         validated = application_validator.validate_application(common.load_json(assets / "application.json"), assets)
         application_validator.validate_authorization(
             common.load_json(assets / "authorization.json"),
@@ -164,7 +239,7 @@ def main() -> int:
         evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
         repo_root=REPO_ROOT,
     )
-    print("VALID: staged release, manifests, archives, fixtures, hash chains, and evaluation catalog")
+    print("VALID: staged release, manifests, archives, all fixtures, hash chains, and evaluation catalog")
     return 0
 
 

@@ -16,6 +16,7 @@ from common import (
     require_object,
     require_string,
     unique_strings,
+    validate_against_schema,
 )
 
 
@@ -25,6 +26,7 @@ CHANNELS = {"EMAIL", "PORTAL", "LINKEDIN", "MANUAL"}
 
 
 def validate_profile(profile: Any) -> None:
+    validate_against_schema(profile, "profile.schema.json", "profile")
     data = require_object(profile, "profile")
     fields = {"schema_version", "candidate_id", "display_name", "facts", "preferences", "exclusions"}
     require_keys(data, fields, "profile")
@@ -61,6 +63,9 @@ def validate_profile(profile: Any) -> None:
             if not source:
                 raise ValidationError(f"{label}.source is required for verified facts")
             parse_datetime(fact["verified_at"], f"{label}.verified_at")
+        elif status == "UNKNOWN":
+            if fact["value"] is not None or fact["verified_at"] is not None:
+                raise ValidationError(f"{label} must not claim a value or verification time while UNKNOWN")
         elif fact["verified_at"] is not None:
             parse_datetime(fact["verified_at"], f"{label}.verified_at")
 
