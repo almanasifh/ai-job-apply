@@ -32,7 +32,12 @@ No workflow policy, decision outcome, status transition, or host capability chan
 
 ## Continuous integration
 
-Protected Windows and Linux pull-request checks must pass before merge. Record the final pull request and workflow run here before publication.
+Pull request [#5](https://github.com/almanasifh/ai-job-apply/pull/5) passed both matrix jobs in GitHub Actions run `40132837222`:
+
+- `Validate on ubuntu-latest`: passed;
+- `Validate on windows-latest`: passed.
+
+The implementation commit was `6bcbe65`. The release-evidence-only follow-up commit must pass the same protected checks before merge.
 
 ## Privacy
 
@@ -49,4 +54,4 @@ All actionable findings from the second review are resolved. The suggested remov
 
 ## Release decision
 
-Local deterministic gates pass. Version 0.3.1 is eligible for merge, tagging, and publication after protected pull-request checks pass and packaged content remains unchanged.
+Local deterministic and protected CI gates pass. Version 0.3.1 is eligible for merge, tagging, and publication after the release-evidence-only follow-up passes the same checks and packaged content remains unchanged.
