@@ -20,3 +20,7 @@ The first event uses `previous_event_hash: null`. Every later event carries the 
 - `SUBMITTED` means first-party evidence confirms an application submission.
 - `SUBMISSION_UNCERTAIN` means the action may have occurred but confirmation is missing.
 - Never retry an uncertain attempt until reconciled against first-party evidence.
+
+Every action outcome (`SENT`, `SUBMITTED`, `SUBMISSION_UNCERTAIN`, `DELIVERY_FAILED`, or `SUBMISSION_FAILED`) requires an attempt identifier and at least one evidence reference. Event times cannot move backward.
+
+The hash chain detects changes only when a trusted head hash or prior copy is retained separately. It does not prevent someone who can rewrite the entire checkpoint from recomputing every hash.

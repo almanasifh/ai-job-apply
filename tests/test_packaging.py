@@ -34,10 +34,47 @@ class PackagingTests(unittest.TestCase):
         self.assertIn(b"application-review.template.md", first)
         self.assertIn(b"manual-handoff.template.md", first)
         self.assertNotIn(b"C:\\Users\\", first)
+        self.assertNotIn(b"](references/", first)
+        self.assertIn(b"](#source-references-policy-md)", first)
+        self.assertIn(b"standalone portable Markdown edition", first)
 
     def test_portable_manifest_uses_standard_schema(self) -> None:
         manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["$schema"], "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json")
+
+    def test_portable_manifest_rejects_unknown_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plugin.json"
+            manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
+            manifest["unknown"] = True
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unsupported portable fields"):
+                validate_release.validate_manifest(path, portable=True, expected_license="MIT")
+
+    def test_manifest_rejects_duplicate_json_keys(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plugin.json"
+            path.write_text('{"name":"first","name":"second"}', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
+                validate_release.load_json_object(path)
+
+    def test_manifest_rejects_nonfinite_numbers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "plugin.json"
+            path.write_text('{"unsupported":NaN}', encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unsupported numeric constant"):
+                validate_release.load_json_object(path)
+
+    def test_privacy_scan_rejects_email_and_unix_user_path(self) -> None:
+        for content, expected in (
+            ("person@example.com", "email address"),
+            ("/home/private-user/profile.json", "absolute Unix user path"),
+        ):
+            with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "leak.txt"
+                path.write_text(content, encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, expected):
+                    validate_release.scan_tree(Path(directory))
 
     def test_release_metadata_uses_mit_license(self) -> None:
         metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))

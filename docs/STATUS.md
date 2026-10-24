@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Skill-only version 0.2.1 includes the core workflow, four distribution forms, a fictional behavioral evaluation catalog, and generic onboarding/handoff templates. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.0 is the current release candidate. It adds schema enforcement, approval timing, artifact QA, action evidence, portable navigation, release scanning, continuous integration, and expanded behavioral coverage. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
@@ -15,8 +15,9 @@ The skill can use compatible host tools when they are available and authorized. 
 - `.agents/skills/manage-job-applications/` — canonical instructions, references, schemas, scripts, and fictional fixtures.
 - `packaging/` — portable Agent Plugin and Codex compatibility manifest sources.
 - `scripts/` — deterministic skill builders and release checks.
-- `tests/` — contract and packaging tests.
-- `evals/` — fictional behavioral scenarios with expected and forbidden outcomes.
+- `tests/` — contract, semantic safety, privacy, and packaging tests.
+- `evals/` — eighteen fictional behavioral scenarios with expected and forbidden outcomes.
+- `.github/workflows/` — Windows and Linux continuous integration.
 - `docs/` — skill scope, design, compatibility, and release guidance.
 
 ## Changes made
@@ -32,6 +33,14 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added MIT licensing and skill-only documentation.
 - Corrected the skill frontmatter for plain-scalar host compatibility and flattened reference schemas to one level.
 - Added the standalone portable Markdown file to the portable Agent Plugin archive and regression-tested its contents.
+- Enforced all eight JSON contracts and added answer, vacancy, and match validators.
+- Rejected future-issued approvals, non-passed artifacts, unsupported action evidence, duplicate JSON keys, and backward checkpoint times.
+- Repaired standalone Markdown navigation and clarified that portable Markdown cannot execute bundled helpers.
+- Hardened portable manifest validation and privacy scanning.
+- Expanded the behavioral catalog from ten to eighteen scenarios and added cross-platform CI.
+- Passed all eight added scenarios against both the canonical skill and standalone portable Markdown.
+- Passed the version 0.3.0 pull request on both Windows and Linux CI.
+- Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
 ## Failed attempts
 
@@ -44,9 +53,8 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Monitor reports for unsupported claims, false submission states, privacy leakage, or host compatibility regressions.
-2. Re-run behavioral evaluations after any material workflow or policy change.
-3. Keep release archives, checksums, status documentation, and installation instructions synchronized.
+1. Merge only after Windows and Linux CI pass.
+2. Publish synchronized archives, checksums, evidence, and installation instructions.
 
 ## Evidence boundary
 

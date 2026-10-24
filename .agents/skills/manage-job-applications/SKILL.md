@@ -65,13 +65,16 @@ Use this agent skill as a policy and workflow layer, not as a standalone applica
 
 ## Validation tools
 
-Run these from the skill directory:
+When the repository or plugin package includes executable helpers, run these from the skill directory:
 
 ```text
 python scripts/validate_profile.py assets/fictional-profile-pack/profile.json
+python scripts/validate_answers.py assets/fictional-profile-pack/answers.json
+python scripts/validate_job.py assets/fictional-profile-pack/job.json
+python scripts/validate_match.py assets/fictional-profile-pack/match.json assets/fictional-profile-pack/job.json assets/fictional-profile-pack/profile.json
 python scripts/validate_checkpoint.py assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json
 python scripts/hash_artifacts.py <artifact> [<artifact> ...]
 ```
 
-The formal data contracts are the `*.schema.json` files in [references](references). The included fixture is fictional and is safe for tests and demonstrations.
+The standalone portable Markdown edition embeds the contracts and fictional examples but cannot execute these helpers. The formal data contracts are the `*.schema.json` files in [references](references). The included fixture is fictional and is safe for tests and demonstrations.

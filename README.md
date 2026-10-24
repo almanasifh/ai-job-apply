@@ -13,13 +13,14 @@ A privacy-conscious, evidence-based skill for preparing, authorizing, packaging,
 The repository now includes a working core release:
 
 - a canonical repo skill at `.agents/skills/manage-job-applications/`;
-- formal JSON data contracts and fictional fixtures;
-- deterministic profile, package, approval, artifact, and checkpoint validators;
-- fictional behavioral evaluation scenarios with expected and forbidden outcomes;
+- enforced JSON data contracts and fictional fixtures;
+- deterministic profile, answer, vacancy, match, package, approval, artifact, and checkpoint validators;
+- eighteen fictional behavioral evaluation scenarios with expected and forbidden outcomes;
 - generic private-profile, exact-review, and manual-handoff templates;
 - a self-contained portable Markdown builder;
 - portable Agent Plugin and Codex compatibility package builders;
 - reproducible ZIP archives and a public-release privacy scan;
+- Windows and Linux continuous integration;
 - a standard-library `unittest` suite.
 
 It does **not** bundle job-board, browser, email, or portal automation. The skill may use compatible host tools when they are available and explicitly authorized. Otherwise, it prepares a manual handoff and must not claim that an application was sent or submitted.
@@ -60,6 +61,9 @@ Validate the fictional example:
 
 ```powershell
 python .agents/skills/manage-job-applications/scripts/validate_profile.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
+python .agents/skills/manage-job-applications/scripts/validate_answers.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/answers.json
+python .agents/skills/manage-job-applications/scripts/validate_job.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json
+python .agents/skills/manage-job-applications/scripts/validate_match.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/match.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
 python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_checkpoint.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_evals.py
@@ -81,6 +85,8 @@ python -m unittest discover -s tests -v
 
 Generated output is written to `dist/` and intentionally excluded from version control.
 
+The standalone portable Markdown file embeds the reference material but cannot execute the Python validation helpers. Use the repository or either plugin package when executable validation is required.
+
 ## Formats
 
 - **Repo skill:** canonical source for agents that discover `.agents/skills/`.
@@ -99,6 +105,8 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [Behavioral evaluations](docs/EVALUATIONS.md)
 - [0.2.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.2.0.md)
 - [0.2.1 release validation](docs/RELEASE_VALIDATION_V0.2.1.md)
+- [0.3.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.3.0.md)
+- [0.3.0 release validation](docs/RELEASE_VALIDATION_V0.3.0.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

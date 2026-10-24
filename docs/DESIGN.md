@@ -88,7 +88,7 @@ A score is advisory. It cannot override a mandatory gap, an unknown legal or eli
 
 ## Documents and answers
 
-The skill may draft or tailor content, but it must not alter historical facts. Final artifacts are bound by relative path, media type, byte count, and lowercase SHA-256. The file selected for action must match the reviewed artifact bytes.
+The skill may draft or tailor content, but it must not alter historical facts. Final artifacts are bound by relative path, media type, byte count, lowercase SHA-256, and a `PASSED` QA state. The file selected for action must match the reviewed artifact bytes.
 
 Reusable answers remain scoped to the relevant country, employer, job, or global context. Unknown required answers create `NEEDS_INPUT`; facts requiring confirmation create `NEEDS_VERIFICATION`.
 
@@ -96,7 +96,7 @@ Reusable answers remain scoped to the relevant country, employer, job, or global
 
 A shortlist decision is not submission authorization.
 
-Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, and ordered artifact hashes. Exact approvals default to 15 minutes. A bounded batch may contain at most 20 complete immutable bindings.
+Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, and ordered artifact hashes. Exact approvals default to 15 minutes and are inactive before `issued_at`. A bounded batch may contain at most 20 complete immutable bindings.
 
 Changing one package invalidates only its affected binding. Adding a new package requires a new binding. Approval never grants permission to bypass authentication, CAPTCHAs, rate limits, provider rules, or security controls.
 
@@ -120,6 +120,8 @@ The skill can read or produce checkpoint JSONL files using the event schema. It 
 - Later events carry the prior event hash.
 - Event hashes use UTF-8 RFC 8785 canonical JSON and lowercase SHA-256.
 - Corrections are new events rather than silent rewrites.
+- Action outcomes require an attempt identifier and evidence references, and event timestamps cannot move backward.
+- The chain is tamper-evident only when a trusted head hash or prior copy is retained outside the rewritten checkpoint.
 
 ## Privacy boundary
 

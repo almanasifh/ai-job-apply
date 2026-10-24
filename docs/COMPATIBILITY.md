@@ -13,7 +13,7 @@
 | Agent Plugin | `dist/portable-plugin/job-application-manager/` | Hosts implementing Agent Plugins 1.0 root `plugin.json` discovery. |
 | Codex compatibility plugin | `dist/codex-plugin/job-application-manager/` | Codex installations using `.codex-plugin/plugin.json`. |
 
-The portable Markdown file is non-executable. It embeds policy, contracts, and fictional examples, but an assistant still needs separate, explicitly authorized tools to read private files or act on external services.
+The portable Markdown file is non-executable. It embeds policy, contracts, fictional examples, and internal source navigation, but not executable Python helpers. Use a repository or plugin package when local validation is required. An assistant still needs separate, explicitly authorized tools to read private files or act on external services.
 
 Compatibility means the host can load and follow the skill. It does not mean the repository installs an application runtime or grants the host new account access.
 

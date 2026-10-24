@@ -22,7 +22,7 @@ Provide a generic job-application workflow that supports explicit candidate prof
 
 ### Phase 2 — Deterministic helpers
 
-- Validate profiles, final artifacts, package digests, authorization bindings, expiry, and checkpoint hash chains.
+- Enforce every JSON contract and validate profiles, answer libraries, vacancies, matches, final artifacts, package digests, authorization timing and bindings, action evidence, and checkpoint hash chains.
 - Use UTF-8 RFC 8785 canonical JSON for the integer-only contract subset and lowercase SHA-256 digests.
 - Reject absolute or escaping artifact paths and unsupported numeric values.
 
@@ -43,7 +43,7 @@ Missing host capabilities result in analysis, preparation, validation, or a manu
 
 ### Phase 4 — Behavioral evaluations
 
-The fictional scenario catalog and deterministic catalog validator are implemented. Cross-host behavior runs still need recorded evidence for evidence grounding, exclusions, duplicate handling, exact approval, batch limits, host-tool absence, prompt injection, uncertain outcomes, and language alignment.
+The fictional scenario catalog and deterministic catalog validator are implemented. Version 0.2.0 recorded portable-host and isolated Codex-host evidence for the original ten scenarios. Version 0.3.0 expands the catalog to eighteen scenarios, including exclusions, shortlist authority, approval timing, required answers, security challenges, outcome separation, and artifact QA. All eight added scenarios passed isolated canonical-skill and standalone portable evaluation.
 
 ### Phase 5 — Onboarding and handoff assets
 
@@ -51,7 +51,7 @@ Generic templates are implemented for a private candidate profile, scoped answer
 
 ### Phase 6 — Compatibility hardening
 
-Test loading and progressive disclosure across documented skill/plugin hosts. Keep capability claims host-neutral and document differences without adding provider-specific runtime code.
+Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package structure. Version 0.3.0 repairs standalone Markdown navigation, labels executable guidance accurately, rejects non-conforming portable manifests, and runs release checks on Windows and Linux CI.
 
 ## Release gates
 

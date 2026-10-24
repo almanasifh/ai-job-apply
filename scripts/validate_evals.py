@@ -20,7 +20,9 @@ CAPABILITIES = {"READ_INPUT", "READ_FILES", "WRITE_FILES", "BROWSER", "EMAIL", "
 REQUIRED_RISK_TAGS = {
     "source_freshness", "mandatory_gap", "truthfulness", "tool_absence",
     "approval_binding", "uncertain_result", "prompt_injection", "duplicate",
-    "batch_limit", "language",
+    "batch_limit", "language", "employer_exclusion", "shortlist_authority",
+    "approval_expiry", "approval_timing", "required_answer",
+    "security_challenge", "outcome_separation", "artifact_qa",
 }
 SCENARIO_FIELDS = {
     "id", "title", "prompt", "available_capabilities", "fixture_refs",

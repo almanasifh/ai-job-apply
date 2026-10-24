@@ -13,6 +13,6 @@ For every CV, cover letter, portfolio, message, or answer set:
 5. Record the fact identifiers supporting material claims.
 6. Mark the artifact immutable once included in an approval binding.
 
-Any byte change creates a new digest and package revision. Never substitute a similarly named file after approval.
+Only artifacts with `qa_status: PASSED` may enter an immutable application package or approval binding. Any byte change creates a new digest and package revision. Never substitute a similarly named file after approval.
 
 Unknown required answers create `NEEDS_INPUT`; facts or requested claims that lack supporting evidence create `NEEDS_VERIFICATION`. Omit an unsupported claim even when a usable draft can be produced from other verified facts. If the candidate explicitly confirms they do not have a qualification, record a gap rather than asking them to verify the absent qualification.
