@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.0 is the latest published release. It adds schema enforcement, approval timing, artifact QA, action evidence, portable navigation, release scanning, continuous integration, and expanded behavioral coverage. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.1 is the current packaged version. It adds schema/code drift defenses, batch-binding uniqueness, cached schema loading, and explicit evidence-reference and equal-timestamp semantics to the version 0.3.0 hardening release. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 

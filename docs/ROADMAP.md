@@ -27,7 +27,7 @@ A skill release must demonstrate with fictional data that:
 - [x] Material package edits invalidate the affected approval binding.
 - [x] Exact approvals expire after the configured interval.
 - [x] Future-issued approvals remain inactive until `issued_at`.
-- [x] Batch approval contains no more than 20 immutable bindings.
+- [x] Batch approval contains no more than 20 unique immutable application targets.
 - [x] Unknown required answers produce an actionable hold.
 - [x] Artifacts marked `PENDING` or `FAILED` cannot enter an immutable approved package.
 - [x] Missing host tools produce a manual handoff, not a false action claim.

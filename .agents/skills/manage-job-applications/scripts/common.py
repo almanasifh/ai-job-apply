@@ -5,6 +5,7 @@ import json
 import math
 import re
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import urlsplit
@@ -196,6 +197,14 @@ def _validate_schema_definition(schema: Any, label: str) -> None:
         raise ValidationError(f"{label}.format is unsupported")
 
 
+@lru_cache(maxsize=64)
+def _load_schema_cached(path_value: str, _modified_ns: int, _byte_count: int) -> dict[str, Any]:
+    path = Path(path_value)
+    schema = require_object(load_json(path), f"schema {path.name}")
+    _validate_schema_definition(schema, f"schema {path.name}")
+    return schema
+
+
 def _load_schema(path: Path, schema_root: Path) -> dict[str, Any]:
     resolved_root = schema_root.resolve()
     resolved = path.resolve()
@@ -203,9 +212,11 @@ def _load_schema(path: Path, schema_root: Path) -> dict[str, Any]:
         resolved.relative_to(resolved_root)
     except ValueError as exc:
         raise ValidationError(f"Schema path escapes references root: {path}") from exc
-    schema = require_object(load_json(resolved), f"schema {resolved.name}")
-    _validate_schema_definition(schema, f"schema {resolved.name}")
-    return schema
+    try:
+        metadata = resolved.stat()
+    except OSError as exc:
+        raise ValidationError(f"Cannot inspect schema {resolved}: {exc}") from exc
+    return _load_schema_cached(str(resolved), metadata.st_mtime_ns, metadata.st_size)
 
 
 def _unique_json_items(items: list[Any]) -> bool:

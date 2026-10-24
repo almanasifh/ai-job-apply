@@ -22,7 +22,7 @@ Provide a generic job-application workflow that supports explicit candidate prof
 
 ### Phase 2 — Deterministic helpers
 
-- Enforce every JSON contract and validate profiles, answer libraries, vacancies, matches, final artifacts, package digests, authorization timing and bindings, action evidence, and checkpoint hash chains.
+- Enforce every JSON contract and validate profiles, answer libraries, vacancies, matches, final artifacts, package digests, authorization timing and unique bindings, action evidence, and checkpoint hash chains.
 - Use UTF-8 RFC 8785 canonical JSON for the integer-only contract subset and lowercase SHA-256 digests.
 - Reject absolute or escaping artifact paths and unsupported numeric values.
 
@@ -51,7 +51,7 @@ Generic templates are implemented for a private candidate profile, scoped answer
 
 ### Phase 6 — Compatibility hardening
 
-Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package structure. Version 0.3.0 repairs standalone Markdown navigation, labels executable guidance accurately, rejects non-conforming portable manifests, and runs release checks on Windows and Linux CI.
+Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package structure. Version 0.3.0 repairs standalone Markdown navigation, labels executable guidance accurately, rejects non-conforming portable manifests, and runs release checks on Windows and Linux CI. Version 0.3.1 adds code-level enum defense, unique batch targets, cached schema loading, and explicit evidence-reference and equal-timestamp semantics without changing workflow policy.
 
 ## Release gates
 

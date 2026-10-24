@@ -41,7 +41,7 @@ Ask the host to use `manage-job-applications`, then provide the vacancy and a pr
 2. Review evidence-backed requirement matching and resolve unknowns.
 3. Review the exact CV, answers, destination, account reference, and artifact hashes.
 4. Approve only the exact package you want used.
-5. Receive verified submission evidence or a `READY` manual handoff.
+5. Receive a submission outcome with evidence references that the host must reconcile, or a `READY` manual handoff.
 
 ## Core rules
 
@@ -107,6 +107,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [0.2.1 release validation](docs/RELEASE_VALIDATION_V0.2.1.md)
 - [0.3.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.3.0.md)
 - [0.3.0 release validation](docs/RELEASE_VALIDATION_V0.3.0.md)
+- [0.3.1 release validation](docs/RELEASE_VALIDATION_V0.3.1.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
