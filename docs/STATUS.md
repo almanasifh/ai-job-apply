@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.0 is the current release candidate. It adds schema enforcement, approval timing, artifact QA, action evidence, portable navigation, release scanning, continuous integration, and expanded behavioral coverage. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.0 is the latest published release. It adds schema enforcement, approval timing, artifact QA, action evidence, portable navigation, release scanning, continuous integration, and expanded behavioral coverage. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
@@ -40,6 +40,8 @@ The skill can use compatible host tools when they are available and authorized. 
 - Expanded the behavioral catalog from ten to eighteen scenarios and added cross-platform CI.
 - Passed all eight added scenarios against both the canonical skill and standalone portable Markdown.
 - Passed the version 0.3.0 pull request on both Windows and Linux CI.
+- Published synchronized version 0.3.0 portable and Codex archives, checksums, evaluation evidence, and release validation evidence.
+- Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
 ## Failed attempts
@@ -53,8 +55,9 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Merge only after Windows and Linux CI pass.
-2. Publish synchronized archives, checksums, evidence, and installation instructions.
+1. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
+2. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
+3. Continue requiring protected Windows and Linux CI before changes reach `main`.
 
 ## Evidence boundary
 
