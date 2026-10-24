@@ -19,6 +19,12 @@ import stage_plugin
 
 
 class PackagingTests(unittest.TestCase):
+    def test_packaged_text_uses_lf_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "example.yaml"
+            path.write_bytes(b"first\r\nsecond\r\n")
+            self.assertEqual(stage_plugin.package_bytes(path), b"first\nsecond\n")
+
     def test_mit_license_validation_accepts_windows_line_endings(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             license_path = Path(directory) / "LICENSE"

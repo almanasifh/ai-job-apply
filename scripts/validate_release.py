@@ -169,7 +169,7 @@ def validate_staged_skill(path: Path) -> None:
         unexpected = sorted(item.as_posix() for item in actual_files.keys() - expected_files.keys())
         raise ValueError(f"{path} file set mismatch; missing={missing}, unexpected={unexpected}")
     for relative, source in expected_files.items():
-        if actual_files[relative].read_bytes() != source.read_bytes():
+        if actual_files[relative].read_bytes() != stage_plugin.package_bytes(source):
             raise ValueError(f"{path / relative} does not match the tracked skill source")
 
 

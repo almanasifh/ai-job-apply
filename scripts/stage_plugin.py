@@ -15,6 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DIST_ROOT = REPO_ROOT / "dist"
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 FIXED_ZIP_TIME = (1980, 1, 1, 0, 0, 0)
+TEXT_SUFFIXES = {".json", ".jsonl", ".md", ".py", ".txt", ".yaml", ".yml"}
 
 
 def safe_reset(path: Path) -> None:
@@ -42,6 +43,12 @@ def tracked_files(source: Path) -> list[Path]:
     return sorted(files, key=lambda path: path.relative_to(source).as_posix())
 
 
+def package_bytes(path: Path) -> bytes:
+    if path.suffix.lower() in TEXT_SUFFIXES:
+        return path.read_text(encoding="utf-8").encode("utf-8")
+    return path.read_bytes()
+
+
 def copy_tree(source: Path, destination: Path) -> None:
     for path in tracked_files(source):
         relative = path.relative_to(source)
@@ -51,7 +58,7 @@ def copy_tree(source: Path, destination: Path) -> None:
         if not path.is_file():
             raise ValueError(f"Tracked skill path is not a file: {path}")
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(path, target)
+        target.write_bytes(package_bytes(path))
 
 
 def write_json(path: Path, value: dict[str, object]) -> None:
