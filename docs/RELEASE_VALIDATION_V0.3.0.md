@@ -15,9 +15,10 @@ Version 0.3.0 hardens formal contracts, approval timing, artifact QA, checkpoint
 The candidate passed:
 
 - Python source compilation;
-- all 39 unit tests;
+- all 40 unit tests;
 - release, manifest, fixture, hash-chain, and evaluation-catalog validation;
 - two consecutive byte-identical ZIP builds;
+- identical ZIPs from CRLF and LF source checkouts;
 - the Codex skill validator for the canonical, staged portable, and staged Codex copies;
 - standalone Markdown link validation;
 - package privacy scans; and
@@ -42,8 +43,8 @@ All packaged examples are fictional. The generated archives contain no creator c
 
 ## SHA-256
 
-- `job-application-manager-codex.zip`: `50d34a305c411d9a28bc33d2c3f00c7b97137f5567ee2f7086fa7e3758357a97`
-- `job-application-manager-portable.zip`: `3d4870ce6322866ab062a2002a4b162350b3aa9ec6fc8e775c2fbf3eb26bdc9b`
+- `job-application-manager-codex.zip`: `3943ba97f739fb9e1b78230a4484ec7d285004732baeae28c30e068eae2f0ee3`
+- `job-application-manager-portable.zip`: `cc20cf176f77e08e2fb22d2267b59d5e2757b672fff25ca2a6c68733e35caf97`
 
 ## Release decision
 

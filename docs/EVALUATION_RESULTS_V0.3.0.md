@@ -33,7 +33,7 @@ After these host runs, the candidate received deterministic-only hardening that 
 
 The version 0.3.0 candidate passed:
 
-- all 39 unit tests;
+- all 40 unit tests;
 - all fixture and schema validators;
 - release and evaluation-catalog validation;
 - two byte-identical release builds;
