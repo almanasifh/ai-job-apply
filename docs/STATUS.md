@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.1 is the latest published version. It adds schema/code drift defenses, batch-binding uniqueness, cached schema loading, and explicit evidence-reference and equal-timestamp semantics to the version 0.3.0 hardening release. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.2 is the current packaged version. It isolates package tests, retries transient staging cleanup failures, normalizes filesystem validation errors, broadens Python compatibility checks, and improves repository security and onboarding guidance. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
@@ -42,6 +42,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Passed the version 0.3.0 pull request on both Windows and Linux CI.
 - Published synchronized version 0.3.0 portable and Codex archives, checksums, evaluation evidence, and release validation evidence.
 - Published version 0.3.1 portable and Codex archives, checksums, and release validation evidence after protected Windows and Linux CI.
+- Prepared version 0.3.2 with hermetic packaging tests, resilient staging cleanup, filesystem error hardening, Python 3.11 through 3.14 checks, and private vulnerability reporting guidance.
 - Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 

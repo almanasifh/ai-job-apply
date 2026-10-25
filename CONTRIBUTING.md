@@ -26,6 +26,10 @@ This project packages a reusable agent skill. Keep proposed changes focused on s
 - Keep the Windows and Linux CI checks passing before merge.
 - Submit changes through a pull request because `main` is protected from direct pushes.
 
+### JSON Schema subset
+
+The dependency-free validator intentionally supports only the keywords listed in `SCHEMA_KEYWORDS` in `.agents/skills/manage-job-applications/scripts/common.py`. Unsupported keywords, including `anyOf`, `oneOf`, `allOf`, `not`, `maxLength`, `minProperties`, and `maxProperties`, are rejected when schemas load rather than ignored. Add validator behavior and regression tests before introducing another keyword.
+
 ## Reporting issues
 
-Explain the expected behavior, actual behavior, and steps to reproduce using fictional data. Remove personal information and secrets from logs before sharing them. Never post live credentials in a public issue.
+Explain the expected behavior, actual behavior, and steps to reproduce using fictional data. Remove personal information and secrets from logs before sharing them. Never post live credentials in a public issue. Report security or privacy vulnerabilities through the process in [SECURITY.md](SECURITY.md).

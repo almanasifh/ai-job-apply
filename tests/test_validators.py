@@ -15,7 +15,7 @@ ASSETS = SKILL_ROOT / "assets" / "fictional-profile-pack"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 import common
-from common import ValidationError, canonical_digest, canonical_json_bytes, load_json, parse_datetime
+from common import ValidationError, canonical_digest, canonical_json_bytes, file_digest, load_json, parse_datetime, resolve_within
 from validate_answers import validate_answers
 from validate_application import validate_application, validate_authorization
 from validate_checkpoint import load_events, validate_checkpoint
@@ -49,6 +49,39 @@ class CanonicalJsonTests(unittest.TestCase):
                 common.validate_against_schema("first", "test.schema.json", "value", schema_root=schema_root)
                 common.validate_against_schema("second", "test.schema.json", "value", schema_root=schema_root)
             self.assertEqual(loader.call_count, 1)
+
+    def test_file_digest_wraps_os_error_without_parent_path(self) -> None:
+        source = Path("private-parent") / "artifact.pdf"
+        with mock.patch.object(Path, "open", side_effect=PermissionError(13, "Permission denied", str(source))):
+            with self.assertRaises(ValidationError) as raised:
+                file_digest(source)
+        self.assertIn("artifact.pdf", str(raised.exception))
+        self.assertNotIn("private-parent", str(raised.exception))
+
+    def test_load_json_wraps_os_error_without_parent_path(self) -> None:
+        source = Path("private-parent") / "profile.json"
+        with mock.patch.object(Path, "read_text", side_effect=PermissionError(13, "Permission denied", str(source))):
+            with self.assertRaises(ValidationError) as raised:
+                load_json(source)
+        self.assertIn("profile.json", str(raised.exception))
+        self.assertNotIn("private-parent", str(raised.exception))
+
+    def test_resolve_within_rejects_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValidationError, "escapes its root"):
+                resolve_within(Path(directory), "../outside.json")
+
+    def test_resolve_within_hides_absolute_input(self) -> None:
+        absolute = str(Path.cwd() / "private-parent" / "artifact.pdf")
+        with self.assertRaises(ValidationError) as raised:
+            resolve_within(Path.cwd(), absolute)
+        self.assertNotIn("private-parent", str(raised.exception))
+
+    def test_resolve_within_wraps_resolution_error(self) -> None:
+        with mock.patch.object(Path, "resolve", side_effect=RuntimeError("private absolute path")):
+            with self.assertRaisesRegex(ValidationError, "Cannot resolve artifact root") as raised:
+                resolve_within("private-parent", "artifact.pdf")
+        self.assertNotIn("private absolute path", str(raised.exception))
 
 
 class ContractTests(unittest.TestCase):
@@ -196,6 +229,14 @@ class ContractTests(unittest.TestCase):
             path.write_text('{"event_id":"first","event_id":"second"}\n', encoding="utf-8")
             with self.assertRaisesRegex(ValidationError, "duplicate key"):
                 load_events(path)
+
+    def test_checkpoint_read_error_hides_parent_path(self) -> None:
+        path = Path("private-parent") / "checkpoint.jsonl"
+        with mock.patch.object(Path, "read_text", side_effect=PermissionError(13, "Permission denied", str(path))):
+            with self.assertRaises(ValidationError) as raised:
+                load_events(path)
+        self.assertIn("checkpoint.jsonl", str(raised.exception))
+        self.assertNotIn("private-parent", str(raised.exception))
 
     def test_action_status_requires_attempt_and_evidence(self) -> None:
         events = load_events(ASSETS / "checkpoint.jsonl")

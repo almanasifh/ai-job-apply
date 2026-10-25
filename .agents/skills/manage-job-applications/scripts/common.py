@@ -54,9 +54,15 @@ def load_json(path: str | Path) -> Any:
     source = Path(path)
     try:
         text = source.read_text(encoding="utf-8")
-    except (OSError, UnicodeError) as exc:
-        raise ValidationError(f"Cannot read JSON from {source}: {exc}") from exc
-    return parse_json_text(text, str(source))
+    except OSError as exc:
+        raise ValidationError(f"Cannot read JSON file {source.name}: {filesystem_error_reason(exc)}") from exc
+    except UnicodeError as exc:
+        raise ValidationError(f"JSON file {source.name} is not valid UTF-8") from exc
+    return parse_json_text(text, source.name)
+
+
+def filesystem_error_reason(exc: OSError) -> str:
+    return exc.strerror or exc.__class__.__name__
 
 
 def require_object(value: Any, label: str) -> dict[str, Any]:
@@ -206,16 +212,19 @@ def _load_schema_cached(path_value: str, _modified_ns: int, _byte_count: int) ->
 
 
 def _load_schema(path: Path, schema_root: Path) -> dict[str, Any]:
-    resolved_root = schema_root.resolve()
-    resolved = path.resolve()
+    try:
+        resolved_root = schema_root.resolve()
+        resolved = path.resolve()
+    except (OSError, RuntimeError) as exc:
+        raise ValidationError(f"Cannot resolve schema {path.name}") from exc
     try:
         resolved.relative_to(resolved_root)
     except ValueError as exc:
-        raise ValidationError(f"Schema path escapes references root: {path}") from exc
+        raise ValidationError(f"Schema path escapes references root: {path.name}") from exc
     try:
         metadata = resolved.stat()
     except OSError as exc:
-        raise ValidationError(f"Cannot inspect schema {resolved}: {exc}") from exc
+        raise ValidationError(f"Cannot inspect schema {resolved.name}: {filesystem_error_reason(exc)}") from exc
     return _load_schema_cached(str(resolved), metadata.st_mtime_ns, metadata.st_size)
 
 
@@ -409,21 +418,30 @@ def file_digest(path: str | Path) -> tuple[int, str]:
     source = Path(path)
     digest = hashlib.sha256()
     byte_count = 0
-    with source.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            byte_count += len(chunk)
-            digest.update(chunk)
+    try:
+        with source.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                byte_count += len(chunk)
+                digest.update(chunk)
+    except OSError as exc:
+        raise ValidationError(f"Cannot read file {source.name}: {filesystem_error_reason(exc)}") from exc
     return byte_count, digest.hexdigest()
 
 
 def resolve_within(root: str | Path, relative_path: str) -> Path:
     candidate = Path(relative_path)
     if candidate.is_absolute():
-        raise ValidationError(f"Artifact path must be relative: {relative_path}")
-    resolved_root = Path(root).resolve()
-    resolved = (resolved_root / candidate).resolve()
+        raise ValidationError("Artifact path must be relative")
+    try:
+        resolved_root = Path(root).resolve()
+    except (OSError, RuntimeError) as exc:
+        raise ValidationError("Cannot resolve artifact root") from exc
+    try:
+        resolved = (resolved_root / candidate).resolve()
+    except (OSError, RuntimeError) as exc:
+        raise ValidationError("Cannot resolve artifact path") from exc
     try:
         resolved.relative_to(resolved_root)
     except ValueError as exc:
-        raise ValidationError(f"Artifact path escapes its root: {relative_path}") from exc
+        raise ValidationError("Artifact path escapes its root") from exc
     return resolved

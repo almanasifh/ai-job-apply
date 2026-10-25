@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import shutil
 import stat
 import subprocess
+import time
 import zipfile
 from pathlib import Path
 
@@ -18,26 +20,34 @@ FIXED_ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 TEXT_SUFFIXES = {".json", ".jsonl", ".md", ".py", ".txt", ".yaml", ".yml"}
 
 
-def safe_reset(path: Path) -> None:
-    resolved_dist = DIST_ROOT.resolve()
+def safe_reset(path: Path, *, root: Path = DIST_ROOT, attempts: int = 5, retry_delay: float = 0.05) -> None:
+    resolved_dist = root.resolve()
     resolved = path.resolve()
     if resolved == resolved_dist or resolved_dist not in resolved.parents:
         raise ValueError(f"Refusing to reset path outside dist: {resolved}")
-    if resolved.exists():
-        shutil.rmtree(resolved)
-    resolved.mkdir(parents=True)
+    for attempt in range(attempts):
+        if not resolved.exists():
+            break
+        try:
+            shutil.rmtree(resolved)
+            break
+        except OSError as exc:
+            if exc.errno != errno.ENOTEMPTY or attempt == attempts - 1:
+                raise
+            time.sleep(retry_delay * (attempt + 1))
+    resolved.mkdir(parents=True, exist_ok=True)
 
 
-def tracked_files(source: Path) -> list[Path]:
-    relative_source = source.relative_to(REPO_ROOT).as_posix()
+def tracked_files(source: Path, *, repo_root: Path = REPO_ROOT) -> list[Path]:
+    relative_source = source.resolve().relative_to(repo_root.resolve()).as_posix()
     completed = subprocess.run(
         ["git", "ls-files", "-z", "--", f"{relative_source}/"],
-        cwd=REPO_ROOT,
+        cwd=repo_root,
         check=True,
         capture_output=True,
         text=True,
     )
-    files = [REPO_ROOT / relative for relative in completed.stdout.split("\0") if relative]
+    files = [repo_root / relative for relative in completed.stdout.split("\0") if relative]
     if not files:
         raise ValueError(f"No tracked files found under {source}")
     return sorted(files, key=lambda path: path.relative_to(source).as_posix())
@@ -49,8 +59,8 @@ def package_bytes(path: Path) -> bytes:
     return path.read_bytes()
 
 
-def copy_tree(source: Path, destination: Path) -> None:
-    for path in tracked_files(source):
+def copy_tree(source: Path, destination: Path, *, repo_root: Path = REPO_ROOT) -> None:
+    for path in tracked_files(source, repo_root=repo_root):
         relative = path.relative_to(source)
         target = destination / relative
         if path.is_symlink():
@@ -77,15 +87,15 @@ def create_zip(source: Path, destination: Path) -> None:
             archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
 
 
-def build() -> list[Path]:
-    metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
-    portable_root = DIST_ROOT / "portable-plugin" / metadata["name"]
-    codex_root = DIST_ROOT / "codex-plugin" / metadata["name"]
-    safe_reset(portable_root)
-    safe_reset(codex_root)
+def build(*, dist_root: Path = DIST_ROOT, repo_root: Path = REPO_ROOT, skill_root: Path = SKILL_ROOT) -> list[Path]:
+    metadata = json.loads((repo_root / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+    portable_root = dist_root / "portable-plugin" / metadata["name"]
+    codex_root = dist_root / "codex-plugin" / metadata["name"]
+    safe_reset(portable_root, root=dist_root)
+    safe_reset(codex_root, root=dist_root)
 
-    portable_manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
-    codex_manifest = json.loads((REPO_ROOT / "packaging" / "codex-plugin-template" / metadata["name"] / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    portable_manifest = json.loads((repo_root / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
+    codex_manifest = json.loads((repo_root / "packaging" / "codex-plugin-template" / metadata["name"] / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
     if portable_manifest["version"] != metadata["version"] or codex_manifest["version"] != metadata["version"]:
         raise ValueError("Manifest versions must match packaging/metadata.json")
     if portable_manifest.get("license") != metadata["license"] or codex_manifest.get("license") != metadata["license"]:
@@ -94,21 +104,23 @@ def build() -> list[Path]:
     write_json(portable_root / "plugin.json", portable_manifest)
     write_json(codex_root / ".codex-plugin" / "plugin.json", codex_manifest)
     (portable_root / f"{metadata['skill_name']}.md").write_bytes(build_portable.render())
-    copy_tree(SKILL_ROOT, portable_root / "skills" / metadata["skill_name"])
-    copy_tree(SKILL_ROOT, codex_root / "skills" / metadata["skill_name"])
-    shutil.copyfile(REPO_ROOT / "LICENSE", portable_root / "LICENSE")
-    shutil.copyfile(REPO_ROOT / "LICENSE", codex_root / "LICENSE")
+    copy_tree(skill_root, portable_root / "skills" / metadata["skill_name"], repo_root=repo_root)
+    copy_tree(skill_root, codex_root / "skills" / metadata["skill_name"], repo_root=repo_root)
+    shutil.copyfile(repo_root / "LICENSE", portable_root / "LICENSE")
+    shutil.copyfile(repo_root / "LICENSE", codex_root / "LICENSE")
 
-    portable_zip = DIST_ROOT / f"{metadata['name']}-portable.zip"
-    codex_zip = DIST_ROOT / f"{metadata['name']}-codex.zip"
+    portable_zip = dist_root / f"{metadata['name']}-portable.zip"
+    codex_zip = dist_root / f"{metadata['name']}-codex.zip"
     create_zip(portable_root, portable_zip)
     create_zip(codex_root, codex_zip)
     return [portable_root, codex_root, portable_zip, codex_zip]
 
 
 def main() -> int:
-    argparse.ArgumentParser(description="Stage deterministic portable and Codex plugin packages.").parse_args()
-    for path in build():
+    parser = argparse.ArgumentParser(description="Stage deterministic portable and Codex plugin packages.")
+    parser.add_argument("--dist", type=Path, default=DIST_ROOT)
+    args = parser.parse_args()
+    for path in build(dist_root=args.dist):
         print(f"BUILT: {path}")
     return 0
 

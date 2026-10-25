@@ -10,20 +10,18 @@ credentials*.json
 *token*.json
 
 # Personal profiles, CVs, application records, and exports
-private/
-.private/
-data/
-uploads/
-resumes/
-cvs/
-applications/
-exports/
-profile.json
-!.agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
+/private/
+/.private/
+/data/
+/uploads/
+/resumes/
+/cvs/
+/applications/
+/exports/
+/profile.json
 profile.local.*
-answers.json
-!.agents/skills/manage-job-applications/assets/fictional-profile-pack/answers.json
-applications.json
+/answers.json
+/applications.json
 *.pdf
 *.doc
 *.docx
@@ -34,6 +32,13 @@ applications.json
 *.db
 *.sqlite
 *.sqlite3
+
+# Explicitly allow reviewed fictional test and evaluation fixtures
+!tests/fixtures/**
+!evals/**/*.pdf
+!evals/**/*.docx
+!evals/**/*.csv
+!evals/**/*.tsv
 
 # Browser authentication and recovery data
 .auth/

@@ -32,6 +32,7 @@ Provide a generic job-application workflow that supports explicit candidate prof
 - Stage the Agent Plugins 1.0 package and Codex compatibility package.
 - Normalize archive ordering and timestamps for reproducible ZIP files.
 - Scan staged packages for secret patterns, private paths, symlinks, and blocked file types.
+- Keep package tests isolated from repository `dist/` output and retry only transient directory-not-empty cleanup failures.
 
 ## Skill-only boundary
 
@@ -51,7 +52,7 @@ Generic templates are implemented for a private candidate profile, scoped answer
 
 ### Phase 6 — Compatibility hardening
 
-Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package structure. Version 0.3.0 repairs standalone Markdown navigation, labels executable guidance accurately, rejects non-conforming portable manifests, and runs release checks on Windows and Linux CI. Version 0.3.1 adds code-level enum defense, unique batch targets, cached schema loading, and explicit evidence-reference and equal-timestamp semantics without changing workflow policy.
+Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package structure. Version 0.3.0 repairs standalone Markdown navigation, labels executable guidance accurately, rejects non-conforming portable manifests, and runs release checks on Windows and Linux CI. Version 0.3.1 adds code-level enum defense, unique batch targets, cached schema loading, and explicit evidence-reference and equal-timestamp semantics without changing workflow policy. Version 0.3.2 isolates package tests, normalizes filesystem failures, documents the supported schema subset, and checks Python 3.11 through 3.14 on both CI platforms.
 
 ## Release gates
 
