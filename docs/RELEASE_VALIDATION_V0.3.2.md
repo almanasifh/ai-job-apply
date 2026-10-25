@@ -28,7 +28,12 @@ Focused regressions verify isolated package output, exclusion of untracked files
 
 ## Compatibility validation
 
-The protected workflow runs the full release pipeline on Python 3.11 and reruns compilation and all tests on Python 3.12, 3.13, and 3.14 on both Windows and Linux. Record the final pull request and workflow run here before publication.
+Pull request [#7](https://github.com/almanasifh/ai-job-apply/pull/7) passed both matrix jobs in GitHub Actions run `40211291228`. Each job ran the full release pipeline on Python 3.11 and reran compilation and all 52 tests on Python 3.12, 3.13, and 3.14:
+
+- `Validate on ubuntu-latest`: passed;
+- `Validate on windows-latest`: passed.
+
+The implementation commit was `64e9a99`. The release-evidence-only follow-up commit must pass the same protected checks before merge.
 
 ## Behavioral validation
 
@@ -45,4 +50,4 @@ All packaged examples are fictional. The generated archives contain no creator c
 
 ## Release decision
 
-Local deterministic gates pass. Version 0.3.2 is eligible for merge, tagging, and publication after protected pull-request checks pass and packaged content remains unchanged.
+Local deterministic and protected compatibility gates pass. Version 0.3.2 is eligible for merge, tagging, and publication after the release-evidence-only follow-up passes the same checks and packaged content remains unchanged.
