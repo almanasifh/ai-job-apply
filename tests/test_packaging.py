@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import subprocess
@@ -8,6 +9,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -82,6 +84,23 @@ class PackagingTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected):
                     validate_release.scan_tree(Path(directory))
 
+    def test_ignore_policy_allows_fictional_fixture_locations(self) -> None:
+        cases = {
+            "data/private.json": True,
+            "tests/data/fictional.json": False,
+            "tests/fixtures/fictional.pdf": False,
+            "evals/fixtures/fictional.csv": False,
+            "tests/fixtures/credentials-fixture.json": False,
+        }
+        for relative_path, expected_ignored in cases.items():
+            with self.subTest(relative_path=relative_path):
+                completed = subprocess.run(
+                    ["git", "check-ignore", "-q", "--no-index", "--", relative_path],
+                    cwd=REPO_ROOT,
+                    check=False,
+                )
+                self.assertEqual(completed.returncode == 0, expected_ignored)
+
     def test_release_metadata_uses_mit_license(self) -> None:
         metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
         portable_manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
@@ -93,44 +112,70 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(license_content.splitlines()[0], b"MIT License")
 
     def test_staged_archives_are_reproducible(self) -> None:
-        stage_plugin.build()
-        metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
-        license_content = (REPO_ROOT / "LICENSE").read_bytes()
-        self.assertEqual((REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
-        self.assertEqual((REPO_ROOT / "dist" / "codex-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
-        portable_markdown = REPO_ROOT / "dist" / "portable-plugin" / metadata["name"] / f"{metadata['skill_name']}.md"
-        self.assertEqual(portable_markdown.read_bytes(), build_portable.render())
-        for package_type in ("portable-plugin", "codex-plugin"):
-            staged_skill = REPO_ROOT / "dist" / package_type / metadata["name"] / "skills" / metadata["skill_name"]
-            self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
-        archives = [
-            REPO_ROOT / "dist" / f"{metadata['name']}-portable.zip",
-            REPO_ROOT / "dist" / f"{metadata['name']}-codex.zip",
-        ]
-        first = [hashlib.sha256(path.read_bytes()).hexdigest() for path in archives]
-        stage_plugin.build()
-        second = [hashlib.sha256(path.read_bytes()).hexdigest() for path in archives]
-        self.assertEqual(first, second)
-        for index, path in enumerate(archives):
-            with zipfile.ZipFile(path) as archive:
-                self.assertEqual(archive.namelist(), sorted(archive.namelist()))
-                self.assertTrue(all(info.date_time == stage_plugin.FIXED_ZIP_TIME for info in archive.infolist()))
-                portable_name = f"{metadata['name']}/{metadata['skill_name']}.md"
-                self.assertEqual(portable_name in archive.namelist(), index == 0)
+        with tempfile.TemporaryDirectory() as directory:
+            dist_root = Path(directory) / "dist"
+            stage_plugin.build(dist_root=dist_root)
+            metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
+            license_content = (REPO_ROOT / "LICENSE").read_bytes()
+            self.assertEqual((dist_root / "portable-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
+            self.assertEqual((dist_root / "codex-plugin" / metadata["name"] / "LICENSE").read_bytes(), license_content)
+            portable_markdown = dist_root / "portable-plugin" / metadata["name"] / f"{metadata['skill_name']}.md"
+            self.assertEqual(portable_markdown.read_bytes(), build_portable.render())
+            for package_type in ("portable-plugin", "codex-plugin"):
+                staged_skill = dist_root / package_type / metadata["name"] / "skills" / metadata["skill_name"]
+                self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
+            archives = [
+                dist_root / f"{metadata['name']}-portable.zip",
+                dist_root / f"{metadata['name']}-codex.zip",
+            ]
+            first = [hashlib.sha256(path.read_bytes()).hexdigest() for path in archives]
+            stage_plugin.build(dist_root=dist_root)
+            second = [hashlib.sha256(path.read_bytes()).hexdigest() for path in archives]
+            self.assertEqual(first, second)
+            for index, path in enumerate(archives):
+                with zipfile.ZipFile(path) as archive:
+                    self.assertEqual(archive.namelist(), sorted(archive.namelist()))
+                    self.assertTrue(all(info.date_time == stage_plugin.FIXED_ZIP_TIME for info in archive.infolist()))
+                    portable_name = f"{metadata['name']}/{metadata['skill_name']}.md"
+                    self.assertEqual(portable_name in archive.namelist(), index == 0)
 
     def test_staging_excludes_untracked_skill_files(self) -> None:
-        metadata = json.loads((REPO_ROOT / "packaging" / "metadata.json").read_text(encoding="utf-8"))
-        local_file = stage_plugin.SKILL_ROOT / "assets" / "fictional-profile-pack" / "untracked-local-test.json"
-        self.assertFalse(local_file.exists())
-        try:
-            local_file.write_text('{"private": "must not be packaged"}\n', encoding="utf-8")
-            self.assertNotIn(b"must not be packaged", build_portable.render())
-            stage_plugin.build()
-            for package_type in ("portable-plugin", "codex-plugin"):
-                staged_skill = REPO_ROOT / "dist" / package_type / metadata["name"] / "skills" / metadata["skill_name"]
-                self.assertFalse((staged_skill / "assets" / "fictional-profile-pack" / local_file.name).exists())
-        finally:
-            local_file.unlink(missing_ok=True)
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            source = repo_root / "skill"
+            destination = repo_root / "output"
+            source.mkdir()
+            tracked = source / "tracked.txt"
+            untracked = source / "untracked.txt"
+            tracked.write_text("public\n", encoding="utf-8")
+            untracked.write_text("private\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=repo_root, check=True)
+            subprocess.run(["git", "add", "skill/tracked.txt"], cwd=repo_root, check=True)
+            stage_plugin.copy_tree(source, destination, repo_root=repo_root)
+            self.assertEqual((destination / tracked.name).read_text(encoding="utf-8"), "public\n")
+            self.assertFalse((destination / untracked.name).exists())
+
+    def test_safe_reset_retries_directory_not_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "dist"
+            target = root / "staging"
+            target.mkdir(parents=True)
+            (target / "old.txt").write_text("old", encoding="utf-8")
+            real_rmtree = stage_plugin.shutil.rmtree
+            calls = 0
+
+            def flaky_rmtree(path: Path) -> None:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    raise OSError(errno.ENOTEMPTY, "Directory not empty")
+                real_rmtree(path)
+
+            with mock.patch.object(stage_plugin.shutil, "rmtree", side_effect=flaky_rmtree):
+                stage_plugin.safe_reset(target, root=root, retry_delay=0)
+            self.assertEqual(calls, 2)
+            self.assertTrue(target.is_dir())
+            self.assertEqual(list(target.iterdir()), [])
 
     def test_cli_build_writes_requested_portable_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

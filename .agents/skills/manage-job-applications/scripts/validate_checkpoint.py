@@ -8,6 +8,7 @@ from typing import Any
 from common import (
     ValidationError,
     canonical_digest,
+    filesystem_error_reason,
     parse_datetime,
     parse_json_text,
     reject_extra_keys,
@@ -42,8 +43,10 @@ def load_events(path: Path) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeError) as exc:
-        raise ValidationError(f"Cannot read checkpoint {path}: {exc}") from exc
+    except OSError as exc:
+        raise ValidationError(f"Cannot read checkpoint {path.name}: {filesystem_error_reason(exc)}") from exc
+    except UnicodeError as exc:
+        raise ValidationError(f"Checkpoint {path.name} is not valid UTF-8") from exc
     for line_number, line in enumerate(lines, 1):
         if not line.strip():
             continue
