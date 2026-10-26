@@ -2,7 +2,7 @@
 
 A privacy-conscious, evidence-based skill for preparing, authorizing, packaging, and tracking job applications without inventing candidate facts or confusing preparation with submission.
 
-Current package version: **0.3.2**. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
+Current package version: **0.4.0**. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
 
 ## Scope
 
@@ -17,7 +17,9 @@ The repository now includes a working core release:
 - a canonical repo skill at `.agents/skills/manage-job-applications/`;
 - enforced JSON data contracts and fictional fixtures;
 - deterministic profile, answer, vacancy, match, package, approval, artifact, and checkpoint validators;
-- eighteen fictional behavioral evaluation scenarios with expected and forbidden outcomes;
+- twenty-three fictional behavioral evaluation scenarios with expected and forbidden outcomes;
+- bounded host-provided multi-agent orchestration with five specialist roles, deterministic delegation/result contracts, and sequential fallback;
+- a claim ledger that binds employer-facing claims to verified permitted facts;
 - generic private-profile, exact-review, and manual-handoff templates;
 - a self-contained portable Markdown builder;
 - portable Agent Plugin and Codex compatibility package builders;
@@ -69,6 +71,8 @@ python .agents/skills/manage-job-applications/scripts/validate_answers.py .agent
 python .agents/skills/manage-job-applications/scripts/validate_job.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json
 python .agents/skills/manage-job-applications/scripts/validate_match.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/match.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
 python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --at 2099-01-01T00:05:00Z
+python .agents/skills/manage-job-applications/scripts/validate_claims.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json
+python .agents/skills/manage-job-applications/scripts/validate_orchestration.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/delegation.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_checkpoint.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_evals.py
 ```

@@ -19,7 +19,7 @@ class SkillEvaluationCatalogTests(unittest.TestCase):
     def test_catalog_is_valid_and_complete(self) -> None:
         catalog = load_catalog(CATALOG)
         validate_catalog(catalog, repo_root=REPO_ROOT)
-        self.assertEqual(len(catalog["scenarios"]), 18)
+        self.assertEqual(len(catalog["scenarios"]), 23)
 
     def test_unknown_workflow_status_is_rejected(self) -> None:
         catalog = copy.deepcopy(load_catalog(CATALOG))

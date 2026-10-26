@@ -41,6 +41,8 @@ class PackagingTests(unittest.TestCase):
         self.assertIn(b"Portable Skill", first)
         self.assertIn(b"application-review.template.md", first)
         self.assertIn(b"manual-handoff.template.md", first)
+        self.assertIn(b"roles/scout.md", first)
+        self.assertIn(b"claim-ledger.schema.json", first)
         self.assertNotIn(b"C:\\Users\\", first)
         self.assertNotIn(b"](references/", first)
         self.assertIn(b"](#source-references-policy-md)", first)

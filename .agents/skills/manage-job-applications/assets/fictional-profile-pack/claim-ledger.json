@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "application_id": "app_example-support-101",
+  "candidate_id": "cand_jordan-example",
+  "claims": [
+    {
+      "claim_id": "claim_support-years",
+      "text": "Four years of customer support experience",
+      "use": "CV",
+      "artifact_ids": [
+        "artifact_fictional-resume"
+      ],
+      "evidence_ids": [
+        "fact_support-years"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim_id": "claim_python-automation",
+      "text": "Experience automating support workflows with Python",
+      "use": "CV",
+      "artifact_ids": [
+        "artifact_fictional-resume"
+      ],
+      "evidence_ids": [
+        "fact_python"
+      ],
+      "status": "VERIFIED"
+    }
+  ],
+  "ledger_digest": "862c42a1e642427e0455138d0f99bec48663411ba2b6fb51f7071107d326e5bf"
+}

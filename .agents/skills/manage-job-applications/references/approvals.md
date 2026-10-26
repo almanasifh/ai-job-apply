@@ -14,6 +14,12 @@ Reject an approval request containing more than 20 bindings and perform no actio
 
 Changing one package invalidates only its affected binding; unchanged bindings remain usable until expiry or explicit revocation. Adding a new application requires a new binding.
 
+## Multi-agent fan-in
+
+Do not request approval until all required specialist results have returned or been explicitly discarded, their contracts and referenced outputs validate, and the main agent has recomputed the final package and artifact digests. A late specialist result is outside the approved package. If it changes bound content, obtain a new approval for the affected binding.
+
+Only the main agent may present, hold, or use an approval. Delegating preparation never delegates submission authority.
+
 ## Preflight
 
 Immediately before action, verify:

@@ -43,8 +43,8 @@ def tracked_files(source: Path) -> list[Path]:
 def source_files() -> list[Path]:
     tracked = set(tracked_files(SKILL_ROOT))
     files = [SKILL_ROOT / "SKILL.md"]
-    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.md") if path in tracked), key=lambda path: path.name))
-    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.schema.json") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").rglob("*.md") if path in tracked), key=lambda path: path.relative_to(SKILL_ROOT).as_posix()))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").rglob("*.schema.json") if path in tracked), key=lambda path: path.relative_to(SKILL_ROOT).as_posix()))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*") if path in tracked), key=lambda path: path.name))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt") if path in tracked), key=lambda path: path.name))
     files.extend(

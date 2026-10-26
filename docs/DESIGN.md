@@ -32,7 +32,7 @@ At the start of a task, determine what the current host can actually do.
 
 ## Operating modes
 
-These are sequential responsibility modes for one agent, not separate deployed agents.
+These are responsibility modes. A host without subagents runs them sequentially. A host with multi-agent support may delegate independent bounded work under `references/orchestration.md`; this does not grant new tools or authority.
 
 | Mode | Responsibility | Required reference |
 | --- | --- | --- |
@@ -45,6 +45,12 @@ These are sequential responsibility modes for one agent, not separate deployed a
 | Checkpoint | Produce or update append-only event evidence | `references/checkpoints.md` |
 
 Load only the references relevant to the current mode.
+
+## Multi-agent boundary
+
+Five specialist roles may be delegated: Scout, Matcher, Drafter, Verifier, and Outcome Auditor. The main agent remains the privacy projector, coordinator, approval holder, external actor, and checkpoint writer. Specialists receive immutable input references, digests, minimum capabilities, and only the permitted facts required for their role.
+
+Parallelism is limited to independent vacancies, sources, or non-conflicting artifacts. Dependent work for one application preserves Scout -> Matcher -> Drafter -> Verifier order. All required results fan in before deterministic validation and human approval.
 
 ## End-to-end flow
 

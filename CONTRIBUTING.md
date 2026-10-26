@@ -17,6 +17,8 @@ This project packages a reusable agent skill. Keep proposed changes focused on s
 - Keep human approval tied to a specific job, CV version, and set of answers.
 - Treat changed application content as requiring renewed approval.
 - Use only host tools the user has authorized and the service permits.
+- Keep subagent tasks bounded by role, input digest, capability set, permitted facts, and expiry.
+- Keep approval holding, external action, and canonical checkpoint writing with the main agent.
 - Do not add a standalone app, dashboard, database, scheduler, or provider client without a separate explicit scope change.
 
 ## Validation

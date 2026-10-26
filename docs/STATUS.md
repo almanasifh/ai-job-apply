@@ -6,9 +6,9 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.2 is the latest published version. It isolates package tests, retries transient staging cleanup failures, normalizes filesystem validation errors, broadens Python compatibility checks, and improves repository security and onboarding guidance. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.2 is the latest published version. Version 0.4.0 is under review and is not yet published. It isolates package tests, retries transient staging cleanup failures, normalizes filesystem validation errors, broadens Python compatibility checks, and improves repository security and onboarding guidance. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
-The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
+The skill can use compatible host tools when they are available and authorized. The 0.4.0 candidate adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, a claim ledger, and sequential fallback. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
 ## Active files
 
@@ -45,6 +45,11 @@ The skill can use compatible host tools when they are available and authorized. 
 - Published version 0.3.2 with hermetic packaging tests, resilient staging cleanup, filesystem error hardening, Python 3.11 through 3.14 checks, and private vulnerability reporting guidance.
 - Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
+
+- Added bounded Scout, Matcher, Drafter, Verifier, and Outcome Auditor roles.
+- Added deterministic delegation, specialist-result, and employer-facing claim-ledger contracts and validators.
+- Preserved main-agent-only privacy projection, human approval, external action, and canonical checkpoint writing.
+- Added five multi-agent behavioral scenarios and recursive portable-reference packaging.
 
 ## Failed attempts
 

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/claim-ledger.schema.json",
+  "title": "Employer-facing claim ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "application_id",
+    "candidate_id",
+    "claims",
+    "ledger_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "application_id": {
+      "type": "string",
+      "pattern": "^app_[a-z0-9-]+$"
+    },
+    "candidate_id": {
+      "type": "string",
+      "pattern": "^cand_[a-z0-9-]+$"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "text",
+          "use",
+          "artifact_ids",
+          "evidence_ids",
+          "status"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^claim_[a-z0-9-]+$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "use": {
+            "enum": [
+              "CV",
+              "COVER_LETTER",
+              "SCREENING",
+              "CONTACT"
+            ]
+          },
+          "artifact_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^artifact_[a-z0-9-]+$"
+            }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^fact_[a-z0-9-]+$"
+            }
+          },
+          "status": {
+            "enum": [
+              "VERIFIED",
+              "UNKNOWN",
+              "REJECTED"
+            ]
+          }
+        }
+      }
+    },
+    "ledger_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/delegation.schema.json",
+  "title": "Bounded specialist delegation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "application_id",
+    "role",
+    "issued_at",
+    "expires_at",
+    "input_refs",
+    "input_digests",
+    "permitted_fact_ids",
+    "capabilities",
+    "task_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-z0-9-]+$"
+    },
+    "application_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "role": {
+      "enum": [
+        "SCOUT",
+        "MATCHER",
+        "DRAFTER",
+        "VERIFIER",
+        "OUTCOME_AUDITOR"
+      ]
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "input_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "input_digests": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "permitted_fact_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^fact_[a-z0-9-]+$"
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "READ_PUBLIC",
+          "READ_MINIMIZED_FACTS",
+          "DRAFT_STRUCTURED",
+          "DRAFT_CONTENT",
+          "VERIFY_CONTENT",
+          "READ_OUTCOME_EVIDENCE",
+          "VERIFY_OUTCOME"
+        ]
+      }
+    },
+    "task_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

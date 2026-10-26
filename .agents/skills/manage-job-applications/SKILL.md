@@ -63,6 +63,12 @@ Use this agent skill as a policy and workflow layer, not as a standalone applica
 - Read [checkpoints.md](references/checkpoints.md) for statuses and event-chain rules. Use only its canonical workflow statuses; never invent or combine status names.
 - Report `SENT`, `SUBMITTED`, delivery, and employer outcomes separately.
 
+## Multi-agent orchestration
+
+When the host supports subagents, read [orchestration.md](references/orchestration.md) and delegate only independent, bounded work through validated envelopes. Keep the main agent as the sole approval holder, external actor, and checkpoint writer. When subagents are unavailable, execute the same roles sequentially.
+
+Never send a complete private profile to a subagent. Create the minimum fact projection for the role, wait for all required results, validate them, and calculate the final package digest before requesting human approval.
+
 ## Validation tools
 
 When the repository or plugin package includes executable helpers, run these from the skill directory:
@@ -74,6 +80,8 @@ python scripts/validate_job.py assets/fictional-profile-pack/job.json
 python scripts/validate_match.py assets/fictional-profile-pack/match.json assets/fictional-profile-pack/job.json assets/fictional-profile-pack/profile.json
 python scripts/validate_checkpoint.py assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json
+python scripts/validate_claims.py assets/fictional-profile-pack/claim-ledger.json assets/fictional-profile-pack/profile.json assets/fictional-profile-pack/application.json
+python scripts/validate_orchestration.py assets/fictional-profile-pack/delegation.json assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python scripts/hash_artifacts.py <artifact> [<artifact> ...]
 ```
 

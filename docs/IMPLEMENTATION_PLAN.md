@@ -66,3 +66,11 @@ Version 0.2.1 validated canonical, portable, Agent Plugin, and Codex package str
 ## Evidence boundary
 
 One private instruction package was reviewed as requirements context. No CV, live account, provider session, or complete application history was audited. Those materials are not implementation evidence and must not be added to this repository.
+
+## Version 0.4.0 multi-agent orchestration
+
+- Add five bounded specialist roles with capability-gated host delegation and sequential fallback.
+- Add immutable delegation and specialist-result contracts with canonical digests.
+- Add a claim ledger that binds employer-facing artifact claims to verified facts and allowed uses.
+- Keep private-profile minimization, approval, external action, and checkpoint writing with the main agent.
+- Add regression tests, five behavioral scenarios, recursive portable reference packaging, and privacy-safe fictional fixtures.
