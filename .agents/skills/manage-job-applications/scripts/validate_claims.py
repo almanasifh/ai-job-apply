@@ -17,15 +17,24 @@ from common import (
     unique_strings,
     validate_against_schema,
 )
+from validate_application import validate_application
+from validate_profile import validate_profile
 
 
-def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
+def validate_claims(
+    ledger: Any,
+    profile: Any,
+    application: Any,
+    artifact_root: Path,
+) -> None:
     validate_against_schema(
         ledger, "claim-ledger.schema.json", "claim ledger"
     )
     data = require_object(ledger, "claim ledger")
+    validate_profile(profile)
+    validated_application = validate_application(application, artifact_root)
     profile_data = require_object(profile, "profile")
-    application_data = require_object(application, "application")
+    application_data = validated_application["application"]
     if data["candidate_id"] != profile_data.get("candidate_id"):
         raise ValidationError(
             "claim ledger candidate_id does not match profile"
@@ -33,6 +42,13 @@ def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
     if data["application_id"] != application_data.get("application_id"):
         raise ValidationError(
             "claim ledger application_id does not match application"
+        )
+    if (
+        data["application_version"] != application_data["version"]
+        or data["application_digest"] != application_data["payload_digest"]
+    ):
+        raise ValidationError(
+            "claim ledger is not bound to the exact application package"
         )
     facts = {
         require_string(item["id"], "profile fact id"): item
@@ -45,7 +61,7 @@ def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
         )
     }
     claim_ids: set[str] = set()
-    covered_fact_ids: set[str] = set()
+    covered_artifact_facts: set[tuple[str, str]] = set()
     for index, raw_claim in enumerate(
         require_list(data["claims"], "claim ledger.claims")
     ):
@@ -55,6 +71,7 @@ def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
         if claim_id in claim_ids:
             raise ValidationError(f"{label}.claim_id is duplicated")
         claim_ids.add(claim_id)
+        require_string(claim["text"], f"{label}.text")
         status = require_enum(
             claim["status"],
             {"VERIFIED", "UNKNOWN", "REJECTED"},
@@ -85,6 +102,10 @@ def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
             raise ValidationError(
                 f"{label}.evidence_ids must be empty unless VERIFIED"
             )
+        if status != "VERIFIED" and artifact_ids:
+            raise ValidationError(
+                f"{label}.artifact_ids must be empty unless VERIFIED"
+            )
         for evidence_id in evidence_ids:
             fact = facts.get(evidence_id)
             if fact is None:
@@ -99,19 +120,35 @@ def validate_claims(ledger: Any, profile: Any, application: Any) -> None:
                 raise ValidationError(
                     f"{label} uses {evidence_id} outside its allowed uses"
                 )
-            covered_fact_ids.add(evidence_id)
-    required_fact_ids = {
-        fact_id
-        for artifact in artifacts.values()
+        for artifact_id in artifact_ids:
+            artifact_fact_ids = set(
+                unique_strings(
+                    artifacts[artifact_id]["source_fact_ids"],
+                    f"artifact {artifact_id}.source_fact_ids",
+                )
+            )
+            unsupported = sorted(set(evidence_ids) - artifact_fact_ids)
+            if unsupported:
+                raise ValidationError(
+                    f"{label} uses facts not declared by artifact {artifact_id}: "
+                    + ", ".join(unsupported)
+                )
+            covered_artifact_facts.update(
+                (artifact_id, evidence_id) for evidence_id in evidence_ids
+            )
+    required_artifact_facts = {
+        (artifact_id, fact_id)
+        for artifact_id, artifact in artifacts.items()
         for fact_id in unique_strings(
-            artifact.get("source_fact_ids"), "artifact.source_fact_ids"
+            artifact["source_fact_ids"],
+            f"artifact {artifact_id}.source_fact_ids",
         )
     }
-    missing = sorted(required_fact_ids - covered_fact_ids)
+    missing = sorted(required_artifact_facts - covered_artifact_facts)
     if missing:
         raise ValidationError(
             "claim ledger does not cover artifact source facts: "
-            + ", ".join(missing)
+            + ", ".join(f"{artifact_id}:{fact_id}" for artifact_id, fact_id in missing)
         )
     require_sha256(data["ledger_digest"], "claim ledger.ledger_digest")
     if data["ledger_digest"] != canonical_digest(
@@ -131,12 +168,15 @@ def main() -> int:
     parser.add_argument("ledger", type=Path)
     parser.add_argument("profile", type=Path)
     parser.add_argument("application", type=Path)
+    parser.add_argument("--artifact-root", type=Path)
     args = parser.parse_args()
     try:
+        artifact_root = args.artifact_root or args.application.parent
         validate_claims(
             load_json(args.ledger),
             load_json(args.profile),
             load_json(args.application),
+            artifact_root,
         )
     except ValidationError as exc:
         print(f"INVALID: {exc}", file=sys.stderr)

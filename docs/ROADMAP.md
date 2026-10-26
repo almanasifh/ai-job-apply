@@ -13,7 +13,7 @@ This roadmap covers the reusable agent skill only. A standalone application, das
 | 4. Behavioral evaluations | Eighteen realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Original ten and all eight added scenarios have cross-format host evidence | Implemented and validated |
 | 5. Onboarding resources | Generic private-profile setup and manual handoff templates | Private-profile, exact-review, and handoff templates are packaged | Implemented |
 | 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | Implemented |
-| 7. Bounded multi-agent orchestration | Five specialist roles, delegation/result contracts, claim ledger, privacy minimization, and sequential fallback | Specialists cannot exceed role capabilities or bypass validation and approval | Implemented in 0.4.0 |
+| 7. Bounded multi-agent orchestration | Five specialist roles, delegation/result contracts, claim ledger, privacy minimization, and sequential fallback | Specialists cannot exceed role capabilities or bypass validation and approval | Implemented; behavioral validation pending |
 
 ## Skill behavior gates
 
@@ -37,10 +37,10 @@ A skill release must demonstrate with fictional data that:
 - [x] `SENT`, delivery, `SUBMITTED`, and employer outcomes remain distinct.
 - [x] Untrusted vacancy or email content cannot override skill policy.
 - [x] Public packages contain no applicant records, credentials, or local absolute paths.
-- [x] Delegation envelopes bind role, capability, inputs, permitted facts, expiry, and digest.
-- [x] Specialist results cannot authorize external action or write canonical outcomes.
-- [x] Employer-facing claim ledgers resolve artifact facts to verified permitted evidence.
-- [x] Late specialist changes invalidate only the affected approval binding.
+- [ ] Delegation envelopes bind role, capability, inputs, permitted facts, expiry, and digest in isolated host behavior.
+- [ ] Specialist results cannot authorize external action or write canonical outcomes in isolated host behavior.
+- [ ] Employer-facing claim ledgers resolve artifact facts to verified permitted evidence in isolated host behavior.
+- [ ] Late specialist changes invalidate only the affected approval binding in isolated host behavior.
 
 ## Release evidence
 

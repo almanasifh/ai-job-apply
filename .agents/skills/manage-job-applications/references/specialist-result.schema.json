@@ -8,6 +8,7 @@
     "schema_version",
     "run_id",
     "role",
+    "task_digest",
     "status",
     "started_at",
     "completed_at",
@@ -32,6 +33,10 @@
         "VERIFIER",
         "OUTCOME_AUDITOR"
       ]
+    },
+    "task_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
     },
     "status": {
       "enum": [

@@ -1,6 +1,8 @@
 {
   "schema_version": "1.0",
   "application_id": "app_example-support-101",
+  "application_version": 1,
+  "application_digest": "5173cb762ca5ebb90cec3a4f11d40f547ff54ca3e1b4e40e23627d016dcdd657",
   "candidate_id": "cand_jordan-example",
   "claims": [
     {
@@ -28,5 +30,5 @@
       "status": "VERIFIED"
     }
   ],
-  "ledger_digest": "862c42a1e642427e0455138d0f99bec48663411ba2b6fb51f7071107d326e5bf"
+  "ledger_digest": "11734741dcff6688fdbb74edc658feb40469033aa8b78b9985bc7637c93a5b9a"
 }

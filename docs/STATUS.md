@@ -16,7 +16,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - `packaging/` — portable Agent Plugin and Codex compatibility manifest sources.
 - `scripts/` — deterministic skill builders and release checks.
 - `tests/` — contract, semantic safety, privacy, and packaging tests.
-- `evals/` — eighteen fictional behavioral scenarios with expected and forbidden outcomes.
+- `evals/` — twenty-three fictional behavioral scenarios with expected and forbidden outcomes.
 - `.github/workflows/` — Windows and Linux continuous integration.
 - `docs/` — skill scope, design, compatibility, and release guidance.
 
@@ -50,6 +50,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added deterministic delegation, specialist-result, and employer-facing claim-ledger contracts and validators.
 - Preserved main-agent-only privacy projection, human approval, external action, and canonical checkpoint writing.
 - Added five multi-agent behavioral scenarios and recursive portable-reference packaging.
+- Cataloged the five orchestration scenarios; isolated portable and Codex host runs remain required before 0.4.0 behavioral validation is complete.
 
 ## Failed attempts
 

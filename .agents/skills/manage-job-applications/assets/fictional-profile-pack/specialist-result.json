@@ -2,6 +2,7 @@
   "schema_version": "1.0",
   "run_id": "run_example-match-101",
   "role": "MATCHER",
+  "task_digest": "494c598e57dce4cb57a635e41c29f6e5b4249aac37dd114e4467ea4e66ea1aab",
   "status": "COMPLETED",
   "started_at": "2099-01-01T00:01:00Z",
   "completed_at": "2099-01-01T00:02:00Z",
@@ -15,5 +16,5 @@
     "fact_support-years",
     "fact_python"
   ],
-  "result_digest": "5aa680368744e816fa547a476f4d339be2ee880b83cf38083fb7e8b2be5b71a8"
+  "result_digest": "dd356f7fe6909b2cc5a8dd7a6f970b51e5277e2be542c7b03acafb5fca440603"
 }

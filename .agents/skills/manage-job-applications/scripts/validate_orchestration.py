@@ -40,6 +40,8 @@ def validate_delegation(value: Any, at: datetime) -> dict[str, Any]:
             f"delegation.capabilities must exactly match the {role} capability set"
         )
     refs = unique_strings(data["input_refs"], "delegation.input_refs")
+    if not refs:
+        raise ValidationError("delegation must contain at least one input")
     digests = require_list(data["input_digests"], "delegation.input_digests")
     for index, digest in enumerate(digests):
         require_sha256(digest, f"delegation.input_digests[{index}]")
@@ -54,10 +56,20 @@ def validate_delegation(value: Any, at: datetime) -> dict[str, Any]:
         raise ValidationError(
             f"{role} delegation cannot receive candidate fact identifiers"
         )
+    if role != "SCOUT":
+        application_id = require_string(
+            data["application_id"], "delegation.application_id"
+        )
+        if not application_id.startswith("app_"):
+            raise ValidationError(
+                "delegation.application_id must start with app_"
+            )
     issued = parse_datetime(data["issued_at"], "delegation.issued_at")
     expires = parse_datetime(data["expires_at"], "delegation.expires_at")
     if expires <= issued:
         raise ValidationError("delegation.expires_at must be after issued_at")
+    if at.tzinfo is None:
+        raise ValidationError("delegation validation time must include a timezone")
     current = at.astimezone(timezone.utc)
     if (
         current < issued.astimezone(timezone.utc)
@@ -72,7 +84,9 @@ def validate_delegation(value: Any, at: datetime) -> dict[str, Any]:
     return data
 
 
-def validate_result(value: Any, delegation: dict[str, Any]) -> None:
+def validate_result(
+    value: Any, delegation: dict[str, Any], at: datetime
+) -> None:
     validate_against_schema(value, "specialist-result.schema.json", "result")
     data = require_object(value, "result")
     if (
@@ -82,12 +96,25 @@ def validate_result(value: Any, delegation: dict[str, Any]) -> None:
         raise ValidationError(
             "result is bound to a different delegation run or role"
         )
+    require_sha256(data["task_digest"], "result.task_digest")
+    if data["task_digest"] != delegation["task_digest"]:
+        raise ValidationError("result is bound to a different delegation task")
     started = parse_datetime(data["started_at"], "result.started_at")
     completed = parse_datetime(data["completed_at"], "result.completed_at")
     if completed < started:
         raise ValidationError(
             "result.completed_at is earlier than started_at"
         )
+    issued = parse_datetime(delegation["issued_at"], "delegation.issued_at")
+    expires = parse_datetime(delegation["expires_at"], "delegation.expires_at")
+    if started < issued or completed >= expires:
+        raise ValidationError(
+            "result execution must remain within the delegation validity window"
+        )
+    if at.tzinfo is None:
+        raise ValidationError("result validation time must include a timezone")
+    if completed > at.astimezone(timezone.utc):
+        raise ValidationError("result cannot complete after validation time")
     refs = unique_strings(data["output_refs"], "result.output_refs")
     digests = require_list(data["output_digests"], "result.output_digests")
     for index, digest in enumerate(digests):
@@ -96,11 +123,29 @@ def validate_result(value: Any, delegation: dict[str, Any]) -> None:
         raise ValidationError(
             "result output_refs and output_digests must have equal length"
         )
-    status = require_string(data["status"], "result.status")
+    evidence_ids = unique_strings(data["evidence_ids"], "result.evidence_ids")
+    status = require_enum(
+        data["status"],
+        {"COMPLETED", "BLOCKED", "FAILED", "CANCELLED"},
+        "result.status",
+    )
     if status == "COMPLETED" and not refs:
         raise ValidationError(
             "completed result must contain at least one output reference"
         )
+    if status != "COMPLETED" and (refs or evidence_ids):
+        raise ValidationError(
+            "non-completed result cannot provide outputs or evidence"
+        )
+    if data["role"] in {"MATCHER", "DRAFTER", "VERIFIER"}:
+        unauthorized = sorted(
+            set(evidence_ids) - set(delegation["permitted_fact_ids"])
+        )
+        if unauthorized:
+            raise ValidationError(
+                "result evidence exceeds permitted delegation facts: "
+                + ", ".join(unauthorized)
+            )
     require_sha256(data["result_digest"], "result.result_digest")
     if data["result_digest"] != canonical_digest(
         data, omit={"result_digest"}
@@ -125,7 +170,7 @@ def main() -> int:
             else datetime.now(timezone.utc)
         )
         delegation = validate_delegation(load_json(args.delegation), at)
-        validate_result(load_json(args.result), delegation)
+        validate_result(load_json(args.result), delegation, at)
     except ValidationError as exc:
         print(f"INVALID: {exc}", file=sys.stderr)
         return 1

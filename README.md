@@ -2,7 +2,7 @@
 
 A privacy-conscious, evidence-based skill for preparing, authorizing, packaging, and tracking job applications without inventing candidate facts or confusing preparation with submission.
 
-Current package version: **0.4.0**. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
+Latest published release: **0.3.2**. Current branch candidate: **0.4.0**. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
 
 ## Scope
 

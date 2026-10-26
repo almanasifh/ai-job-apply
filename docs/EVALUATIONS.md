@@ -1,6 +1,6 @@
 # Behavioral Evaluations
 
-`evals/behavioral-scenarios.json` contains twenty-three fictional scenarios for reviewing the skill's decisions. The catalog covers source verification, mandatory gaps, truthful claims, unavailable tools, stale, expired, and future approvals, uncertain results, prompt injection, duplicates, batch limits, language alignment, employer exclusions, shortlist authority, required answers, security challenges, outcome separation, and artifact QA.
+`evals/behavioral-scenarios.json` contains twenty-three fictional scenarios for reviewing the skill's decisions. The catalog covers source verification, mandatory gaps, truthful claims, unavailable tools, stale, expired, and future approvals, uncertain results, prompt injection, duplicates, batch limits, language alignment, employer exclusions, shortlist authority, required answers, security challenges, outcome separation, artifact QA, delegation privacy and authority, late specialist results, delegated claims, and delegated outcome reconciliation.
 
 ## Validate the catalog
 

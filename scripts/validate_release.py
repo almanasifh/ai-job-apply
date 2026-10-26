@@ -185,6 +185,8 @@ def main() -> int:
     match_validator = load_module("match_validator", SKILL_ROOT / "scripts" / "validate_match.py")
     application_validator = load_module("application_validator", SKILL_ROOT / "scripts" / "validate_application.py")
     checkpoint_validator = load_module("checkpoint_validator", SKILL_ROOT / "scripts" / "validate_checkpoint.py")
+    claims_validator = load_module("claims_validator", SKILL_ROOT / "scripts" / "validate_claims.py")
+    orchestration_validator = load_module("orchestration_validator", SKILL_ROOT / "scripts" / "validate_orchestration.py")
     evaluation_validator = load_module("evaluation_validator", REPO_ROOT / "scripts" / "validate_evals.py")
 
     metadata = load_json_object(REPO_ROOT / "packaging" / "metadata.json")
@@ -235,11 +237,27 @@ def main() -> int:
             common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
         )
         checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(assets / "checkpoint.jsonl"))
+        claims_validator.validate_claims(
+            common.load_json(assets / "claim-ledger.json"),
+            profile,
+            validated["application"],
+            assets,
+        )
+        fixture_time = common.parse_datetime("2099-01-01T00:05:00Z", "fixture time")
+        delegation = orchestration_validator.validate_delegation(
+            common.load_json(assets / "delegation.json"),
+            fixture_time,
+        )
+        orchestration_validator.validate_result(
+            common.load_json(assets / "specialist-result.json"),
+            delegation,
+            fixture_time,
+        )
     evaluation_validator.validate_catalog(
         evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
         repo_root=REPO_ROOT,
     )
-    print("VALID: staged release, manifests, archives, all fixtures, hash chains, and evaluation catalog")
+    print("VALID: staged release, manifests, archives, all fixtures, orchestration contracts, hash chains, and evaluation catalog")
     return 0
 
 

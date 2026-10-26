@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 from pathlib import Path
@@ -67,28 +68,44 @@ def source_anchor(relative: str) -> str:
     return "source-" + re.sub(r"[^a-z0-9]+", "-", relative.lower()).strip("-")
 
 
-def portable_skill_body(text: str, files: list[Path]) -> str:
-    body = skill_body(text)
-    anchors = {
+def source_anchors(files: list[Path]) -> dict[str, str]:
+    return {
         path.relative_to(SKILL_ROOT).as_posix(): source_anchor(path.relative_to(SKILL_ROOT).as_posix())
         for path in files[1:]
     }
 
+
+def rewrite_markdown_links(
+    text: str,
+    anchors: dict[str, str],
+    *,
+    source_relative: str | None = None,
+) -> str:
+
     def replace_link(match: re.Match[str]) -> str:
         label, target = match.groups()
-        if target == "references":
+        if source_relative is None and target == "references":
             return f"[{label}](#embedded-sources)"
-        anchor = anchors.get(target)
+        if target.startswith(("#", "/")) or re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE):
+            return match.group(0)
+        base = posixpath.dirname(source_relative) if source_relative else ""
+        resolved = posixpath.normpath(posixpath.join(base, target))
+        anchor = anchors.get(resolved)
         if anchor is None:
             return match.group(0)
         return f"[{label}](#{anchor})"
 
-    return MARKDOWN_LINK_PATTERN.sub(replace_link, body)
+    return MARKDOWN_LINK_PATTERN.sub(replace_link, text)
+
+
+def portable_skill_body(text: str, files: list[Path]) -> str:
+    return rewrite_markdown_links(skill_body(text), source_anchors(files))
 
 
 def render() -> bytes:
     metadata = json.loads(read_text(REPO_ROOT / "packaging" / "metadata.json"))
     files = source_files()
+    anchors = source_anchors(files)
     source_digest = hashlib.sha256()
     for path in files:
         relative = path.relative_to(REPO_ROOT).as_posix()
@@ -118,7 +135,13 @@ def render() -> bytes:
             f"## Embedded Source: `{relative}`", "",
         ])
         if path.suffix == ".md":
-            sections.append(content)
+            sections.append(
+                rewrite_markdown_links(
+                    content,
+                    anchors,
+                    source_relative=relative,
+                )
+            )
         else:
             language = "json" if ".json" in path.name else "text"
             sections.extend([f"```{language}", content, "```"])

@@ -46,6 +46,8 @@ class PackagingTests(unittest.TestCase):
         self.assertNotIn(b"C:\\Users\\", first)
         self.assertNotIn(b"](references/", first)
         self.assertIn(b"](#source-references-policy-md)", first)
+        self.assertIn(b"](#source-references-roles-scout-md)", first)
+        self.assertNotIn(b"](roles/scout.md)", first)
         self.assertIn(b"standalone portable Markdown edition", first)
 
     def test_portable_manifest_uses_standard_schema(self) -> None:
