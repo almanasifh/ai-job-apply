@@ -2,7 +2,7 @@
 
 Evaluation date: 2026-10-27
 
-Evaluated candidate: `feature/multi-agent-orchestration` after claim-ledger approval binding and digest hardening
+Evaluated candidate: version 0.4.0 release candidate including claim-ledger approval hardening
 
 Hosts:
 
@@ -36,11 +36,11 @@ The remaining twenty-seven scenarios, including the nine skill-runtime orchestra
 
 The candidate passed:
 
-- all 100 unit tests;
+- all 107 unit tests;
 - evaluation-catalog validation with `evidence_scope`;
 - release validation of staged fixtures, role envelopes, claim ledger, and hash chains;
 - two package builds whose ZIP installs independently satisfied the four Phase 7 gates.
 
 ## Release decision
 
-Contract and clean-package gate evidence for Phase 7 is complete. Publication of version 0.4.0 remains gated on protected Windows and Linux CI for the final committed revision and the ordinary release runbook.
+Contract and clean-package gate evidence for Phase 7 is complete. Publication of version 0.4.0 remains gated on merging the hardening pull request, protected CI on the merge tip, and the ordinary release runbook.
