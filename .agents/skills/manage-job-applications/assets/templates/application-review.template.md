@@ -19,6 +19,7 @@
 - Message or cover letter: `{{exact_message_or_reference}}`
 - Screening answers: `{{exact_answers_or_reference}}`
 - Payload digest: `{{payload_digest}}`
+- Claim ledger digest: `{{claim_ledger_digest}}`
 
 ## Artifacts
 

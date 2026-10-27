@@ -180,6 +180,10 @@ def validate_result(
         raise ValidationError(
             "non-completed result must explain the unresolved condition"
         )
+    if data["role"] in {"SCOUT", "TRACKER"} and evidence_ids:
+        raise ValidationError(
+            f"{data['role']} result cannot cite candidate evidence identifiers"
+        )
     if data["role"] in {"MATCHER", "DRAFTER", "VERIFIER"}:
         unauthorized = sorted(
             set(evidence_ids) - set(delegation["permitted_fact_ids"])

@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.2 is the latest published version. Version 0.4.0 is under review and is not yet published. The 0.4.0 candidate adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, claim-ledger approval bindings, recomputed fixture digests, and sequential fallback. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.2 is the latest published version. Version 0.4.0 is merged to `main` and is not yet published as a tagged release. It adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, claim-ledger approval bindings, and sequential fallback. Follow-up hardening requires CLI claim-ledger validation against the profile, role digest cross-checks in release validation, and Scout/Tracker evidence bans. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -119,7 +120,7 @@ class ContractTests(unittest.TestCase):
             claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
         )
 
-    def test_authorization_requires_claim_ledger_when_artifacts_exist(self) -> None:
+    def test_authorization_requires_validated_claim_ledger_digest(self) -> None:
         validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
         with self.assertRaisesRegex(ValidationError, "claim_ledger_digest"):
             validate_authorization(
@@ -127,6 +128,15 @@ class ContractTests(unittest.TestCase):
                 validated,
                 parse_datetime("2099-01-01T00:05:00Z", "test time"),
             )
+
+    def test_verified_application_answer_requires_value(self) -> None:
+        application = load_json(ASSETS / "application.json")
+        application["answers"][0]["answer"] = None
+        application["payload_digest"] = canonical_digest(
+            application, omit={"payload_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "non-null answer"):
+            validate_application(application, ASSETS)
 
     def test_mismatched_claim_ledger_digest_is_rejected(self) -> None:
         validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
@@ -297,6 +307,57 @@ class ContractTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 data = json.loads(path.read_text(encoding="utf-8"))
                 self.assertEqual(data["$schema"], "https://json-schema.org/draft/2020-12/schema")
+
+    def test_application_cli_validates_claim_ledger_against_profile(self) -> None:
+        script = SKILL_ROOT / "scripts" / "validate_application.py"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                str(ASSETS / "application.json"),
+                str(ASSETS / "authorization.json"),
+                "--claim-ledger",
+                str(ASSETS / "claim-ledger.json"),
+                "--profile",
+                str(ASSETS / "profile.json"),
+                "--at",
+                "2099-01-01T00:05:00Z",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+
+    def test_application_cli_rejects_invented_claim_evidence(self) -> None:
+        script = SKILL_ROOT / "scripts" / "validate_application.py"
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = load_json(ASSETS / "claim-ledger.json")
+            ledger["claims"][0]["evidence_ids"] = ["fact_not-real"]
+            ledger["ledger_digest"] = canonical_digest(
+                ledger, omit={"ledger_digest"}
+            )
+            ledger_path = Path(directory) / "claim-ledger.json"
+            ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(script),
+                    str(ASSETS / "application.json"),
+                    str(ASSETS / "authorization.json"),
+                    "--claim-ledger",
+                    str(ledger_path),
+                    "--profile",
+                    str(ASSETS / "profile.json"),
+                    "--at",
+                    "2099-01-01T00:05:00Z",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("INVALID:", completed.stderr)
 
 
 if __name__ == "__main__":

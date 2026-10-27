@@ -276,6 +276,48 @@ def main() -> int:
             raise ValueError(
                 f"{assets / 'specialist-result.json'} output_digests do not match match.json"
             )
+        resume_digest = common.file_digest(assets / "fictional-resume.txt")[1]
+        ledger_digest = claim_ledger["ledger_digest"]
+        findings_digest = content_digest(
+            common, common.load_json(assets / "verifier-findings.json")
+        )
+        outcome_digest = content_digest(
+            common, common.load_json(assets / "outcome-evidence.json")
+        )
+        checkpoint_ref = common.load_json(assets / "checkpoint-reference.json")
+        checkpoint_events = checkpoint_validator.load_events(assets / "checkpoint.jsonl")
+        tip_hash = checkpoint_events[-1]["event_hash"]
+        if checkpoint_ref.get("latest_event_hash") != tip_hash:
+            raise ValueError(
+                f"{assets / 'checkpoint-reference.json'} latest_event_hash does not match checkpoint tip"
+            )
+        checkpoint_ref_digest = content_digest(common, checkpoint_ref)
+        proposal_digest = content_digest(
+            common, common.load_json(assets / "tracker-proposal.json")
+        )
+        expected_role_digests = {
+            "scout": {
+                "input_digests": [job["content_digest"]],
+                "output_digests": [job["content_digest"]],
+            },
+            "drafter": {
+                "input_digests": [match_digest, facts_digest],
+                "output_digests": [resume_digest],
+            },
+            "verifier": {
+                "input_digests": [
+                    match_digest,
+                    facts_digest,
+                    resume_digest,
+                    ledger_digest,
+                ],
+                "output_digests": [findings_digest],
+            },
+            "tracker": {
+                "input_digests": [outcome_digest, checkpoint_ref_digest],
+                "output_digests": [proposal_digest],
+            },
+        }
         role_pairs = []
         for role in ("scout", "drafter", "verifier", "tracker"):
             role_delegation = orchestration_validator.validate_delegation(
@@ -288,6 +330,15 @@ def main() -> int:
                 role_delegation,
                 fixture_time,
             )
+            expected = expected_role_digests[role]
+            if role_delegation["input_digests"] != expected["input_digests"]:
+                raise ValueError(
+                    f"{assets / f'delegation-{role}.json'} input_digests do not match fixture bytes"
+                )
+            if role_result["output_digests"] != expected["output_digests"]:
+                raise ValueError(
+                    f"{assets / f'specialist-result-{role}.json'} output_digests do not match fixture bytes"
+                )
             role_pairs.append((role_delegation, role_result))
         orchestration_validator.validate_result_set(role_pairs, fixture_time)
     evaluation_validator.validate_catalog(

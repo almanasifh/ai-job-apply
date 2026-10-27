@@ -17,12 +17,12 @@
   ],
   "input_digests": [
     "aab25210680c518964c68d7c93bde6b6975182249824824c9d77b85e4e09ed4e",
-    "a9d8bba7da3ca9050d1f8b3a1a6a40ea2b84469a3f4d476aad3e32221d1d6296"
+    "c9ce01bf5e3dcd7745e1440ce55a5e4d91212a8fc1e9e5e67b64db14ef76f08f"
   ],
   "permitted_fact_ids": [],
   "capabilities": [
     "READ_OUTCOME_EVIDENCE",
     "VERIFY_OUTCOME"
   ],
-  "task_digest": "f5e1cf4850ea7d50b0b30ff4424419c0a681fc1f3d2e9f96cdf8ed5f66848111"
+  "task_digest": "5837aa05e367bc5087f04b3180248d688d6572df103bcab896d9c86b33df421c"
 }

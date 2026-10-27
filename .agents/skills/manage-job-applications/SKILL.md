@@ -82,7 +82,7 @@ python scripts/validate_job.py assets/fictional-profile-pack/job.json
 python scripts/validate_match.py assets/fictional-profile-pack/match.json assets/fictional-profile-pack/job.json assets/fictional-profile-pack/profile.json
 python scripts/validate_checkpoint.py assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_claims.py assets/fictional-profile-pack/claim-ledger.json assets/fictional-profile-pack/profile.json assets/fictional-profile-pack/application.json
-python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json --claim-ledger assets/fictional-profile-pack/claim-ledger.json --at 2099-01-01T00:05:00Z
+python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json --claim-ledger assets/fictional-profile-pack/claim-ledger.json --profile assets/fictional-profile-pack/profile.json --at 2099-01-01T00:05:00Z
 python scripts/validate_orchestration.py assets/fictional-profile-pack/delegation.json assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python scripts/hash_artifacts.py <artifact> [<artifact> ...]
 ```

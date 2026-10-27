@@ -188,7 +188,19 @@ class PackagingTests(unittest.TestCase):
             self.assertEqual(portable_markdown.read_bytes(), build_portable.render())
             for package_type in ("portable-plugin", "codex-plugin"):
                 staged_skill = dist_root / package_type / metadata["name"] / "skills" / metadata["skill_name"]
-                self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
+                pack = staged_skill / "assets" / "fictional-profile-pack"
+                for name in (
+                    "answers.json",
+                    "claim-ledger.json",
+                    "minimized-facts.json",
+                    "delegation.json",
+                    "delegation-scout.json",
+                    "delegation-drafter.json",
+                    "delegation-verifier.json",
+                    "delegation-tracker.json",
+                    "checkpoint-reference.json",
+                ):
+                    self.assertTrue((pack / name).is_file(), name)
                 self.assertEqual(
                     {path.name for path in (staged_skill / "references" / "roles").glob("*.md")},
                     self.EXPECTED_ROLES,
