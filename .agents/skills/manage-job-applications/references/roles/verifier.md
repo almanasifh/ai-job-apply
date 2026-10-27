@@ -6,8 +6,7 @@ Independently review a draft package, claim ledger, match, and immutable artifac
 
 ## Allowed inputs
 
-- Draft and artifact references with their digests.
-- The validated vacancy, match, and claim-ledger references.
+- Draft artifact, match, claim-ledger, and minimized fact references with their digests.
 - Only the permitted fact identifiers needed to check the claims.
 - The delegation envelope with `READ_MINIMIZED_FACTS` and `VERIFY_CONTENT`.
 

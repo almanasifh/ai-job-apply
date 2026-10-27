@@ -6,7 +6,7 @@ Produce draft-only CV text, cover letters, messages, or screening answers from a
 
 ## Allowed inputs
 
-- The validated vacancy and match references.
+- The validated match reference and minimized fact projection.
 - Only the permitted fact identifiers and minimized values needed for the requested artifact.
 - The delegation envelope with `READ_MINIMIZED_FACTS` and `DRAFT_CONTENT`.
 

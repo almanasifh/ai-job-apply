@@ -6,9 +6,9 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.2 is the latest published version. Version 0.4.0 is under review and is not yet published. It isolates package tests, retries transient staging cleanup failures, normalizes filesystem validation errors, broadens Python compatibility checks, and improves repository security and onboarding guidance. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.2 is the latest published version. Version 0.4.0 is under review and is not yet published. The 0.4.0 candidate adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, claim-ledger approval bindings, recomputed fixture digests, and sequential fallback. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
-The skill can use compatible host tools when they are available and authorized. The 0.4.0 candidate adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, a claim ledger, and sequential fallback. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
+The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
 ## Active files
 
@@ -46,11 +46,12 @@ The skill can use compatible host tools when they are available and authorized. 
 - Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
-- Added bounded Scout, Matcher, Drafter, Verifier, and Tracker roles.
+- Added bounded Scout, Matcher, Drafter, Verifier, and Tracker roles with fixtures for each role.
 - Added deterministic delegation, specialist-result, and employer-facing claim-ledger contracts and validators.
+- Bound `claim_ledger_digest` into authorization packages and recomputed job, delegation, and specialist content digests.
 - Preserved main-agent-only privacy projection, human approval, external action, and canonical checkpoint writing.
-- Added five multi-agent behavioral scenarios and recursive portable-reference packaging.
-- Cataloged eleven orchestration scenarios. This development session verified real Codex repository-review subagent threads, while isolated packaged-skill runs on portable and Codex hosts remain required before 0.4.0 behavioral validation is complete.
+- Cataloged eleven orchestration-related scenarios within a twenty-nine scenario catalog, classifying native spawn as host-capability evidence and sensitive-fixture scanning as release-packaging evidence.
+- Added recursive portable-reference packaging for nested role files.
 - Added project-scoped Codex custom-agent definitions and an initial five-concurrent-specialist configuration. These instructions inherit the parent session's permissions and are not a sandbox boundary.
 
 ## Failed attempts
@@ -64,9 +65,10 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
-2. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
-3. Continue requiring protected Windows and Linux CI before changes reach `main`.
+1. Land protected Windows and Linux CI for the 0.4.0 candidate, then publish synchronized packages, checksums, and release notes.
+2. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
+3. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
+4. Continue requiring protected Windows and Linux CI before changes reach `main`.
 
 ## Evidence boundary
 

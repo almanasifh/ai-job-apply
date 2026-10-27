@@ -4,7 +4,7 @@
   "task_id": "task_example-match-101",
   "attempt_id": "attempt_example-match-101-01",
   "role": "MATCHER",
-  "task_digest": "9cc8513f1225ff797c75d536ba64eec659869858d856b3cb90d810ff0d7c32d6",
+  "task_digest": "c1627ce4a374030508bc4dcfe4344b36e065877c4080335bfc5c6640bbeeb04e",
   "status": "COMPLETED",
   "started_at": "2099-01-01T00:01:00Z",
   "completed_at": "2099-01-01T00:02:00Z",
@@ -12,7 +12,7 @@
     "match_example-support-101"
   ],
   "output_digests": [
-    "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    "56592ae59607ecebe505c27ea428390b4b8961aa69a41e325e8a1a7e0106327e"
   ],
   "evidence_ids": [
     "fact_support-years",
@@ -20,5 +20,5 @@
   ],
   "unresolved": [],
   "external_action_taken": false,
-  "result_digest": "88ed810fc2fc5e567c8bd242fbf414745e013e46b4dc6ef545396b615ba27be6"
+  "result_digest": "c50d528511e3d7c8dce6ce92860b2a45d42c2c4231a1cf093f1459a6def9a86d"
 }

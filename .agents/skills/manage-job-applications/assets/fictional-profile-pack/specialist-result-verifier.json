@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-support-101",
+  "task_id": "task_example-verify-101",
+  "attempt_id": "attempt_example-verify-101-01",
+  "role": "VERIFIER",
+  "status": "COMPLETED",
+  "started_at": "2099-01-01T00:01:00Z",
+  "completed_at": "2099-01-01T00:02:00Z",
+  "output_refs": [
+    "verifier_findings_example-support-101"
+  ],
+  "output_digests": [
+    "9b6378bf3c42be696460da476e7f0174b71a2428105396010b6253fd56e40839"
+  ],
+  "evidence_ids": [
+    "fact_support-years",
+    "fact_python"
+  ],
+  "unresolved": [],
+  "external_action_taken": false,
+  "task_digest": "01154992376c0eb31c2f1d1d3f2db39f1298b66ba6f22f73331b073149464606",
+  "result_digest": "d6899f37e5a077e4af339b0ea82dc44e3dc0a98556efdd16c46555f0be99f665"
+}

@@ -63,7 +63,7 @@ flowchart TD
     C --> D{Duplicate, excluded, or mandatory gap?}
     D -->|Yes| E[Explain skip or hold]
     D -->|No| F[Map requirements to verified evidence]
-    F --> G[Prepare exact application package]
+    F --> G[Prepare exact application package and claim ledger]
     G --> H[Present final review]
     H --> I{Valid package-bound approval?}
     I -->|No| J[Keep draft or produce manual handoff]
@@ -104,7 +104,7 @@ Reusable answers remain scoped to the relevant country, employer, job, or global
 
 A shortlist decision is not submission authorization.
 
-Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, and ordered artifact hashes. Exact approvals default to 15 minutes and are inactive before `issued_at`. A bounded batch may contain at most 20 complete immutable bindings.
+Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, ordered artifact hashes, and claim-ledger digest. Exact approvals default to 15 minutes and are inactive before `issued_at`. A bounded batch may contain at most 20 complete immutable bindings. The claim ledger must validate against verified permitted facts before that digest may enter a binding.
 
 Changing one package invalidates only its affected binding. Adding a new package requires a new binding. Approval never grants permission to bypass authentication, CAPTCHAs, rate limits, provider rules, or security controls.
 

@@ -44,11 +44,13 @@ Use this agent skill as a policy and workflow layer, not as a standalone applica
 - Draft only from permitted evidence and preserve provenance for every material claim.
 - Read [documents.md](references/documents.md) for CV, cover letter, answer, and artifact checks.
 - Bind each artifact by relative path, byte count, media type, and lowercase SHA-256.
+- Build and validate an employer-facing claim ledger that binds every artifact claim to verified permitted facts, then bind its digest into the package review.
 
 ### 5. Review and authorize
 
-- Present the employer, role, job identity, channel, sender account reference, destination, exact message/answers, artifact hashes, and unresolved items.
+- Present the employer, role, job identity, channel, sender account reference, destination, exact message/answers, artifact hashes, claim-ledger digest, and unresolved items.
 - Read [approvals.md](references/approvals.md). Default exact approvals expire after 15 minutes.
+- Do not request approval until required specialist results, deterministic validators, and the claim ledger pass.
 - A batch may contain at most 20 immutable application bindings. A changed binding requires new approval only for that binding.
 
 ### 6. Use the channel safely
@@ -79,8 +81,8 @@ python scripts/validate_answers.py assets/fictional-profile-pack/answers.json
 python scripts/validate_job.py assets/fictional-profile-pack/job.json
 python scripts/validate_match.py assets/fictional-profile-pack/match.json assets/fictional-profile-pack/job.json assets/fictional-profile-pack/profile.json
 python scripts/validate_checkpoint.py assets/fictional-profile-pack/checkpoint.jsonl
-python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json
 python scripts/validate_claims.py assets/fictional-profile-pack/claim-ledger.json assets/fictional-profile-pack/profile.json assets/fictional-profile-pack/application.json
+python scripts/validate_application.py assets/fictional-profile-pack/application.json assets/fictional-profile-pack/authorization.json --claim-ledger assets/fictional-profile-pack/claim-ledger.json --at 2099-01-01T00:05:00Z
 python scripts/validate_orchestration.py assets/fictional-profile-pack/delegation.json assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python scripts/hash_artifacts.py <artifact> [<artifact> ...]
 ```

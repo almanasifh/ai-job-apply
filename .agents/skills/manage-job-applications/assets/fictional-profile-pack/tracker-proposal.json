@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "proposal_id": "proposal_example-support-101",
+  "recommended_status": "READY",
+  "evidence_ids": [
+    "outcome_example-support-101"
+  ],
+  "notes": "Sanitized tracker proposal only; main agent must validate and write."
+}

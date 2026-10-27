@@ -71,6 +71,6 @@ One private instruction package was reviewed as requirements context. No CV, liv
 
 - Add five bounded specialist roles with capability-gated host delegation and sequential fallback.
 - Add immutable delegation and specialist-result contracts with canonical digests.
-- Add a claim ledger that binds employer-facing artifact claims to verified facts and allowed uses.
+- Add a claim ledger that binds employer-facing artifact claims to verified facts and allowed uses, and bind `claim_ledger_digest` into approvals.
 - Keep private-profile minimization, approval, external action, and checkpoint writing with the main agent.
-- Add regression tests, five behavioral scenarios, recursive portable reference packaging, and privacy-safe fictional fixtures.
+- Add regression tests, eleven orchestration-related behavioral scenarios within a twenty-nine scenario catalog, recursive portable reference packaging, and privacy-safe fictional fixtures.

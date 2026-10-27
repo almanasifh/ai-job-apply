@@ -4,7 +4,7 @@ Approval is explicit, time-bounded, and bound to immutable application content.
 
 ## Exact approval
 
-An exact approval contains one binding and normally expires 15 minutes after issue. The binding includes the application identifier and version, candidate, job, channel, account reference, destination, canonical payload digest, and ordered artifact hashes.
+An exact approval contains one binding and normally expires 15 minutes after issue. The binding includes the application identifier and version, candidate, job, channel, account reference, destination, canonical payload digest, ordered artifact hashes, and the claim-ledger digest when the package includes employer-facing artifacts.
 
 ## Batch approval
 
@@ -16,7 +16,7 @@ Changing one package invalidates only its affected binding; unchanged bindings r
 
 ## Multi-agent fan-in
 
-Do not request approval until all required specialist results have returned or been explicitly discarded, their contracts and referenced outputs validate, and the main agent has recomputed the final package and artifact digests. A late specialist result is outside the approved package. If it changes bound content, obtain a new approval for the affected binding.
+Do not request approval until all required specialist results have returned or been explicitly discarded, their contracts and referenced outputs validate, the claim ledger validates against verified permitted facts, and the main agent has recomputed the final package, artifact, and claim-ledger digests. Bind `claim_ledger_digest` into the approval. A late specialist result is outside the approved package. If it changes bound content, including the claim ledger, obtain a new approval for the affected binding.
 
 Only the main agent may present, hold, or use an approval. Delegating preparation never delegates submission authority.
 
@@ -26,7 +26,7 @@ Immediately before action, verify:
 
 - approval has reached `issued_at` and is still unexpired;
 - binding fields exactly match the current package;
-- canonical digest and every artifact hash match;
+- canonical digest, every artifact hash, and the claim-ledger digest match;
 - account/session, destination, and job remain valid;
 - there is no prior successful or uncertain attempt requiring reconciliation.
 

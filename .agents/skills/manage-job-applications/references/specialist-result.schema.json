@@ -77,7 +77,6 @@
     },
     "output_digests": {
       "type": "array",
-      "uniqueItems": true,
       "items": {
         "type": "string",
         "pattern": "^[0-9a-f]{64}$"

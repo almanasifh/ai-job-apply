@@ -15,4 +15,6 @@ For every CV, cover letter, portfolio, message, or answer set:
 
 Only artifacts with `qa_status: PASSED` may enter an immutable application package or approval binding. Any byte change creates a new digest and package revision. Never substitute a similarly named file after approval.
 
+Before approval, validate a claim ledger against the profile and application. Every material employer-facing claim must cite verified permitted evidence and only the facts declared by its artifacts. Bind the resulting `ledger_digest` into the approval as `claim_ledger_digest`. A late specialist edit that changes the ledger or artifacts invalidates only the affected binding.
+
 Unknown required answers create `NEEDS_INPUT`; facts or requested claims that lack supporting evidence create `NEEDS_VERIFICATION`. Omit an unsupported claim even when a usable draft can be produced from other verified facts. If the candidate explicitly confirms they do not have a qualification, record a gap rather than asking them to verify the absent qualification.

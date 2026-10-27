@@ -497,6 +497,163 @@ class OrchestrationTests(unittest.TestCase):
                 ASSETS,
             )
 
+    def test_all_specialist_role_fixtures_are_valid(self) -> None:
+        at = parse_datetime("2099-01-01T00:05:00Z", "test time")
+        pairs = []
+        for role in ("scout", "drafter", "verifier", "tracker"):
+            delegation = validate_delegation(
+                load_json(ASSETS / f"delegation-{role}.json"),
+                at,
+            )
+            result = load_json(ASSETS / f"specialist-result-{role}.json")
+            validate_result(result, delegation, at)
+            pairs.append((delegation, result))
+        validate_result_set(pairs, at)
+
+    def test_expired_delegation_is_rejected_when_active_required(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "not active"):
+            validate_delegation(
+                load_json(ASSETS / "delegation.json"),
+                parse_datetime("2099-01-01T00:16:00Z", "test time"),
+            )
+
+    def test_future_delegation_is_rejected_when_active_required(self) -> None:
+        with self.assertRaisesRegex(ValidationError, "not active"):
+            validate_delegation(
+                load_json(ASSETS / "delegation.json"),
+                parse_datetime("2098-12-31T23:59:59Z", "test time"),
+            )
+
+    def test_bad_task_digest_is_rejected(self) -> None:
+        delegation = load_json(ASSETS / "delegation.json")
+        delegation["task_digest"] = "0" * 64
+        with self.assertRaisesRegex(ValidationError, "task_digest"):
+            validate_delegation(
+                delegation,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
+    def test_bad_result_digest_is_rejected(self) -> None:
+        delegation = validate_delegation(
+            load_json(ASSETS / "delegation.json"),
+            parse_datetime("2099-01-01T00:05:00Z", "test time"),
+        )
+        result = load_json(ASSETS / "specialist-result.json")
+        result["result_digest"] = "0" * 64
+        with self.assertRaisesRegex(ValidationError, "result_digest"):
+            validate_result(
+                result,
+                delegation,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
+    def test_tracker_cannot_receive_candidate_facts(self) -> None:
+        delegation = load_json(ASSETS / "delegation-tracker.json")
+        delegation["permitted_fact_ids"] = ["fact_support-years"]
+        delegation["task_digest"] = canonical_digest(
+            delegation, omit={"task_digest"}
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "cannot receive candidate fact"
+        ):
+            validate_delegation(
+                delegation,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
+    def test_equal_input_digests_for_distinct_refs_are_allowed(self) -> None:
+        delegation = load_json(ASSETS / "delegation-drafter.json")
+        shared = delegation["input_digests"][0]
+        delegation["input_digests"] = [shared, shared]
+        delegation["task_digest"] = canonical_digest(
+            delegation, omit={"task_digest"}
+        )
+        validate_delegation(
+            delegation,
+            parse_datetime("2099-01-01T00:05:00Z", "test time"),
+        )
+
+    def test_unknown_claim_cannot_carry_evidence(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["claims"][0]["status"] = "UNKNOWN"
+        ledger["claims"][0]["artifact_ids"] = []
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "must be empty unless VERIFIED"):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_rejected_claim_cannot_carry_artifacts(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["claims"][0]["status"] = "REJECTED"
+        ledger["claims"][0]["evidence_ids"] = []
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "must be empty unless VERIFIED"):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_claim_ledger_must_cover_all_artifact_source_facts(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["claims"] = ledger["claims"][:1]
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "does not cover artifact source facts"):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_mismatched_ledger_body_digest_is_rejected(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["ledger_digest"] = "0" * 64
+        with self.assertRaisesRegex(ValidationError, "ledger_digest"):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_late_specialist_change_requires_new_approval_binding(self) -> None:
+        from validate_application import validate_application, validate_authorization
+
+        validated = validate_application(
+            load_json(ASSETS / "application.json"), ASSETS
+        )
+        authorization = load_json(ASSETS / "authorization.json")
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        validate_authorization(
+            authorization,
+            validated,
+            parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            claim_ledger_digest=ledger["ledger_digest"],
+        )
+        ledger["claims"][0]["text"] += " (late specialist edit)"
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "matching immutable binding"):
+            validate_authorization(
+                authorization,
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest=ledger["ledger_digest"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

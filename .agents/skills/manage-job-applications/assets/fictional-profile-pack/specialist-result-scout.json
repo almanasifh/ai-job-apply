@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-support-101",
+  "task_id": "task_example-scout-101",
+  "attempt_id": "attempt_example-scout-101-01",
+  "role": "SCOUT",
+  "status": "COMPLETED",
+  "started_at": "2099-01-01T00:01:00Z",
+  "completed_at": "2099-01-01T00:02:00Z",
+  "output_refs": [
+    "job_example-support-101"
+  ],
+  "output_digests": [
+    "31554c1c18aeabd32d856f60efacd89757a4e2d955736da2cbbda6115b0f6850"
+  ],
+  "evidence_ids": [],
+  "unresolved": [],
+  "external_action_taken": false,
+  "task_digest": "a9e9a518cced81b5988056527651f0da1241e772e5bd7f3fa36e728cdc1c9f3d",
+  "result_digest": "4605f8a71fdaa0a7e37e424efd4f82554bdae354f0e791eef40950f705a8c76b"
+}

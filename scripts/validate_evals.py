@@ -31,7 +31,12 @@ REQUIRED_RISK_TAGS = {
 SCENARIO_FIELDS = {
     "id", "title", "prompt", "available_capabilities", "fixture_refs",
     "reference_files", "risk_tags", "expected_status", "expected_behaviors",
-    "forbidden_behaviors",
+    "forbidden_behaviors", "evidence_scope",
+}
+EVIDENCE_SCOPES = {
+    "skill_runtime",
+    "host_capability",
+    "release_packaging",
 }
 
 
@@ -98,6 +103,9 @@ def validate_catalog(catalog: Any, *, repo_root: Path = REPO_ROOT) -> None:
         status = scenario["expected_status"]
         if status not in WORKFLOW_STATUSES:
             raise EvaluationError(f"{label}.expected_status is not canonical")
+        evidence_scope = scenario["evidence_scope"]
+        if evidence_scope not in EVIDENCE_SCOPES:
+            raise EvaluationError(f"{label}.evidence_scope is not supported")
         _strings(scenario["expected_behaviors"], f"{label}.expected_behaviors")
         _strings(scenario["forbidden_behaviors"], f"{label}.forbidden_behaviors")
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import re
@@ -11,6 +12,10 @@ from typing import Any
 
 import build_portable
 import stage_plugin
+
+
+def content_digest(common: Any, value: dict[str, Any]) -> str:
+    return hashlib.sha256(common.canonical_json_bytes(value)).hexdigest()
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -233,28 +238,58 @@ def main() -> int:
         job_validator.validate_job(job)
         match_validator.validate_match(common.load_json(assets / "match.json"), job, profile)
         validated = application_validator.validate_application(common.load_json(assets / "application.json"), assets)
-        application_validator.validate_authorization(
-            common.load_json(assets / "authorization.json"),
-            validated,
-            common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
-        )
-        checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(assets / "checkpoint.jsonl"))
+        claim_ledger = common.load_json(assets / "claim-ledger.json")
         claims_validator.validate_claims(
-            common.load_json(assets / "claim-ledger.json"),
+            claim_ledger,
             profile,
             validated["application"],
             assets,
         )
+        application_validator.validate_authorization(
+            common.load_json(assets / "authorization.json"),
+            validated,
+            common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
+            claim_ledger_digest=claim_ledger["ledger_digest"],
+        )
+        checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(assets / "checkpoint.jsonl"))
         fixture_time = common.parse_datetime("2099-01-01T00:05:00Z", "fixture time")
+        minimized_facts = common.load_json(assets / "minimized-facts.json")
+        facts_digest = content_digest(common, minimized_facts)
+        match_digest = content_digest(common, common.load_json(assets / "match.json"))
+        if job["content_digest"] != common.canonical_digest(job, omit={"content_digest"}):
+            raise ValueError(f"{assets / 'job.json'} content_digest is stale")
         delegation = orchestration_validator.validate_delegation(
             common.load_json(assets / "delegation.json"),
             fixture_time,
         )
+        if delegation["input_digests"] != [job["content_digest"], facts_digest]:
+            raise ValueError(
+                f"{assets / 'delegation.json'} input_digests do not match job and minimized facts"
+            )
+        specialist_result = common.load_json(assets / "specialist-result.json")
         orchestration_validator.validate_result(
-            common.load_json(assets / "specialist-result.json"),
+            specialist_result,
             delegation,
             fixture_time,
         )
+        if specialist_result["output_digests"] != [match_digest]:
+            raise ValueError(
+                f"{assets / 'specialist-result.json'} output_digests do not match match.json"
+            )
+        role_pairs = []
+        for role in ("scout", "drafter", "verifier", "tracker"):
+            role_delegation = orchestration_validator.validate_delegation(
+                common.load_json(assets / f"delegation-{role}.json"),
+                fixture_time,
+            )
+            role_result = common.load_json(assets / f"specialist-result-{role}.json")
+            orchestration_validator.validate_result(
+                role_result,
+                role_delegation,
+                fixture_time,
+            )
+            role_pairs.append((role_delegation, role_result))
+        orchestration_validator.validate_result_set(role_pairs, fixture_time)
     evaluation_validator.validate_catalog(
         evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
         repo_root=REPO_ROOT,

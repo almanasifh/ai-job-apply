@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-support-101",
+  "task_id": "task_example-draft-101",
+  "attempt_id": "attempt_example-draft-101-01",
+  "role": "DRAFTER",
+  "status": "COMPLETED",
+  "started_at": "2099-01-01T00:01:00Z",
+  "completed_at": "2099-01-01T00:02:00Z",
+  "output_refs": [
+    "artifact_fictional-resume"
+  ],
+  "output_digests": [
+    "6a3bf9d043b5e78556e2155eb7aa4cfefbac72295367b99156d4bdaba3b21553"
+  ],
+  "evidence_ids": [
+    "fact_support-years",
+    "fact_python"
+  ],
+  "unresolved": [],
+  "external_action_taken": false,
+  "task_digest": "7da3fe5879f792c285f78df9148ddb846e312ebc212c147fb75e35115afa0081",
+  "result_digest": "0af16f6ac22eb5922f5d663350a5722afe13af442075ae4c23612696fcf48863"
+}

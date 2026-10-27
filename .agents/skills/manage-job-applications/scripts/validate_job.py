@@ -7,10 +7,12 @@ from typing import Any
 
 from common import (
     ValidationError,
+    canonical_digest,
     load_json,
     parse_datetime,
     require_list,
     require_object,
+    require_sha256,
     require_string,
     validate_against_schema,
 )
@@ -31,6 +33,10 @@ def validate_job(job: Any) -> None:
         if requirement_id in requirement_ids:
             raise ValidationError(f"{label}.id is duplicated")
         requirement_ids.add(requirement_id)
+    require_sha256(data["content_digest"], "job.content_digest")
+    expected_digest = canonical_digest(data, omit={"content_digest"})
+    if data["content_digest"] != expected_digest:
+        raise ValidationError("job.content_digest does not match canonical content")
 
 
 def main() -> int:

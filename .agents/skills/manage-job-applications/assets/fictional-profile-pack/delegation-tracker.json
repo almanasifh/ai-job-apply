@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-support-101",
+  "task_id": "task_example-track-101",
+  "attempt_id": "attempt_example-track-101-01",
+  "application_id": "app_example-support-101",
+  "role": "TRACKER",
+  "issued_at": "2099-01-01T00:00:00Z",
+  "expires_at": "2099-01-01T00:15:00Z",
+  "input_refs": [
+    "outcome_example-support-101",
+    "checkpoint_example-support-101"
+  ],
+  "input_kinds": [
+    "OUTCOME_EVIDENCE",
+    "CHECKPOINT_REFERENCE"
+  ],
+  "input_digests": [
+    "aab25210680c518964c68d7c93bde6b6975182249824824c9d77b85e4e09ed4e",
+    "a9d8bba7da3ca9050d1f8b3a1a6a40ea2b84469a3f4d476aad3e32221d1d6296"
+  ],
+  "permitted_fact_ids": [],
+  "capabilities": [
+    "READ_OUTCOME_EVIDENCE",
+    "VERIFY_OUTCOME"
+  ],
+  "task_digest": "f5e1cf4850ea7d50b0b30ff4424419c0a681fc1f3d2e9f96cdf8ed5f66848111"
+}

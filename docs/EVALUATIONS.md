@@ -1,6 +1,11 @@
 # Behavioral Evaluations
 
-`evals/behavioral-scenarios.json` contains twenty-nine fictional scenarios for reviewing the skill's decisions. The catalog covers source verification, mandatory gaps, truthful claims, unavailable tools, stale, expired, and future approvals, uncertain results, prompt injection, duplicates, batch limits, language alignment, employer exclusions, shortlist authority, required answers, security challenges, outcome separation, artifact QA, delegation privacy and authority, native-spawn evidence, truthful sequential fallback, parallel deduplication, output conflicts, bounded capacity, late specialist results, delegated claims, delegated outcome reconciliation, and release privacy.
+`evals/behavioral-scenarios.json` contains twenty-nine fictional scenarios. Twenty-seven exercise packaged skill runtime behavior. Two are classified separately through `evidence_scope`:
+
+- `host_capability` — `eval_native-subagent-spawn` records whether a host can spawn real subagent threads. It is not packaged job-skill runtime evidence.
+- `release_packaging` — `eval_sensitive-fixture-release-scan` records release-scan privacy controls. It is not packaged job-skill runtime evidence.
+
+The catalog covers source verification, mandatory gaps, truthful claims, unavailable tools, stale, expired, and future approvals, uncertain results, prompt injection, duplicates, batch limits, language alignment, employer exclusions, shortlist authority, required answers, security challenges, outcome separation, artifact QA, delegation privacy and authority, sequential fallback, parallel deduplication, output conflicts, bounded capacity, late specialist results, delegated claims, delegated outcome reconciliation, host spawn capability, and release privacy.
 
 ## Validate the catalog
 

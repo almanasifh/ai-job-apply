@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "projection_id": "facts_example-support-101",
+  "candidate_id": "cand_jordan-example",
+  "facts": [
+    {
+      "id": "fact_python",
+      "status": "VERIFIED",
+      "value": "Experience automating support workflows with Python",
+      "allowed_uses": [
+        "CV",
+        "COVER_LETTER",
+        "SCREENING"
+      ]
+    },
+    {
+      "id": "fact_support-years",
+      "status": "VERIFIED",
+      "value": 4,
+      "allowed_uses": [
+        "CV",
+        "COVER_LETTER",
+        "SCREENING"
+      ]
+    }
+  ]
+}

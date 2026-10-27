@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-support-101",
+  "task_id": "task_example-track-101",
+  "attempt_id": "attempt_example-track-101-01",
+  "role": "TRACKER",
+  "status": "COMPLETED",
+  "started_at": "2099-01-01T00:01:00Z",
+  "completed_at": "2099-01-01T00:02:00Z",
+  "output_refs": [
+    "proposal_example-support-101"
+  ],
+  "output_digests": [
+    "cc4ec9495c6aaafbab858a39b3a15760c3aa2c493cbd87f42082501f47ec1463"
+  ],
+  "evidence_ids": [],
+  "unresolved": [],
+  "external_action_taken": false,
+  "task_digest": "f5e1cf4850ea7d50b0b30ff4424419c0a681fc1f3d2e9f96cdf8ed5f66848111",
+  "result_digest": "2360a6b2b2e07a720efe8a96aeb498af1045357cc444271108fc921fba1589cf"
+}
