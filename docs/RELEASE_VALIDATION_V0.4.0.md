@@ -26,7 +26,7 @@ Focused regressions cover claim-ledger CLI validation against the profile, requi
 
 ## Compatibility validation
 
-Pull request [#10](https://github.com/almanasifh/ai-job-apply/pull/10) passed both matrix jobs in GitHub Actions run `40580026850` on commit `a4bb174`. Each job ran the full release pipeline on Python 3.11 and reran compilation and unit tests on Python 3.12, 3.13, and 3.14:
+Pull request [#10](https://github.com/almanasifh/ai-job-apply/pull/10) landed on `main` as `e2b148e`. Protected CI run `40581479571` passed both matrix jobs on that merge tip. Each job ran the full release pipeline on Python 3.11 and reran compilation and unit tests on Python 3.12, 3.13, and 3.14:
 
 - `Validate on ubuntu-latest`: passed;
 - `Validate on windows-latest`: passed.
