@@ -43,4 +43,4 @@ The candidate passed:
 
 ## Release decision
 
-Contract and clean-package gate evidence for Phase 7 is complete. Publication of version 0.4.0 remains gated on merging the hardening pull request, protected CI on the merge tip, and the ordinary release runbook.
+Contract and clean-package gate evidence for Phase 7 is complete on `main` tip `e2b148e`. Version 0.4.0 is published at https://github.com/almanasifh/ai-job-apply/releases/tag/v0.4.0.
