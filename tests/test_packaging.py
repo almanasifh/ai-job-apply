@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 import zipfile
 from pathlib import Path
@@ -21,6 +22,8 @@ import stage_plugin
 
 
 class PackagingTests(unittest.TestCase):
+    EXPECTED_ROLES = {"scout.md", "matcher.md", "drafter.md", "verifier.md", "tracker.md"}
+
     def test_packaged_text_uses_lf_line_endings(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "example.yaml"
@@ -41,10 +44,65 @@ class PackagingTests(unittest.TestCase):
         self.assertIn(b"Portable Skill", first)
         self.assertIn(b"application-review.template.md", first)
         self.assertIn(b"manual-handoff.template.md", first)
+        self.assertIn(b"roles/scout.md", first)
+        for role in self.EXPECTED_ROLES:
+            self.assertIn(f"roles/{role}".encode(), first)
+        self.assertIn(b"claim-ledger.schema.json", first)
         self.assertNotIn(b"C:\\Users\\", first)
         self.assertNotIn(b"](references/", first)
         self.assertIn(b"](#source-references-policy-md)", first)
+        self.assertIn(b"](#source-references-roles-scout-md)", first)
+        self.assertNotIn(b"](roles/scout.md)", first)
         self.assertIn(b"standalone portable Markdown edition", first)
+
+    def test_portable_source_anchors_must_be_unique(self) -> None:
+        first = build_portable.SKILL_ROOT / "references" / "a-b.md"
+        second = build_portable.SKILL_ROOT / "references" / "a_b.md"
+        with self.assertRaisesRegex(ValueError, "duplicate anchors"):
+            build_portable.source_anchors([
+                build_portable.SKILL_ROOT / "SKILL.md", first, second
+            ])
+
+    def test_portable_builder_excludes_untracked_reference_markdown(self) -> None:
+        references = build_portable.SKILL_ROOT / "references"
+        with tempfile.NamedTemporaryFile(
+            dir=references, suffix=".md", delete=False
+        ) as handle:
+            path = Path(handle.name)
+            handle.write(b"private untracked content\n")
+        try:
+            self.assertNotIn(path, build_portable.source_files())
+            self.assertNotIn(b"private untracked content", build_portable.render())
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_codex_agent_adapter_is_valid_and_points_to_canonical_roles(self) -> None:
+        agents_root = REPO_ROOT / ".codex" / "agents"
+        files = sorted(agents_root.glob("*.toml"))
+        self.assertEqual(len(files), 5)
+        observed_roles = set()
+        for path in files:
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                {"name", "description", "developer_instructions", "features"},
+                set(data),
+            )
+            self.assertTrue(data["name"].startswith("job_"))
+            self.assertFalse(data["features"]["apps"])
+            self.assertFalse(data["features"]["memories"])
+            self.assertFalse(data["features"]["request_permissions_tool"])
+            role = path.name.removeprefix("job-").removesuffix(".toml") + ".md"
+            observed_roles.add(role)
+            canonical = (
+                REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
+                / "references" / "roles" / role
+            )
+            self.assertTrue(canonical.is_file(), canonical)
+            self.assertIn(canonical.relative_to(REPO_ROOT).as_posix(), data["developer_instructions"])
+        self.assertEqual(observed_roles, self.EXPECTED_ROLES)
+        config = tomllib.loads((REPO_ROOT / ".codex" / "config.toml").read_text(encoding="utf-8"))
+        self.assertTrue(config["agents"]["enabled"])
+        self.assertEqual(config["agents"]["max_concurrent_threads_per_session"], 5)
 
     def test_portable_manifest_uses_standard_schema(self) -> None:
         manifest = json.loads((REPO_ROOT / "packaging" / "portable" / "plugin.json").read_text(encoding="utf-8"))
@@ -81,6 +139,13 @@ class PackagingTests(unittest.TestCase):
             with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "leak.txt"
                 path.write_text(content, encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, expected):
+                    validate_release.scan_tree(Path(directory))
+
+    def test_privacy_scan_rejects_certificate_and_environment_files(self) -> None:
+        for filename, expected in (("identity.pfx", "blocked file type"), (".env", "blocked environment file"), (".env.staging", "blocked environment file"), (".envrc", "blocked environment file")):
+            with self.subTest(filename=filename), tempfile.TemporaryDirectory() as directory:
+                (Path(directory) / filename).write_text("fictional-sensitive-value", encoding="utf-8")
                 with self.assertRaisesRegex(ValueError, expected):
                     validate_release.scan_tree(Path(directory))
 
@@ -124,6 +189,10 @@ class PackagingTests(unittest.TestCase):
             for package_type in ("portable-plugin", "codex-plugin"):
                 staged_skill = dist_root / package_type / metadata["name"] / "skills" / metadata["skill_name"]
                 self.assertTrue((staged_skill / "assets" / "fictional-profile-pack" / "answers.json").is_file())
+                self.assertEqual(
+                    {path.name for path in (staged_skill / "references" / "roles").glob("*.md")},
+                    self.EXPECTED_ROLES,
+                )
             archives = [
                 dist_root / f"{metadata['name']}-portable.zip",
                 dist_root / f"{metadata['name']}-codex.zip",
@@ -154,6 +223,19 @@ class PackagingTests(unittest.TestCase):
             stage_plugin.copy_tree(source, destination, repo_root=repo_root)
             self.assertEqual((destination / tracked.name).read_text(encoding="utf-8"), "public\n")
             self.assertFalse((destination / untracked.name).exists())
+
+    def test_staging_rejects_unstaged_tracked_skill_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            repo_root = Path(directory)
+            source = repo_root / "skill"
+            source.mkdir()
+            tracked = source / "tracked.txt"
+            tracked.write_text("public\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=repo_root, check=True)
+            subprocess.run(["git", "add", "skill/tracked.txt"], cwd=repo_root, check=True)
+            tracked.write_text("private change\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unstaged changes"):
+                stage_plugin.tracked_files(source, repo_root=repo_root)
 
     def test_safe_reset_retries_directory_not_empty(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

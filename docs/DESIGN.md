@@ -32,7 +32,7 @@ At the start of a task, determine what the current host can actually do.
 
 ## Operating modes
 
-These are sequential responsibility modes for one agent, not separate deployed agents.
+These are responsibility modes. A host without subagents runs them sequentially. A host with multi-agent support may delegate independent bounded work under `references/orchestration.md`; this does not grant new tools or authority.
 
 | Mode | Responsibility | Required reference |
 | --- | --- | --- |
@@ -46,6 +46,14 @@ These are sequential responsibility modes for one agent, not separate deployed a
 
 Load only the references relevant to the current mode.
 
+## Multi-agent boundary
+
+Five specialist roles may be delegated: Scout, Matcher, Drafter, Verifier, and Tracker. The main agent remains the privacy projector, coordinator, approval holder, external actor, and checkpoint writer. Specialists receive immutable input references, digests, minimum capabilities, and only the permitted facts required for their role.
+
+Parallelism is limited to independent vacancies, sources, or non-conflicting artifacts. Dependent work for one application preserves Scout -> Matcher -> Drafter -> Verifier order. All required results fan in before deterministic validation and human approval.
+
+The architecture permits at most 19 specialist delegations in one run, for 20 total slots including the main orchestrator. This is a ceiling rather than a concurrency guarantee. The host's lower thread limit controls active work, so the main orchestrator schedules bounded waves and rejects duplicate tasks or colliding output ownership.
+
 ## End-to-end flow
 
 ```mermaid
@@ -55,7 +63,7 @@ flowchart TD
     C --> D{Duplicate, excluded, or mandatory gap?}
     D -->|Yes| E[Explain skip or hold]
     D -->|No| F[Map requirements to verified evidence]
-    F --> G[Prepare exact application package]
+    F --> G[Prepare exact application package and claim ledger]
     G --> H[Present final review]
     H --> I{Valid package-bound approval?}
     I -->|No| J[Keep draft or produce manual handoff]
@@ -96,7 +104,7 @@ Reusable answers remain scoped to the relevant country, employer, job, or global
 
 A shortlist decision is not submission authorization.
 
-Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, and ordered artifact hashes. Exact approvals default to 15 minutes and are inactive before `issued_at`. A bounded batch may contain at most 20 complete immutable bindings.
+Final approval identifies the candidate, vacancy, channel, account reference, destination, exact payload digest, ordered artifact hashes, and claim-ledger digest. Exact approvals default to 15 minutes and are inactive before `issued_at`. A bounded batch may contain at most 20 complete immutable bindings. The claim ledger must validate against verified permitted facts before that digest may enter a binding.
 
 Changing one package invalidates only its affected binding. Adding a new package requires a new binding. Approval never grants permission to bypass authentication, CAPTCHAs, rate limits, provider rules, or security controls.
 

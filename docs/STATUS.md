@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version 0.3.2 is the latest published version. It isolates package tests, retries transient staging cleanup failures, normalizes filesystem validation errors, broadens Python compatibility checks, and improves repository security and onboarding guidance. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
+Version 0.3.2 is the latest published version. Version 0.4.0 is under review and is not yet published. The 0.4.0 candidate adds capability-gated multi-agent orchestration with five bounded specialist roles, deterministic delegation and result validation, claim-ledger approval bindings, recomputed fixture digests, and sequential fallback. This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client.
 
 The skill can use compatible host tools when they are available and authorized. Without those tools, it produces analysis, validated drafts, checkpoints, or manual handoffs and does not claim an external action occurred.
 
@@ -16,7 +16,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - `packaging/` — portable Agent Plugin and Codex compatibility manifest sources.
 - `scripts/` — deterministic skill builders and release checks.
 - `tests/` — contract, semantic safety, privacy, and packaging tests.
-- `evals/` — eighteen fictional behavioral scenarios with expected and forbidden outcomes.
+- `evals/` — twenty-nine fictional behavioral scenarios with expected and forbidden outcomes.
 - `.github/workflows/` — Windows and Linux continuous integration.
 - `docs/` — skill scope, design, compatibility, and release guidance.
 
@@ -29,7 +29,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added fictional behavioral evaluations and deterministic catalog validation.
 - Added private-profile, answer, exact-review, and manual-handoff templates.
 - Passed all 10 scenarios on both the portable host and isolated Codex host after narrow demonstrated corrections.
-- Hardened release builders to package only tracked skill files and validate the staged package contents.
+- Hardened release builders to package only clean, staged tracked skill files and validate the staged package contents.
 - Added MIT licensing and skill-only documentation.
 - Corrected the skill frontmatter for plain-scalar host compatibility and flattened reference schemas to one level.
 - Added the standalone portable Markdown file to the portable Agent Plugin archive and regression-tested its contents.
@@ -46,6 +46,14 @@ The skill can use compatible host tools when they are available and authorized. 
 - Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
+- Added bounded Scout, Matcher, Drafter, Verifier, and Tracker roles with fixtures for each role.
+- Added deterministic delegation, specialist-result, and employer-facing claim-ledger contracts and validators.
+- Bound `claim_ledger_digest` into authorization packages and recomputed job, delegation, and specialist content digests.
+- Preserved main-agent-only privacy projection, human approval, external action, and canonical checkpoint writing.
+- Cataloged eleven orchestration-related scenarios within a twenty-nine scenario catalog, classifying native spawn as host-capability evidence and sensitive-fixture scanning as release-packaging evidence.
+- Added recursive portable-reference packaging for nested role files.
+- Added project-scoped Codex custom-agent definitions and an initial five-concurrent-specialist configuration. These instructions inherit the parent session's permissions and are not a sandbox boundary.
+
 ## Failed attempts
 
 - The environment did not include `jsonschema` or `rfc8785`, so deterministic helpers use a dependency-free RFC 8785-compatible integer-only JSON subset.
@@ -57,9 +65,10 @@ The skill can use compatible host tools when they are available and authorized. 
 
 ## Next steps
 
-1. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
-2. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
-3. Continue requiring protected Windows and Linux CI before changes reach `main`.
+1. Land protected Windows and Linux CI for the 0.4.0 candidate, then publish synchronized packages, checksums, and release notes.
+2. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
+3. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
+4. Continue requiring protected Windows and Linux CI before changes reach `main`.
 
 ## Evidence boundary
 

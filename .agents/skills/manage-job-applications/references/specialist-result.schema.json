@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-job-apply/specialist-result.schema.json",
+  "title": "Bounded specialist result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "attempt_id",
+    "role",
+    "task_digest",
+    "status",
+    "started_at",
+    "completed_at",
+    "output_refs",
+    "output_digests",
+    "evidence_ids",
+    "unresolved",
+    "external_action_taken",
+    "result_digest"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-z0-9-]+$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^task_[a-z0-9-]+$"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^attempt_[a-z0-9-]+$"
+    },
+    "role": {
+      "enum": [
+        "SCOUT",
+        "MATCHER",
+        "DRAFTER",
+        "VERIFIER",
+        "TRACKER"
+      ]
+    },
+    "task_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "enum": [
+        "COMPLETED",
+        "BLOCKED",
+        "FAILED",
+        "CANCELLED",
+        "TIMED_OUT"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "output_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "output_digests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    },
+    "evidence_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "external_action_taken": {
+      "const": false
+    },
+    "result_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

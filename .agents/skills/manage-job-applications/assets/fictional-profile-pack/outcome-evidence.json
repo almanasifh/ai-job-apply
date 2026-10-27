@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "outcome_example-support-101",
+  "application_id": "app_example-support-101",
+  "attempt_id": "attempt_example-manual-101-01",
+  "provider_status": "HANDOFF_READY",
+  "notes": "Manual handoff prepared; no provider send occurred."
+}

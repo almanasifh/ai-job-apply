@@ -39,6 +39,7 @@ ARTIFACT_FIELDS = {
 BINDING_FIELDS = {
     "application_id", "version", "candidate_id", "job_id", "channel",
     "sender_account_ref", "destination", "payload_digest", "artifact_hashes",
+    "claim_ledger_digest",
 }
 AUTHORIZATION_FIELDS = {
     "schema_version", "approval_id", "scope", "approver_ref", "issued_at",
@@ -113,7 +114,13 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
     return {"artifact_hashes": artifact_hashes, "application": data}
 
 
-def validate_authorization(authorization: Any, validated: dict[str, Any], at: datetime) -> None:
+def validate_authorization(
+    authorization: Any,
+    validated: dict[str, Any],
+    at: datetime,
+    *,
+    claim_ledger_digest: str | None = None,
+) -> None:
     validate_against_schema(authorization, "authorization.schema.json", "authorization")
     data = require_object(authorization, "authorization")
     require_keys(data, AUTHORIZATION_FIELDS, "authorization")
@@ -141,6 +148,15 @@ def validate_authorization(authorization: Any, validated: dict[str, Any], at: da
         raise ValidationError("EXACT authorization must contain one binding")
 
     application = validated["application"]
+    artifacts = require_list(application["artifacts"], "application.artifacts")
+    if artifacts and claim_ledger_digest is None:
+        raise ValidationError(
+            "authorization requires a validated claim_ledger_digest when artifacts exist"
+        )
+    if claim_ledger_digest is not None:
+        claim_ledger_digest = require_sha256(
+            claim_ledger_digest, "claim_ledger_digest"
+        )
     matching = 0
     binding_keys: set[tuple[str, int, str, str | None, str]] = set()
     for index, raw_binding in enumerate(bindings):
@@ -163,6 +179,9 @@ def validate_authorization(authorization: Any, validated: dict[str, Any], at: da
         artifact_hashes = require_list(binding["artifact_hashes"], f"{label}.artifact_hashes")
         for hash_index, digest in enumerate(artifact_hashes):
             require_sha256(digest, f"{label}.artifact_hashes[{hash_index}]")
+        require_sha256(
+            binding["claim_ledger_digest"], f"{label}.claim_ledger_digest"
+        )
         expected = {
             "application_id": application["application_id"],
             "version": application["version"],
@@ -173,7 +192,11 @@ def validate_authorization(authorization: Any, validated: dict[str, Any], at: da
             "destination": application["destination"],
             "payload_digest": application["payload_digest"],
             "artifact_hashes": validated["artifact_hashes"],
+            "claim_ledger_digest": claim_ledger_digest,
         }
+        if claim_ledger_digest is None:
+            # Artifact-free packages still require the field; accept the bound digest.
+            expected["claim_ledger_digest"] = binding["claim_ledger_digest"]
         if binding == expected:
             matching += 1
     if matching != 1:
@@ -185,13 +208,30 @@ def main() -> int:
     parser.add_argument("application", type=Path)
     parser.add_argument("authorization", type=Path)
     parser.add_argument("--artifact-root", type=Path)
+    parser.add_argument(
+        "--claim-ledger",
+        type=Path,
+        help="Validated claim ledger whose digest must match the approval binding",
+    )
     parser.add_argument("--at", help="ISO 8601 validation time; defaults to now")
     args = parser.parse_args()
     artifact_root = args.artifact_root or args.application.parent
     try:
         at = parse_datetime(args.at, "--at") if args.at else datetime.now(timezone.utc)
         validated = validate_application(load_json(args.application), artifact_root)
-        validate_authorization(load_json(args.authorization), validated, at)
+        claim_ledger_digest = None
+        if args.claim_ledger is not None:
+            ledger = load_json(args.claim_ledger)
+            claim_ledger_digest = require_sha256(
+                require_object(ledger, "claim ledger")["ledger_digest"],
+                "claim ledger.ledger_digest",
+            )
+        validate_authorization(
+            load_json(args.authorization),
+            validated,
+            at,
+            claim_ledger_digest=claim_ledger_digest,
+        )
     except ValidationError as exc:
         print(f"INVALID: {exc}", file=sys.stderr)
         return 1

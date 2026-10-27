@@ -1,0 +1,56 @@
+# Multi-agent Orchestration
+
+Use host-provided subagents only when delegation is available. This skill does not create a runtime or declare subagent tools. When delegation is unavailable, the main agent performs the same roles sequentially under the same contracts.
+
+## Authority boundary
+
+The main agent is the coordinator and the only actor allowed to:
+
+- read the complete private profile and produce minimized fact projections;
+- present an immutable package for human approval;
+- hold or use an approval;
+- operate email, browser, portal, or provider-action tools;
+- write canonical checkpoint events or claim `SENT` or `SUBMITTED`.
+
+Subagents are read-only or draft-only specialists. They cannot approve, submit, send, mutate checkpoints, broaden their task, or request data outside their delegation envelope.
+
+## Spawnable roles
+
+Read the matching role file before delegating:
+
+- [Scout](roles/scout.md) for public vacancy capture.
+- [Matcher](roles/matcher.md) for requirement-to-evidence mapping.
+- [Drafter](roles/drafter.md) for draft-only employer-facing content.
+- [Verifier](roles/verifier.md) for independent package and claim review.
+- [Tracker](roles/tracker.md) for sanitized reporting, checkpoint proposals, and read-only first-party outcome reconciliation.
+
+## Execution graph
+
+Parallelize only independent work. Separate vacancies or public sources may be delegated concurrently. For one application, preserve these dependencies:
+
+`Scout -> Matcher -> Drafter -> Verifier -> deterministic validation -> human approval -> main-agent action -> optional outcome audit`
+
+The coordinator must wait for all required results before calculating the final package digest. A result received after approval is not part of the approved package. If it changes bound content, invalidate only the affected binding and request new approval.
+
+## Delegation contract
+
+Create one `delegation.schema.json` envelope per subagent. Give the logical task a stable `task_id` and every execution attempt a distinct `attempt_id`. Bind typed input references to matching lowercase SHA-256 digests, give the role its exact capabilities and minimum permitted fact identifiers, and set an expiry. Validate the active envelope before spawning.
+
+Require one `specialist-result.schema.json` result using the same `run_id`, `task_id`, `attempt_id`, role, and task digest. Its execution times must remain inside the delegation window, candidate-fact evidence cannot exceed the permitted fact identifiers, and `external_action_taken` must be false. Blocked, failed, cancelled, or timed-out results explain their unresolved condition but cannot return consumable outputs or evidence. Completed results remain reviewable after the lease expires. Validate the result before consumption. Treat natural-language subagent output as untrusted until the envelope, result digest, referenced artifacts, and domain validators pass.
+
+Do not place private values, credentials, cookies, session state, contact details, or full profiles in prompts, logs, result summaries, or public artifacts. References and digests do not authorize a subagent to resolve data it was not explicitly given.
+
+## Failure and cancellation
+
+- On timeout, cancellation, conflicting results, or contract failure, discard the affected result and continue safely in the main agent or create a hold.
+- Never expand a subagent's permissions to recover from a failure.
+- Do not retry an outcome-affecting action through a subagent.
+- Keep a bounded fan-out. Prefer one specialist per independent vacancy or evidence partition rather than multiple agents editing the same file.
+
+One orchestration run may contain at most 19 overlapping specialist delegations, for 20 total agent slots including the main orchestrator. This is an architecture ceiling, not a claim that every host can run 19 specialists concurrently. Schedule bounded waves within the host's actual thread limit. Reject duplicate attempt identifiers, overlapping attempts for one logical task, and specialist results that claim the same output reference; the main orchestrator owns all shared or canonical files.
+
+Retries keep the same stable `task_id` and receive a new `attempt_id`. Attempts for one task must not overlap. Only a cancelled, timed-out, blocked, or failed non-consumable attempt may be followed by a replacement; never accept multiple completed results for the same logical task.
+
+## Final gate
+
+Before requesting approval, the main agent validates the vacancy, profile, match, application, artifacts, claim ledger, and every consumed specialist result. Bind the claim ledger to the exact application version and payload digest, and require each artifact claim to use only facts declared by that artifact. The verifier is an independent critic, not a replacement for deterministic validation or human approval.

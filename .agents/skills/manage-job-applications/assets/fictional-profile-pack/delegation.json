@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "run_id": "run_example-match-101",
+  "task_id": "task_example-match-101",
+  "attempt_id": "attempt_example-match-101-01",
+  "application_id": "app_example-support-101",
+  "role": "MATCHER",
+  "issued_at": "2099-01-01T00:00:00Z",
+  "expires_at": "2099-01-01T00:15:00Z",
+  "input_refs": [
+    "job_example-support-101",
+    "facts_example-support-101"
+  ],
+  "input_kinds": [
+    "PUBLIC_VACANCY",
+    "MINIMIZED_FACTS"
+  ],
+  "input_digests": [
+    "31554c1c18aeabd32d856f60efacd89757a4e2d955736da2cbbda6115b0f6850",
+    "bf11b737414b0f6d9ff08d5376d06ed3a6670d0f75ccf09cd1943dc0d368489d"
+  ],
+  "permitted_fact_ids": [
+    "fact_support-years",
+    "fact_python"
+  ],
+  "capabilities": [
+    "READ_PUBLIC",
+    "READ_MINIMIZED_FACTS",
+    "DRAFT_STRUCTURED"
+  ],
+  "task_digest": "c1627ce4a374030508bc4dcfe4344b36e065877c4080335bfc5c6640bbeeb04e"
+}

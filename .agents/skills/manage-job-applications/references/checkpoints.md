@@ -14,6 +14,10 @@ Use only the listed workflow statuses; never create compound or descriptive alte
 
 The first event uses `previous_event_hash: null`. Every later event carries the prior event's `event_hash`. To calculate `event_hash`, omit that field, canonicalize the remaining event with RFC 8785, encode as UTF-8, and calculate lowercase SHA-256.
 
+## Actor discipline
+
+Only the main agent writes the canonical checkpoint. Specialist results are immutable referenced inputs and must not directly assert workflow status. A Tracker may prepare a sanitized checkpoint proposal or recommend an outcome from bounded first-party evidence, but the main agent validates and records it.
+
 ## Outcome discipline
 
 - `SENT` means an email provider accepted the send request.

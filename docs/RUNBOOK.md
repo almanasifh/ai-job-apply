@@ -9,11 +9,15 @@ python .agents/skills/manage-job-applications/scripts/validate_profile.py .agent
 python .agents/skills/manage-job-applications/scripts/validate_answers.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/answers.json
 python .agents/skills/manage-job-applications/scripts/validate_job.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json
 python .agents/skills/manage-job-applications/scripts/validate_match.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/match.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
-python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --at 2099-01-01T00:05:00Z
+python .agents/skills/manage-job-applications/scripts/validate_claims.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json
+python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --claim-ledger .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json --at 2099-01-01T00:05:00Z
+python .agents/skills/manage-job-applications/scripts/validate_orchestration.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/delegation.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_checkpoint.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/checkpoint.jsonl
 ```
 
 ## Build outputs
+
+Stage the intended canonical skill changes before building. The builders reject unstaged modifications beneath the canonical skill directory so generated artifacts cannot silently contain unreviewed working-tree bytes.
 
 ```powershell
 python scripts/build_portable.py

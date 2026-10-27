@@ -50,6 +50,17 @@ def tracked_files(source: Path, *, repo_root: Path = REPO_ROOT) -> list[Path]:
     files = [repo_root / relative for relative in completed.stdout.split("\0") if relative]
     if not files:
         raise ValueError(f"No tracked files found under {source}")
+    changed = subprocess.run(
+        ["git", "diff", "--quiet", "--", f"{relative_source}/"],
+        cwd=repo_root,
+        check=False,
+    )
+    if changed.returncode == 1:
+        raise ValueError(
+            f"Refusing to package unstaged changes under {source}; stage them first"
+        )
+    if changed.returncode != 0:
+        raise RuntimeError(f"Cannot inspect worktree changes under {source}")
     return sorted(files, key=lambda path: path.relative_to(source).as_posix())
 
 

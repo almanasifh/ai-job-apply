@@ -116,7 +116,27 @@ class ContractTests(unittest.TestCase):
             load_json(ASSETS / "authorization.json"),
             validated,
             parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
         )
+
+    def test_authorization_requires_claim_ledger_when_artifacts_exist(self) -> None:
+        validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
+        with self.assertRaisesRegex(ValidationError, "claim_ledger_digest"):
+            validate_authorization(
+                load_json(ASSETS / "authorization.json"),
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
+    def test_mismatched_claim_ledger_digest_is_rejected(self) -> None:
+        validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
+        with self.assertRaisesRegex(ValidationError, "matching immutable binding"):
+            validate_authorization(
+                load_json(ASSETS / "authorization.json"),
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest="0" * 64,
+            )
 
     def test_answer_library_job_and_match_are_valid(self) -> None:
         profile = load_json(ASSETS / "profile.json")
@@ -124,6 +144,12 @@ class ContractTests(unittest.TestCase):
         validate_answers(load_json(ASSETS / "answers.json"))
         validate_job(job)
         validate_match(load_json(ASSETS / "match.json"), job, profile)
+
+    def test_stale_job_content_digest_is_rejected(self) -> None:
+        job = load_json(ASSETS / "job.json")
+        job["content_digest"] = "0" * 64
+        with self.assertRaisesRegex(ValidationError, "content_digest"):
+            validate_job(job)
 
     def test_application_answer_must_match_schema_type(self) -> None:
         application = load_json(ASSETS / "application.json")
@@ -156,6 +182,7 @@ class ContractTests(unittest.TestCase):
                 load_json(ASSETS / "authorization.json"),
                 validated,
                 parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
             )
 
     def test_expired_authorization_is_rejected(self) -> None:
@@ -165,6 +192,7 @@ class ContractTests(unittest.TestCase):
                 load_json(ASSETS / "authorization.json"),
                 validated,
                 parse_datetime("2099-01-01T00:16:00Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
             )
 
     def test_future_authorization_is_rejected(self) -> None:
@@ -174,6 +202,7 @@ class ContractTests(unittest.TestCase):
                 load_json(ASSETS / "authorization.json"),
                 validated,
                 parse_datetime("2098-12-31T23:59:59Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
             )
 
     def test_batch_authorization_rejects_duplicate_targets(self) -> None:
@@ -188,6 +217,7 @@ class ContractTests(unittest.TestCase):
                 authorization,
                 validated,
                 parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
             )
 
     def test_unknown_answer_cannot_claim_a_value(self) -> None:

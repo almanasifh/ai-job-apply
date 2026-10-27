@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import re
@@ -13,10 +14,14 @@ import build_portable
 import stage_plugin
 
 
+def content_digest(common: Any, value: dict[str, Any]) -> str:
+    return hashlib.sha256(common.canonical_json_bytes(value)).hexdigest()
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 DIST_ROOT = REPO_ROOT / "dist"
-BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".sqlite", ".sqlite3", ".db"}
+BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".pfx", ".sqlite", ".sqlite3", ".db"}
 BLOCKED_PARTS = {".git", "private", "credentials", "cookies", "sessions", "auth", "secrets"}
 SECRET_PATTERNS = {
     "email address": re.compile(rb"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
@@ -119,6 +124,8 @@ def scan_tree(root: Path) -> None:
             raise ValueError(f"Release contains a blocked path: {relative}")
         if path.suffix.lower() in BLOCKED_SUFFIXES:
             raise ValueError(f"Release contains a blocked file type: {relative}")
+        if path.name.lower().startswith(".env"):
+            raise ValueError(f"Release contains a blocked environment file: {relative}")
         content = path.read_bytes()
         for label, pattern in SECRET_PATTERNS.items():
             if pattern.search(content):
@@ -185,6 +192,8 @@ def main() -> int:
     match_validator = load_module("match_validator", SKILL_ROOT / "scripts" / "validate_match.py")
     application_validator = load_module("application_validator", SKILL_ROOT / "scripts" / "validate_application.py")
     checkpoint_validator = load_module("checkpoint_validator", SKILL_ROOT / "scripts" / "validate_checkpoint.py")
+    claims_validator = load_module("claims_validator", SKILL_ROOT / "scripts" / "validate_claims.py")
+    orchestration_validator = load_module("orchestration_validator", SKILL_ROOT / "scripts" / "validate_orchestration.py")
     evaluation_validator = load_module("evaluation_validator", REPO_ROOT / "scripts" / "validate_evals.py")
 
     metadata = load_json_object(REPO_ROOT / "packaging" / "metadata.json")
@@ -229,17 +238,63 @@ def main() -> int:
         job_validator.validate_job(job)
         match_validator.validate_match(common.load_json(assets / "match.json"), job, profile)
         validated = application_validator.validate_application(common.load_json(assets / "application.json"), assets)
+        claim_ledger = common.load_json(assets / "claim-ledger.json")
+        claims_validator.validate_claims(
+            claim_ledger,
+            profile,
+            validated["application"],
+            assets,
+        )
         application_validator.validate_authorization(
             common.load_json(assets / "authorization.json"),
             validated,
             common.parse_datetime("2099-01-01T00:05:00Z", "fixture time"),
+            claim_ledger_digest=claim_ledger["ledger_digest"],
         )
         checkpoint_validator.validate_checkpoint(checkpoint_validator.load_events(assets / "checkpoint.jsonl"))
+        fixture_time = common.parse_datetime("2099-01-01T00:05:00Z", "fixture time")
+        minimized_facts = common.load_json(assets / "minimized-facts.json")
+        facts_digest = content_digest(common, minimized_facts)
+        match_digest = content_digest(common, common.load_json(assets / "match.json"))
+        if job["content_digest"] != common.canonical_digest(job, omit={"content_digest"}):
+            raise ValueError(f"{assets / 'job.json'} content_digest is stale")
+        delegation = orchestration_validator.validate_delegation(
+            common.load_json(assets / "delegation.json"),
+            fixture_time,
+        )
+        if delegation["input_digests"] != [job["content_digest"], facts_digest]:
+            raise ValueError(
+                f"{assets / 'delegation.json'} input_digests do not match job and minimized facts"
+            )
+        specialist_result = common.load_json(assets / "specialist-result.json")
+        orchestration_validator.validate_result(
+            specialist_result,
+            delegation,
+            fixture_time,
+        )
+        if specialist_result["output_digests"] != [match_digest]:
+            raise ValueError(
+                f"{assets / 'specialist-result.json'} output_digests do not match match.json"
+            )
+        role_pairs = []
+        for role in ("scout", "drafter", "verifier", "tracker"):
+            role_delegation = orchestration_validator.validate_delegation(
+                common.load_json(assets / f"delegation-{role}.json"),
+                fixture_time,
+            )
+            role_result = common.load_json(assets / f"specialist-result-{role}.json")
+            orchestration_validator.validate_result(
+                role_result,
+                role_delegation,
+                fixture_time,
+            )
+            role_pairs.append((role_delegation, role_result))
+        orchestration_validator.validate_result_set(role_pairs, fixture_time)
     evaluation_validator.validate_catalog(
         evaluation_validator.load_catalog(REPO_ROOT / "evals" / "behavioral-scenarios.json"),
         repo_root=REPO_ROOT,
     )
-    print("VALID: staged release, manifests, archives, all fixtures, hash chains, and evaluation catalog")
+    print("VALID: staged release, manifests, archives, all fixtures, orchestration contracts, hash chains, and evaluation catalog")
     return 0
 
 

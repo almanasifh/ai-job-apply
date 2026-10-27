@@ -19,7 +19,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["application_id", "version", "candidate_id", "job_id", "channel", "sender_account_ref", "destination", "payload_digest", "artifact_hashes"],
+        "required": ["application_id", "version", "candidate_id", "job_id", "channel", "sender_account_ref", "destination", "payload_digest", "artifact_hashes", "claim_ledger_digest"],
         "properties": {
           "application_id": { "type": "string" },
           "version": { "type": "integer", "minimum": 1 },
@@ -29,7 +29,8 @@
           "sender_account_ref": { "type": ["string", "null"] },
           "destination": { "type": "string" },
           "payload_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-          "artifact_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" } }
+          "artifact_hashes": { "type": "array", "items": { "type": "string", "pattern": "^[0-9a-f]{64}$" } },
+          "claim_ledger_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
         }
       }
     }

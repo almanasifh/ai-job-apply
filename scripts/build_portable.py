@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 from pathlib import Path
@@ -12,6 +13,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 DEFAULT_OUTPUT = REPO_ROOT / "dist" / "portable" / "manage-job-applications.md"
 MARKDOWN_LINK_PATTERN = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)]+)\)")
+ROLE_RELATIVES = (
+    "references/roles/scout.md",
+    "references/roles/matcher.md",
+    "references/roles/drafter.md",
+    "references/roles/verifier.md",
+    "references/roles/tracker.md",
+)
 
 
 def read_text(path: Path) -> str:
@@ -37,14 +45,37 @@ def tracked_files(source: Path) -> list[Path]:
     files = [REPO_ROOT / relative for relative in completed.stdout.split("\0") if relative]
     if not files:
         raise ValueError(f"No tracked files found under {source}")
+    changed = subprocess.run(
+        ["git", "diff", "--quiet", "--", f"{relative_source}/"],
+        cwd=REPO_ROOT,
+        check=False,
+    )
+    if changed.returncode == 1:
+        raise ValueError(
+            f"Refusing to build from unstaged changes under {source}; stage them first"
+        )
+    if changed.returncode != 0:
+        raise RuntimeError(f"Cannot inspect worktree changes under {source}")
     return sorted(files, key=lambda path: path.relative_to(source).as_posix())
 
 
 def source_files() -> list[Path]:
     tracked = set(tracked_files(SKILL_ROOT))
     files = [SKILL_ROOT / "SKILL.md"]
-    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.md") if path in tracked), key=lambda path: path.name))
-    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.schema.json") if path in tracked), key=lambda path: path.name))
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.md") if path in tracked), key=lambda path: path.relative_to(SKILL_ROOT).as_posix()))
+    expected_roles = {SKILL_ROOT / relative for relative in ROLE_RELATIVES}
+    tracked_roles = {
+        path for path in tracked
+        if path.parent == SKILL_ROOT / "references" / "roles" and path.suffix == ".md"
+    }
+    if tracked_roles != expected_roles:
+        missing = sorted(path.name for path in expected_roles - tracked_roles)
+        unexpected = sorted(path.name for path in tracked_roles - expected_roles)
+        raise ValueError(
+            f"Canonical role set mismatch; missing={missing}, unexpected={unexpected}"
+        )
+    files.extend(SKILL_ROOT / relative for relative in ROLE_RELATIVES)
+    files.extend(sorted((path for path in (SKILL_ROOT / "references").glob("*.schema.json") if path in tracked), key=lambda path: path.relative_to(SKILL_ROOT).as_posix()))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.json*") if path in tracked), key=lambda path: path.name))
     files.extend(sorted((path for path in (SKILL_ROOT / "assets" / "fictional-profile-pack").glob("*.txt") if path in tracked), key=lambda path: path.name))
     files.extend(
@@ -67,28 +98,47 @@ def source_anchor(relative: str) -> str:
     return "source-" + re.sub(r"[^a-z0-9]+", "-", relative.lower()).strip("-")
 
 
-def portable_skill_body(text: str, files: list[Path]) -> str:
-    body = skill_body(text)
+def source_anchors(files: list[Path]) -> dict[str, str]:
     anchors = {
         path.relative_to(SKILL_ROOT).as_posix(): source_anchor(path.relative_to(SKILL_ROOT).as_posix())
         for path in files[1:]
     }
+    if len(anchors.values()) != len(set(anchors.values())):
+        raise ValueError("Portable source paths produce duplicate anchors")
+    return anchors
+
+
+def rewrite_markdown_links(
+    text: str,
+    anchors: dict[str, str],
+    *,
+    source_relative: str | None = None,
+) -> str:
 
     def replace_link(match: re.Match[str]) -> str:
         label, target = match.groups()
-        if target == "references":
+        if source_relative is None and target == "references":
             return f"[{label}](#embedded-sources)"
-        anchor = anchors.get(target)
+        if target.startswith(("#", "/")) or re.match(r"^[a-z][a-z0-9+.-]*:", target, re.IGNORECASE):
+            return match.group(0)
+        base = posixpath.dirname(source_relative) if source_relative else ""
+        resolved = posixpath.normpath(posixpath.join(base, target))
+        anchor = anchors.get(resolved)
         if anchor is None:
             return match.group(0)
         return f"[{label}](#{anchor})"
 
-    return MARKDOWN_LINK_PATTERN.sub(replace_link, body)
+    return MARKDOWN_LINK_PATTERN.sub(replace_link, text)
+
+
+def portable_skill_body(text: str, files: list[Path]) -> str:
+    return rewrite_markdown_links(skill_body(text), source_anchors(files))
 
 
 def render() -> bytes:
     metadata = json.loads(read_text(REPO_ROOT / "packaging" / "metadata.json"))
     files = source_files()
+    anchors = source_anchors(files)
     source_digest = hashlib.sha256()
     for path in files:
         relative = path.relative_to(REPO_ROOT).as_posix()
@@ -118,7 +168,13 @@ def render() -> bytes:
             f"## Embedded Source: `{relative}`", "",
         ])
         if path.suffix == ".md":
-            sections.append(content)
+            sections.append(
+                rewrite_markdown_links(
+                    content,
+                    anchors,
+                    source_relative=relative,
+                )
+            )
         else:
             language = "json" if ".json" in path.name else "text"
             sections.extend([f"```{language}", content, "```"])

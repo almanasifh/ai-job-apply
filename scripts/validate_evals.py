@@ -16,18 +16,27 @@ WORKFLOW_STATUSES = {
     "NEEDS_VERIFICATION", "TECHNICAL_HOLD", "SUBMISSION_UNCERTAIN",
     "SENT", "SUBMITTED", "DELIVERY_FAILED", "SUBMISSION_FAILED", "SKIPPED",
 }
-CAPABILITIES = {"READ_INPUT", "READ_FILES", "WRITE_FILES", "BROWSER", "EMAIL", "PROVIDER_ACTION"}
+CAPABILITIES = {"READ_INPUT", "READ_FILES", "WRITE_FILES", "BROWSER", "EMAIL", "PROVIDER_ACTION", "DELEGATE"}
 REQUIRED_RISK_TAGS = {
     "source_freshness", "mandatory_gap", "truthfulness", "tool_absence",
     "approval_binding", "uncertain_result", "prompt_injection", "duplicate",
     "batch_limit", "language", "employer_exclusion", "shortlist_authority",
     "approval_expiry", "approval_timing", "required_answer",
     "security_challenge", "outcome_separation", "artifact_qa",
+    "delegation_privacy", "delegation_authority", "late_result",
+    "delegated_claim", "delegated_outcome", "native_spawn",
+    "sequential_fallback", "delegation_dedup", "output_conflict",
+    "delegation_capacity", "release_privacy",
 }
 SCENARIO_FIELDS = {
     "id", "title", "prompt", "available_capabilities", "fixture_refs",
     "reference_files", "risk_tags", "expected_status", "expected_behaviors",
-    "forbidden_behaviors",
+    "forbidden_behaviors", "evidence_scope",
+}
+EVIDENCE_SCOPES = {
+    "skill_runtime",
+    "host_capability",
+    "release_packaging",
 }
 
 
@@ -94,6 +103,9 @@ def validate_catalog(catalog: Any, *, repo_root: Path = REPO_ROOT) -> None:
         status = scenario["expected_status"]
         if status not in WORKFLOW_STATUSES:
             raise EvaluationError(f"{label}.expected_status is not canonical")
+        evidence_scope = scenario["evidence_scope"]
+        if evidence_scope not in EVIDENCE_SCOPES:
+            raise EvaluationError(f"{label}.evidence_scope is not supported")
         _strings(scenario["expected_behaviors"], f"{label}.expected_behaviors")
         _strings(scenario["forbidden_behaviors"], f"{label}.forbidden_behaviors")
 

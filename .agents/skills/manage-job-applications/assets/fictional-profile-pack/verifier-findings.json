@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "findings_id": "verifier_findings_example-support-101",
+  "status": "PASS",
+  "notes": "Claims resolve to verified permitted facts; no unsupported employer-facing statements found."
+}
