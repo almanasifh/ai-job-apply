@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "application_id": "app_example-support-101",
   "application_version": 1,
-  "application_digest": "5173cb762ca5ebb90cec3a4f11d40f547ff54ca3e1b4e40e23627d016dcdd657",
+  "application_digest": "a38625c4d80c0f35b7c74ae8075d02bb37a1c3d80ce0a16cd54d834830175fe2",
   "candidate_id": "cand_jordan-example",
   "claims": [
     {
@@ -28,7 +28,27 @@
         "fact_python"
       ],
       "status": "VERIFIED"
+    },
+    {
+      "claim_id": "claim_support-years-letter",
+      "text": "I have four years of customer support experience.",
+      "use": "COVER_LETTER",
+      "artifact_ids": [],
+      "evidence_ids": [
+        "fact_support-years"
+      ],
+      "status": "VERIFIED"
+    },
+    {
+      "claim_id": "claim_support-years-screening",
+      "text": "Four years of customer support experience",
+      "use": "SCREENING",
+      "artifact_ids": [],
+      "evidence_ids": [
+        "fact_support-years"
+      ],
+      "status": "VERIFIED"
     }
   ],
-  "ledger_digest": "11734741dcff6688fdbb74edc658feb40469033aa8b78b9985bc7637c93a5b9a"
+  "ledger_digest": "574d6efee74e4253f0ab41f166fed52fe01c30d278584863cb72014b260b92de"
 }

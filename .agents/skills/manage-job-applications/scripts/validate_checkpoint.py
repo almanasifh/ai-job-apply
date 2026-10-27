@@ -37,6 +37,57 @@ ACTION_STATUSES = {
     "SUBMISSION_UNCERTAIN", "SENT", "SUBMITTED", "DELIVERY_FAILED",
     "SUBMISSION_FAILED",
 }
+SPECIALIST_ACTORS = frozenset(
+    {"scout", "matcher", "drafter", "verifier", "tracker"}
+)
+INITIAL_STATUSES = frozenset({"RESEARCHED", "SKIPPED"})
+STATUS_TRANSITIONS: dict[str, frozenset[str]] = {
+    "RESEARCHED": frozenset({
+        "ROUTED", "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SKIPPED",
+    }),
+    "ROUTED": frozenset({
+        "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SKIPPED",
+    }),
+    "PREPARING": frozenset({
+        "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SKIPPED",
+    }),
+    "READY": frozenset({
+        "READY", "PREPARING", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SENT", "SUBMITTED", "SUBMISSION_UNCERTAIN",
+        "SUBMISSION_FAILED", "SKIPPED",
+    }),
+    "NEEDS_INPUT": frozenset({
+        "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SKIPPED",
+    }),
+    "NEEDS_VERIFICATION": frozenset({
+        "PREPARING", "READY", "NEEDS_INPUT", "NEEDS_VERIFICATION",
+        "TECHNICAL_HOLD", "SKIPPED",
+    }),
+    "TECHNICAL_HOLD": frozenset({
+        "TECHNICAL_HOLD", "PREPARING", "READY", "NEEDS_INPUT",
+        "NEEDS_VERIFICATION", "SKIPPED",
+    }),
+    "SENT": frozenset({
+        "SUBMITTED", "DELIVERY_FAILED", "SUBMISSION_UNCERTAIN", "TECHNICAL_HOLD",
+    }),
+    "SUBMITTED": frozenset({"DELIVERY_FAILED", "TECHNICAL_HOLD"}),
+    "DELIVERY_FAILED": frozenset({
+        "TECHNICAL_HOLD", "NEEDS_VERIFICATION", "SKIPPED",
+    }),
+    "SUBMISSION_FAILED": frozenset({
+        "PREPARING", "READY", "TECHNICAL_HOLD", "NEEDS_INPUT",
+        "NEEDS_VERIFICATION", "SKIPPED",
+    }),
+    "SUBMISSION_UNCERTAIN": frozenset({
+        "SENT", "SUBMITTED", "DELIVERY_FAILED", "SUBMISSION_FAILED",
+        "TECHNICAL_HOLD", "NEEDS_VERIFICATION",
+    }),
+    "SKIPPED": frozenset(),
+}
 
 
 def load_events(path: Path) -> list[dict[str, Any]]:
@@ -56,9 +107,19 @@ def load_events(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def _reject_specialist_actor(actor: str, label: str) -> None:
+    if actor.casefold() in SPECIALIST_ACTORS:
+        raise ValidationError(
+            f"{label}.actor cannot be a specialist role; only the main agent "
+            "writes the canonical checkpoint"
+        )
+
+
 def validate_checkpoint(events: list[dict[str, Any]]) -> None:
     previous_hash: str | None = None
     previous_time = None
+    previous_status: str | None = None
+    previous_attempt_id: str | None = None
     event_ids: set[str] = set()
     application_id: str | None = None
     for index, event in enumerate(events, 1):
@@ -85,15 +146,34 @@ def validate_checkpoint(events: list[dict[str, Any]]) -> None:
         previous_time = occurred_at
         require_string(event["event_type"], f"{label}.event_type")
         workflow_status = require_enum(event["workflow_status"], STATUSES, f"{label}.workflow_status")
-        require_string(event["actor"], f"{label}.actor")
-        if event["attempt_id"] is not None:
-            require_string(event["attempt_id"], f"{label}.attempt_id")
+        actor = require_string(event["actor"], f"{label}.actor")
+        _reject_specialist_actor(actor, label)
+        attempt_id = event["attempt_id"]
+        if attempt_id is not None:
+            attempt_id = require_string(attempt_id, f"{label}.attempt_id")
         evidence_refs = unique_strings(event["evidence_refs"], f"{label}.evidence_refs")
         if workflow_status in ACTION_STATUSES:
-            if event["attempt_id"] is None:
+            if attempt_id is None:
                 raise ValidationError(f"{label}.attempt_id is required for {workflow_status}")
             if not evidence_refs:
                 raise ValidationError(f"{label}.evidence_refs is required for {workflow_status}")
+        if previous_status is None:
+            if workflow_status not in INITIAL_STATUSES:
+                raise ValidationError(
+                    f"{label}.workflow_status must start as RESEARCHED or SKIPPED"
+                )
+        else:
+            allowed = STATUS_TRANSITIONS[previous_status]
+            if workflow_status not in allowed:
+                raise ValidationError(
+                    f"{label}.workflow_status cannot follow {previous_status}"
+                )
+            if previous_status == "SUBMISSION_UNCERTAIN":
+                if attempt_id is None or attempt_id != previous_attempt_id:
+                    raise ValidationError(
+                        f"{label}.attempt_id must reuse the SUBMISSION_UNCERTAIN "
+                        "attempt; blind retries are forbidden"
+                    )
         if event["previous_event_hash"] != previous_hash:
             raise ValidationError(f"{label}.previous_event_hash does not match the prior event")
         event_hash = require_sha256(event["event_hash"], f"{label}.event_hash")
@@ -101,6 +181,8 @@ def validate_checkpoint(events: list[dict[str, Any]]) -> None:
         if event_hash != expected:
             raise ValidationError(f"{label}.event_hash does not match its canonical content")
         previous_hash = event_hash
+        previous_status = workflow_status
+        previous_attempt_id = attempt_id
 
 
 def main() -> int:

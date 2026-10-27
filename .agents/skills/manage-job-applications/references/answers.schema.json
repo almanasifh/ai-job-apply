@@ -18,7 +18,7 @@
           "question_key": { "type": "string", "minLength": 1 },
           "scope": { "enum": ["GLOBAL", "COUNTRY", "EMPLOYER", "JOB"] },
           "status": { "enum": ["VERIFIED", "UNKNOWN", "CONFLICTING"] },
-          "answer": { "type": ["string", "number", "integer", "boolean", "null"] },
+          "answer": { "type": ["string", "integer", "boolean", "null"] },
           "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
           "reviewed_at": { "type": ["string", "null"], "format": "date-time" }
         }

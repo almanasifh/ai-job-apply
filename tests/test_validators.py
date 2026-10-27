@@ -230,11 +230,49 @@ class ContractTests(unittest.TestCase):
                 claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
             )
 
+    def test_exact_authorization_lifetime_cannot_exceed_fifteen_minutes(self) -> None:
+        validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
+        authorization = load_json(ASSETS / "authorization.json")
+        authorization["expires_at"] = "2099-01-01T00:15:01Z"
+        with self.assertRaisesRegex(ValidationError, "15 minutes"):
+            validate_authorization(
+                authorization,
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
+            )
+
+    def test_batch_authorization_lifetime_cannot_exceed_twenty_four_hours(self) -> None:
+        validated = validate_application(load_json(ASSETS / "application.json"), ASSETS)
+        authorization = load_json(ASSETS / "authorization.json")
+        authorization["scope"] = "BATCH"
+        authorization["expires_at"] = "2099-01-02T00:00:01Z"
+        with self.assertRaisesRegex(ValidationError, "24 hours"):
+            validate_authorization(
+                authorization,
+                validated,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+                claim_ledger_digest=load_json(ASSETS / "claim-ledger.json")["ledger_digest"],
+            )
+
     def test_unknown_answer_cannot_claim_a_value(self) -> None:
         answers = load_json(ASSETS / "answers.json")
         answers["answers"][1]["answer"] = "yes"
         with self.assertRaisesRegex(ValidationError, "while UNKNOWN"):
             validate_answers(answers)
+
+    def test_answer_library_rejects_unknown_profile_evidence(self) -> None:
+        answers = load_json(ASSETS / "answers.json")
+        answers["answers"][0]["evidence_ids"] = ["fact_not-real"]
+        with self.assertRaisesRegex(ValidationError, "evidence_ids is unknown"):
+            validate_answers(answers, load_json(ASSETS / "profile.json"))
+
+    def test_answer_library_rejects_float_values(self) -> None:
+        answers = load_json(ASSETS / "answers.json")
+        answers["answers"][0]["answer"] = 4.5
+        with mock.patch("validate_answers.validate_against_schema"):
+            with self.assertRaisesRegex(ValidationError, "float"):
+                validate_answers(answers)
 
     def test_proceed_decision_rejects_mandatory_unknown(self) -> None:
         profile = load_json(ASSETS / "profile.json")
@@ -243,6 +281,22 @@ class ContractTests(unittest.TestCase):
         match["requirements"][0]["state"] = "UNKNOWN"
         match["requirements"][0]["evidence_ids"] = []
         with self.assertRaisesRegex(ValidationError, "cannot be PROCEED"):
+            validate_match(match, job, profile)
+
+    def test_proceed_decision_rejects_mandatory_partial(self) -> None:
+        profile = load_json(ASSETS / "profile.json")
+        job = load_json(ASSETS / "job.json")
+        match = load_json(ASSETS / "match.json")
+        match["requirements"][0]["state"] = "PARTIAL"
+        with self.assertRaisesRegex(ValidationError, "cannot be PROCEED"):
+            validate_match(match, job, profile)
+
+    def test_match_evidence_must_allow_screening_use(self) -> None:
+        profile = load_json(ASSETS / "profile.json")
+        profile["facts"][0]["allowed_uses"] = ["CV"]
+        job = load_json(ASSETS / "job.json")
+        match = load_json(ASSETS / "match.json")
+        with self.assertRaisesRegex(ValidationError, "not permitted for SCREENING"):
             validate_match(match, job, profile)
 
     def test_match_state_is_code_enforced_when_schema_is_bypassed(self) -> None:
@@ -287,6 +341,51 @@ class ContractTests(unittest.TestCase):
         events[1]["event_hash"] = canonical_digest(events[1], omit={"event_hash"})
         with self.assertRaisesRegex(ValidationError, "attempt_id"):
             validate_checkpoint(events)
+
+    def test_checkpoint_rejects_illegal_status_transition(self) -> None:
+        events = load_events(ASSETS / "checkpoint.jsonl")
+        events[1]["workflow_status"] = "SUBMITTED"
+        events[1]["event_type"] = "APPLICATION_SUBMITTED"
+        events[1]["attempt_id"] = "attempt_example-01"
+        events[1]["evidence_refs"] = ["portal-receipt"]
+        events[1]["event_hash"] = canonical_digest(events[1], omit={"event_hash"})
+        # First event is RESEARCHED; RESEARCHED -> SUBMITTED is forbidden.
+        events = [events[0], events[1]]
+        events[0]["workflow_status"] = "RESEARCHED"
+        with self.assertRaisesRegex(ValidationError, "cannot follow RESEARCHED"):
+            validate_checkpoint(events)
+
+    def test_checkpoint_rejects_specialist_actor(self) -> None:
+        events = load_events(ASSETS / "checkpoint.jsonl")
+        events[0]["actor"] = "matcher"
+        events[0]["event_hash"] = canonical_digest(events[0], omit={"event_hash"})
+        events[1]["previous_event_hash"] = events[0]["event_hash"]
+        events[1]["event_hash"] = canonical_digest(events[1], omit={"event_hash"})
+        with self.assertRaisesRegex(ValidationError, "specialist role"):
+            validate_checkpoint(events)
+
+    def test_checkpoint_rejects_retry_after_submission_uncertain(self) -> None:
+        events = load_events(ASSETS / "checkpoint.jsonl")
+        uncertain = copy.deepcopy(events[1])
+        uncertain["event_id"] = "event_example-003"
+        uncertain["sequence"] = 3
+        uncertain["workflow_status"] = "SUBMISSION_UNCERTAIN"
+        uncertain["event_type"] = "SUBMISSION_OUTCOME_UNCERTAIN"
+        uncertain["attempt_id"] = "attempt_example-01"
+        uncertain["evidence_refs"] = ["provider-timeout"]
+        uncertain["previous_event_hash"] = events[1]["event_hash"]
+        uncertain["event_hash"] = canonical_digest(uncertain, omit={"event_hash"})
+        retry = copy.deepcopy(uncertain)
+        retry["event_id"] = "event_example-004"
+        retry["sequence"] = 4
+        retry["workflow_status"] = "READY"
+        retry["event_type"] = "PACKAGE_READY"
+        retry["attempt_id"] = "attempt_example-02"
+        retry["evidence_refs"] = ["application.json"]
+        retry["previous_event_hash"] = uncertain["event_hash"]
+        retry["event_hash"] = canonical_digest(retry, omit={"event_hash"})
+        with self.assertRaisesRegex(ValidationError, "cannot follow SUBMISSION_UNCERTAIN"):
+            validate_checkpoint([events[0], events[1], uncertain, retry])
 
     def test_checkpoint_times_cannot_move_backward(self) -> None:
         events = load_events(ASSETS / "checkpoint.jsonl")
