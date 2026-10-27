@@ -6,7 +6,7 @@ Ship a generic, reusable job-application agent skill with evidence grounding, ex
 
 ## Current state
 
-Version **0.4.0** is the release candidate. Packaging manifests already declare `0.4.0`. Feature work from pull request #9 is on `main`. Claim-ledger and release-hardening from pull request #10 are ready to merge. No `v0.4.0` GitHub tag or release assets have been published yet; the latest published release remains **0.3.2** until tagging completes.
+Version **0.4.0** is the latest published release. Packaging manifests, portable and Codex archives, checksums, and release validation evidence are synchronized at tag `v0.4.0`.
 
 This repository contains no standalone application runtime, dashboard, database, scheduler, background service, or bundled provider client. The skill may use compatible host tools when available and authorized; otherwise it prepares analysis, drafts, checkpoints, or a manual handoff and must not claim an external action occurred.
 
@@ -30,13 +30,13 @@ This repository contains no standalone application runtime, dashboard, database,
 - Published versions 0.3.0 through 0.3.2 with protected Windows and Linux CI.
 - Added bounded Scout, Matcher, Drafter, Verifier, and Tracker orchestration with claim-ledger approval bindings.
 - Hardened claim-ledger CLI validation, role digest release checks, Scout/Tracker evidence bans, and review-template alignment.
+- Published synchronized version 0.4.0 portable and Codex archives, checksums, evaluation evidence, and release validation evidence.
 
 ## Next steps
 
-1. Merge pull request #10 into `main`.
-2. Rebuild packages from the merge tip, confirm digests, tag `v0.4.0`, and upload release assets.
-3. Mark version 0.4.0 as published in this file and the README.
-4. Monitor feedback and convert failures into narrow fictional regression scenarios.
+1. Monitor public feedback and convert demonstrated failures into narrow fictional regression scenarios.
+2. Keep manifests, evidence, checksums, installation guidance, and the latest published release synchronized.
+3. Continue requiring protected Windows and Linux CI before changes reach `main`.
 
 ## Evidence boundary
 
