@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +24,9 @@ from common import (
     unique_strings,
     validate_against_schema,
 )
+
+EXACT_MAX_LIFETIME = timedelta(minutes=15)
+BATCH_MAX_LIFETIME = timedelta(hours=24)
 
 
 CHANNELS = {"EMAIL", "PORTAL", "LINKEDIN", "MANUAL"}
@@ -81,6 +84,10 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
             raise ValidationError(f"{label} needs a non-null answer when VERIFIED")
         if status == "VERIFIED" and not evidence:
             raise ValidationError(f"{label} needs evidence_ids when VERIFIED")
+        if isinstance(answer["answer"], float):
+            raise ValidationError(
+                f"{label}.answer uses a float; encode exact values as strings or integers"
+            )
 
     artifact_hashes: list[str] = []
     artifact_ids: set[str] = set()
@@ -136,6 +143,15 @@ def validate_authorization(
     expires_at = parse_datetime(data["expires_at"], "authorization.expires_at")
     if expires_at <= issued_at:
         raise ValidationError("authorization.expires_at must be after issued_at")
+    lifetime = expires_at - issued_at
+    if scope == "EXACT" and lifetime > EXACT_MAX_LIFETIME:
+        raise ValidationError(
+            "EXACT authorization lifetime must not exceed 15 minutes"
+        )
+    if scope == "BATCH" and lifetime > BATCH_MAX_LIFETIME:
+        raise ValidationError(
+            "BATCH authorization lifetime must not exceed 24 hours"
+        )
     if at.tzinfo is None:
         raise ValidationError("authorization validation time must include a timezone")
     validation_time = at.astimezone(timezone.utc)

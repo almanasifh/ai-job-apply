@@ -23,7 +23,7 @@
     "56592ae59607ecebe505c27ea428390b4b8961aa69a41e325e8a1a7e0106327e",
     "bf11b737414b0f6d9ff08d5376d06ed3a6670d0f75ccf09cd1943dc0d368489d",
     "6a3bf9d043b5e78556e2155eb7aa4cfefbac72295367b99156d4bdaba3b21553",
-    "11734741dcff6688fdbb74edc658feb40469033aa8b78b9985bc7637c93a5b9a"
+    "574d6efee74e4253f0ab41f166fed52fe01c30d278584863cb72014b260b92de"
   ],
   "permitted_fact_ids": [
     "fact_support-years",
@@ -33,5 +33,5 @@
     "READ_MINIMIZED_FACTS",
     "VERIFY_CONTENT"
   ],
-  "task_digest": "01154992376c0eb31c2f1d1d3f2db39f1298b66ba6f22f73331b073149464606"
+  "task_digest": "ebeecc49778ee2a7aaf1118be8586030d8c7472f4268a20792e923a05b05c4fb"
 }

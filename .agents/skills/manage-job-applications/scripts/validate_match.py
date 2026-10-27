@@ -20,7 +20,8 @@ from validate_profile import validate_profile
 
 
 REQUIREMENT_STATES = {"SUPPORTED", "PARTIAL", "GAP", "UNKNOWN", "NOT_APPLICABLE"}
-BLOCKING_STATES = {"GAP", "UNKNOWN"}
+BLOCKING_STATES = {"GAP", "UNKNOWN", "PARTIAL"}
+MATCH_EVIDENCE_USE = "SCREENING"
 
 
 def validate_match(match: Any, job: Any, profile: Any) -> None:
@@ -67,6 +68,16 @@ def validate_match(match: Any, job: Any, profile: Any) -> None:
         )
         if unverified:
             raise ValidationError(f"{label}.evidence_ids is not VERIFIED: {', '.join(unverified)}")
+        disallowed = sorted(
+            evidence_id
+            for evidence_id in evidence_ids
+            if MATCH_EVIDENCE_USE not in profile_facts[evidence_id].get("allowed_uses", [])
+        )
+        if disallowed:
+            raise ValidationError(
+                f"{label}.evidence_ids is not permitted for {MATCH_EVIDENCE_USE}: "
+                + ", ".join(disallowed)
+            )
         if state in {"SUPPORTED", "PARTIAL"} and not evidence_ids:
             raise ValidationError(f"{label}.evidence_ids is required for {state}")
         if state == "UNKNOWN" and evidence_ids:

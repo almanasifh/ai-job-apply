@@ -62,6 +62,11 @@ def validate_claims(
     }
     claim_ids: set[str] = set()
     covered_artifact_facts: set[tuple[str, str]] = set()
+    covered_screening_facts: set[str] = set()
+    message_covered = False
+    message = require_string(
+        application_data.get("message"), "application.message", allow_empty=True
+    )
     for index, raw_claim in enumerate(
         require_list(data["claims"], "claim ledger.claims")
     ):
@@ -71,7 +76,7 @@ def validate_claims(
         if claim_id in claim_ids:
             raise ValidationError(f"{label}.claim_id is duplicated")
         claim_ids.add(claim_id)
-        require_string(claim["text"], f"{label}.text")
+        claim_text = require_string(claim["text"], f"{label}.text")
         status = require_enum(
             claim["status"],
             {"VERIFIED", "UNKNOWN", "REJECTED"},
@@ -136,6 +141,42 @@ def validate_claims(
             covered_artifact_facts.update(
                 (artifact_id, evidence_id) for evidence_id in evidence_ids
             )
+        if status == "VERIFIED" and use == "SCREENING":
+            covered_screening_facts.update(evidence_ids)
+        if (
+            status == "VERIFIED"
+            and use in {"COVER_LETTER", "CONTACT"}
+            and claim_text
+            and claim_text in message
+        ):
+            message_covered = True
+    required_answer_facts: set[str] = set()
+    for index, raw_answer in enumerate(
+        require_list(application_data.get("answers"), "application.answers")
+    ):
+        label = f"application.answers[{index}]"
+        answer = require_object(raw_answer, label)
+        evidence_ids = unique_strings(
+            answer["evidence_ids"], f"{label}.evidence_ids"
+        )
+        missing_evidence = sorted(set(evidence_ids) - facts.keys())
+        if missing_evidence:
+            raise ValidationError(
+                f"{label}.evidence_ids is unknown: "
+                + ", ".join(missing_evidence)
+            )
+        if answer.get("status") == "VERIFIED":
+            unverified = sorted(
+                evidence_id
+                for evidence_id in evidence_ids
+                if facts[evidence_id].get("status") != "VERIFIED"
+            )
+            if unverified:
+                raise ValidationError(
+                    f"{label}.evidence_ids is not VERIFIED: "
+                    + ", ".join(unverified)
+                )
+            required_answer_facts.update(evidence_ids)
     required_artifact_facts = {
         (artifact_id, fact_id)
         for artifact_id, artifact in artifacts.items()
@@ -149,6 +190,17 @@ def validate_claims(
         raise ValidationError(
             "claim ledger does not cover artifact source facts: "
             + ", ".join(f"{artifact_id}:{fact_id}" for artifact_id, fact_id in missing)
+        )
+    missing_answers = sorted(required_answer_facts - covered_screening_facts)
+    if missing_answers:
+        raise ValidationError(
+            "claim ledger does not cover application answer evidence: "
+            + ", ".join(missing_answers)
+        )
+    if message.strip() and not message_covered:
+        raise ValidationError(
+            "claim ledger does not cover application message with a "
+            "COVER_LETTER or CONTACT claim"
         )
     require_sha256(data["ledger_digest"], "claim ledger.ledger_digest")
     if data["ledger_digest"] != canonical_digest(

@@ -655,6 +655,65 @@ class OrchestrationTests(unittest.TestCase):
                 ASSETS,
             )
 
+    def test_claim_ledger_must_cover_application_answers(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["claims"] = [
+            claim
+            for claim in ledger["claims"]
+            if claim["use"] != "SCREENING"
+        ]
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "does not cover application answer evidence"
+        ):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_claim_ledger_must_cover_application_message(self) -> None:
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["claims"] = [
+            claim
+            for claim in ledger["claims"]
+            if claim["use"] not in {"COVER_LETTER", "CONTACT"}
+        ]
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "does not cover application message"
+        ):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                load_json(ASSETS / "application.json"),
+                ASSETS,
+            )
+
+    def test_application_answer_evidence_must_exist_on_profile(self) -> None:
+        application = load_json(ASSETS / "application.json")
+        application["answers"][0]["evidence_ids"] = ["fact_not-real"]
+        application["payload_digest"] = canonical_digest(
+            application, omit={"payload_digest"}
+        )
+        ledger = load_json(ASSETS / "claim-ledger.json")
+        ledger["application_digest"] = application["payload_digest"]
+        ledger["ledger_digest"] = canonical_digest(
+            ledger, omit={"ledger_digest"}
+        )
+        with self.assertRaisesRegex(ValidationError, "evidence_ids is unknown"):
+            validate_claims(
+                ledger,
+                load_json(ASSETS / "profile.json"),
+                application,
+                ASSETS,
+            )
+
     def test_mismatched_ledger_body_digest_is_rejected(self) -> None:
         ledger = load_json(ASSETS / "claim-ledger.json")
         ledger["ledger_digest"] = "0" * 64

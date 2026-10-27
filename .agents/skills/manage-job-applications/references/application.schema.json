@@ -23,7 +23,7 @@
         "required": ["question", "answer", "status", "evidence_ids"],
         "properties": {
           "question": { "type": "string", "minLength": 1 },
-          "answer": { "type": ["string", "number", "integer", "boolean", "null"] },
+          "answer": { "type": ["string", "integer", "boolean", "null"] },
           "status": { "enum": ["VERIFIED", "UNKNOWN"] },
           "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
         }
