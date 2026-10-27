@@ -4,7 +4,7 @@ Approval is explicit, time-bounded, and bound to immutable application content.
 
 ## Exact approval
 
-An exact approval contains one binding and normally expires 15 minutes after issue. The binding includes the application identifier and version, candidate, job, channel, account reference, destination, canonical payload digest, ordered artifact hashes, and the claim-ledger digest when the package includes employer-facing artifacts.
+An exact approval contains one binding and normally expires 15 minutes after issue. The binding includes the application identifier and version, candidate, job, channel, account reference, destination, canonical payload digest, ordered artifact hashes, and a validated claim-ledger digest.
 
 ## Batch approval
 

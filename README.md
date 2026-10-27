@@ -2,7 +2,7 @@
 
 A privacy-conscious, evidence-based skill for preparing, authorizing, packaging, and tracking job applications without inventing candidate facts or confusing preparation with submission.
 
-Latest published release: **0.3.2**. Current branch candidate: **0.4.0**. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
+Package version: **0.4.0**. Latest published GitHub release remains **0.3.2** until `v0.4.0` is tagged. Download verified artifacts from the [latest GitHub release](https://github.com/almanasifh/ai-job-apply/releases/latest).
 
 ## Scope
 
@@ -74,7 +74,7 @@ python .agents/skills/manage-job-applications/scripts/validate_answers.py .agent
 python .agents/skills/manage-job-applications/scripts/validate_job.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json
 python .agents/skills/manage-job-applications/scripts/validate_match.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/match.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/job.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json
 python .agents/skills/manage-job-applications/scripts/validate_claims.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json
-python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --claim-ledger .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json --at 2099-01-01T00:05:00Z
+python .agents/skills/manage-job-applications/scripts/validate_application.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/application.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/authorization.json --claim-ledger .agents/skills/manage-job-applications/assets/fictional-profile-pack/claim-ledger.json --profile .agents/skills/manage-job-applications/assets/fictional-profile-pack/profile.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_orchestration.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/delegation.json .agents/skills/manage-job-applications/assets/fictional-profile-pack/specialist-result.json --at 2099-01-01T00:05:00Z
 python .agents/skills/manage-job-applications/scripts/validate_checkpoint.py .agents/skills/manage-job-applications/assets/fictional-profile-pack/checkpoint.jsonl
 python scripts/validate_evals.py
@@ -121,7 +121,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [0.3.1 release validation](docs/RELEASE_VALIDATION_V0.3.1.md)
 - [0.3.2 release validation](docs/RELEASE_VALIDATION_V0.3.2.md)
 - [0.4.0 evaluation evidence](docs/EVALUATION_RESULTS_V0.4.0.md)
-- [0.4.0 development validation](docs/DEVELOPMENT_VALIDATION_V0.4.0.md)
+- [0.4.0 release validation](docs/RELEASE_VALIDATION_V0.4.0.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

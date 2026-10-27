@@ -561,6 +561,44 @@ class OrchestrationTests(unittest.TestCase):
                 parse_datetime("2099-01-01T00:05:00Z", "test time"),
             )
 
+    def test_scout_result_cannot_cite_candidate_evidence(self) -> None:
+        delegation = validate_delegation(
+            load_json(ASSETS / "delegation-scout.json"),
+            parse_datetime("2099-01-01T00:05:00Z", "test time"),
+        )
+        result = load_json(ASSETS / "specialist-result-scout.json")
+        result["evidence_ids"] = ["fact_support-years"]
+        result["result_digest"] = canonical_digest(
+            result, omit={"result_digest"}
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "cannot cite candidate evidence"
+        ):
+            validate_result(
+                result,
+                delegation,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
+    def test_tracker_result_cannot_cite_candidate_evidence(self) -> None:
+        delegation = validate_delegation(
+            load_json(ASSETS / "delegation-tracker.json"),
+            parse_datetime("2099-01-01T00:05:00Z", "test time"),
+        )
+        result = load_json(ASSETS / "specialist-result-tracker.json")
+        result["evidence_ids"] = ["fact_python"]
+        result["result_digest"] = canonical_digest(
+            result, omit={"result_digest"}
+        )
+        with self.assertRaisesRegex(
+            ValidationError, "cannot cite candidate evidence"
+        ):
+            validate_result(
+                result,
+                delegation,
+                parse_datetime("2099-01-01T00:05:00Z", "test time"),
+            )
+
     def test_equal_input_digests_for_distinct_refs_are_allowed(self) -> None:
         delegation = load_json(ASSETS / "delegation-drafter.json")
         shared = delegation["input_digests"][0]

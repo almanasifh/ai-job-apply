@@ -41,6 +41,24 @@ class SkillEvaluationCatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(EvaluationError, "missing risk coverage"):
             validate_catalog(catalog, repo_root=REPO_ROOT)
 
+    def test_invalid_evidence_scope_is_rejected(self) -> None:
+        catalog = copy.deepcopy(load_catalog(CATALOG))
+        catalog["scenarios"][0]["evidence_scope"] = "runtime"
+        with self.assertRaisesRegex(EvaluationError, "evidence_scope"):
+            validate_catalog(catalog, repo_root=REPO_ROOT)
+
+    def test_native_spawn_and_release_privacy_scopes(self) -> None:
+        catalog = load_catalog(CATALOG)
+        by_id = {scenario["id"]: scenario for scenario in catalog["scenarios"]}
+        self.assertEqual(
+            by_id["eval_native-subagent-spawn"]["evidence_scope"],
+            "host_capability",
+        )
+        self.assertEqual(
+            by_id["eval_sensitive-fixture-release-scan"]["evidence_scope"],
+            "release_packaging",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

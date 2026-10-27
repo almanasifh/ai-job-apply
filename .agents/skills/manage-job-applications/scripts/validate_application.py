@@ -77,6 +77,8 @@ def validate_application(application: Any, artifact_root: Path) -> dict[str, Any
         evidence = unique_strings(answer["evidence_ids"], f"{label}.evidence_ids")
         if status == "UNKNOWN" and (answer["answer"] is not None or evidence):
             raise ValidationError(f"{label} cannot claim an answer or evidence while UNKNOWN")
+        if status == "VERIFIED" and answer["answer"] is None:
+            raise ValidationError(f"{label} needs a non-null answer when VERIFIED")
         if status == "VERIFIED" and not evidence:
             raise ValidationError(f"{label} needs evidence_ids when VERIFIED")
 
@@ -148,15 +150,13 @@ def validate_authorization(
         raise ValidationError("EXACT authorization must contain one binding")
 
     application = validated["application"]
-    artifacts = require_list(application["artifacts"], "application.artifacts")
-    if artifacts and claim_ledger_digest is None:
+    if claim_ledger_digest is None:
         raise ValidationError(
-            "authorization requires a validated claim_ledger_digest when artifacts exist"
+            "authorization requires a validated claim_ledger_digest"
         )
-    if claim_ledger_digest is not None:
-        claim_ledger_digest = require_sha256(
-            claim_ledger_digest, "claim_ledger_digest"
-        )
+    claim_ledger_digest = require_sha256(
+        claim_ledger_digest, "claim_ledger_digest"
+    )
     matching = 0
     binding_keys: set[tuple[str, int, str, str | None, str]] = set()
     for index, raw_binding in enumerate(bindings):
@@ -194,9 +194,6 @@ def validate_authorization(
             "artifact_hashes": validated["artifact_hashes"],
             "claim_ledger_digest": claim_ledger_digest,
         }
-        if claim_ledger_digest is None:
-            # Artifact-free packages still require the field; accept the bound digest.
-            expected["claim_ledger_digest"] = binding["claim_ledger_digest"]
         if binding == expected:
             matching += 1
     if matching != 1:
@@ -211,21 +208,31 @@ def main() -> int:
     parser.add_argument(
         "--claim-ledger",
         type=Path,
-        help="Validated claim ledger whose digest must match the approval binding",
+        required=True,
+        help="Claim ledger to validate against the profile and application before binding",
+    )
+    parser.add_argument(
+        "--profile",
+        type=Path,
+        required=True,
+        help="Candidate profile used to validate the claim ledger",
     )
     parser.add_argument("--at", help="ISO 8601 validation time; defaults to now")
     args = parser.parse_args()
     artifact_root = args.artifact_root or args.application.parent
     try:
+        from validate_claims import validate_claims
+
         at = parse_datetime(args.at, "--at") if args.at else datetime.now(timezone.utc)
-        validated = validate_application(load_json(args.application), artifact_root)
-        claim_ledger_digest = None
-        if args.claim_ledger is not None:
-            ledger = load_json(args.claim_ledger)
-            claim_ledger_digest = require_sha256(
-                require_object(ledger, "claim ledger")["ledger_digest"],
-                "claim ledger.ledger_digest",
-            )
+        application = load_json(args.application)
+        validated = validate_application(application, artifact_root)
+        ledger = load_json(args.claim_ledger)
+        profile = load_json(args.profile)
+        validate_claims(ledger, profile, application, artifact_root)
+        claim_ledger_digest = require_sha256(
+            require_object(ledger, "claim ledger")["ledger_digest"],
+            "claim ledger.ledger_digest",
+        )
         validate_authorization(
             load_json(args.authorization),
             validated,
@@ -234,6 +241,9 @@ def main() -> int:
         )
     except ValidationError as exc:
         print(f"INVALID: {exc}", file=sys.stderr)
+        return 1
+    except KeyError as exc:
+        print(f"INVALID: claim ledger is missing required field {exc}", file=sys.stderr)
         return 1
     print(f"VALID: {args.application} + {args.authorization}")
     return 0
