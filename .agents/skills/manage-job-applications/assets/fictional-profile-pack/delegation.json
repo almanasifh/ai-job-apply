@@ -1,6 +1,8 @@
 {
   "schema_version": "1.0",
   "run_id": "run_example-match-101",
+  "task_id": "task_example-match-101",
+  "attempt_id": "attempt_example-match-101-01",
   "application_id": "app_example-support-101",
   "role": "MATCHER",
   "issued_at": "2099-01-01T00:00:00Z",
@@ -8,6 +10,10 @@
   "input_refs": [
     "job_example-support-101",
     "facts_example-support-101"
+  ],
+  "input_kinds": [
+    "PUBLIC_VACANCY",
+    "MINIMIZED_FACTS"
   ],
   "input_digests": [
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -22,5 +28,5 @@
     "READ_MINIMIZED_FACTS",
     "DRAFT_STRUCTURED"
   ],
-  "task_digest": "494c598e57dce4cb57a635e41c29f6e5b4249aac37dd114e4467ea4e66ea1aab"
+  "task_digest": "9cc8513f1225ff797c75d536ba64eec659869858d856b3cb90d810ff0d7c32d6"
 }

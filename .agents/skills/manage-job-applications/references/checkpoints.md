@@ -16,7 +16,7 @@ The first event uses `previous_event_hash: null`. Every later event carries the 
 
 ## Actor discipline
 
-Only the main agent writes the canonical checkpoint. Specialist results are immutable referenced inputs and must not directly assert workflow status. An outcome auditor may recommend an outcome from bounded first-party evidence, but the main agent validates and records it.
+Only the main agent writes the canonical checkpoint. Specialist results are immutable referenced inputs and must not directly assert workflow status. A Tracker may prepare a sanitized checkpoint proposal or recommend an outcome from bounded first-party evidence, but the main agent validates and records it.
 
 ## Outcome discipline
 

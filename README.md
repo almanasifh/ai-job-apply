@@ -17,8 +17,9 @@ The repository now includes a working core release:
 - a canonical repo skill at `.agents/skills/manage-job-applications/`;
 - enforced JSON data contracts and fictional fixtures;
 - deterministic profile, answer, vacancy, match, package, approval, artifact, and checkpoint validators;
-- twenty-three fictional behavioral evaluation scenarios with expected and forbidden outcomes;
+- twenty-nine fictional behavioral evaluation scenarios with expected and forbidden outcomes;
 - bounded host-provided multi-agent orchestration with five specialist roles, deterministic delegation/result contracts, and sequential fallback;
+- source-checkout Codex custom-agent definitions for Scout, Matcher, Drafter, Verifier, and Tracker, with an initial five-thread specialist cap;
 - a claim ledger that binds employer-facing claims to verified permitted facts;
 - generic private-profile, exact-review, and manual-handoff templates;
 - a self-contained portable Markdown builder;
@@ -36,6 +37,8 @@ Choose the package that matches the host:
 - **Portable Markdown:** download [`job-application-manager-portable.zip`](https://github.com/almanasifh/ai-job-apply/releases/latest/download/job-application-manager-portable.zip), extract it, and add `manage-job-applications.md` as an instruction or knowledge file in an instruction-capable assistant.
 - **Portable Agent Plugin:** use the `job-application-manager/` folder in the same portable ZIP with a host that supports Agent Plugins 1.0 root `plugin.json` discovery.
 - **Codex:** download [`job-application-manager-codex.zip`](https://github.com/almanasifh/ai-job-apply/releases/latest/download/job-application-manager-codex.zip), extract it, and add the `job-application-manager/` folder through Codex's local plugin installation flow. Start a new task after installation so the skill is discovered.
+
+The Codex ZIP includes the canonical skill and all five role references. The optional project-scoped custom-agent adapter under this repository's `.codex/` directory is not part of the plugin archive; use a source checkout when configuring those local Codex development defaults.
 
 Ask the host to use `manage-job-applications`, then provide the vacancy and a private candidate profile. Review the exact package before approving any external action. If the host has no authorized submission connector, the correct result is a `READY` manual handoff, not a claim that the application was sent.
 
@@ -117,6 +120,7 @@ See [compatibility](docs/COMPATIBILITY.md) before distribution and [the runbook]
 - [0.3.0 release validation](docs/RELEASE_VALIDATION_V0.3.0.md)
 - [0.3.1 release validation](docs/RELEASE_VALIDATION_V0.3.1.md)
 - [0.3.2 release validation](docs/RELEASE_VALIDATION_V0.3.2.md)
+- [0.4.0 development validation](docs/DEVELOPMENT_VALIDATION_V0.4.0.md)
 - [Release runbook](docs/RUNBOOK.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)

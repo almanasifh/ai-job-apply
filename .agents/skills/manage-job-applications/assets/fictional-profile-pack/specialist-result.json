@@ -1,8 +1,10 @@
 {
   "schema_version": "1.0",
   "run_id": "run_example-match-101",
+  "task_id": "task_example-match-101",
+  "attempt_id": "attempt_example-match-101-01",
   "role": "MATCHER",
-  "task_digest": "494c598e57dce4cb57a635e41c29f6e5b4249aac37dd114e4467ea4e66ea1aab",
+  "task_digest": "9cc8513f1225ff797c75d536ba64eec659869858d856b3cb90d810ff0d7c32d6",
   "status": "COMPLETED",
   "started_at": "2099-01-01T00:01:00Z",
   "completed_at": "2099-01-01T00:02:00Z",
@@ -16,5 +18,7 @@
     "fact_support-years",
     "fact_python"
   ],
-  "result_digest": "dd356f7fe6909b2cc5a8dd7a6f970b51e5277e2be542c7b03acafb5fca440603"
+  "unresolved": [],
+  "external_action_taken": false,
+  "result_digest": "88ed810fc2fc5e567c8bd242fbf414745e013e46b4dc6ef545396b615ba27be6"
 }

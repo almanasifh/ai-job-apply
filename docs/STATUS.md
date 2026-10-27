@@ -16,7 +16,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - `packaging/` — portable Agent Plugin and Codex compatibility manifest sources.
 - `scripts/` — deterministic skill builders and release checks.
 - `tests/` — contract, semantic safety, privacy, and packaging tests.
-- `evals/` — twenty-three fictional behavioral scenarios with expected and forbidden outcomes.
+- `evals/` — twenty-nine fictional behavioral scenarios with expected and forbidden outcomes.
 - `.github/workflows/` — Windows and Linux continuous integration.
 - `docs/` — skill scope, design, compatibility, and release guidance.
 
@@ -29,7 +29,7 @@ The skill can use compatible host tools when they are available and authorized. 
 - Added fictional behavioral evaluations and deterministic catalog validation.
 - Added private-profile, answer, exact-review, and manual-handoff templates.
 - Passed all 10 scenarios on both the portable host and isolated Codex host after narrow demonstrated corrections.
-- Hardened release builders to package only tracked skill files and validate the staged package contents.
+- Hardened release builders to package only clean, staged tracked skill files and validate the staged package contents.
 - Added MIT licensing and skill-only documentation.
 - Corrected the skill frontmatter for plain-scalar host compatibility and flattened reference schemas to one level.
 - Added the standalone portable Markdown file to the portable Agent Plugin archive and regression-tested its contents.
@@ -46,11 +46,12 @@ The skill can use compatible host tools when they are available and authorized. 
 - Normalized packaged text so CRLF and LF source checkouts produce identical release archives.
 - Updated GitHub repository metadata and protected `main` with required pull requests, linear history, stale-review dismissal, conversation resolution, and blocked force pushes and deletion.
 
-- Added bounded Scout, Matcher, Drafter, Verifier, and Outcome Auditor roles.
+- Added bounded Scout, Matcher, Drafter, Verifier, and Tracker roles.
 - Added deterministic delegation, specialist-result, and employer-facing claim-ledger contracts and validators.
 - Preserved main-agent-only privacy projection, human approval, external action, and canonical checkpoint writing.
 - Added five multi-agent behavioral scenarios and recursive portable-reference packaging.
-- Cataloged the five orchestration scenarios; isolated portable and Codex host runs remain required before 0.4.0 behavioral validation is complete.
+- Cataloged eleven orchestration scenarios. This development session verified real Codex repository-review subagent threads, while isolated packaged-skill runs on portable and Codex hosts remain required before 0.4.0 behavioral validation is complete.
+- Added project-scoped Codex custom-agent definitions and an initial five-concurrent-specialist configuration. These instructions inherit the parent session's permissions and are not a sandbox boundary.
 
 ## Failed attempts
 

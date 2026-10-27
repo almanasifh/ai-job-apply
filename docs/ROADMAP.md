@@ -13,7 +13,7 @@ This roadmap covers the reusable agent skill only. A standalone application, das
 | 4. Behavioral evaluations | Eighteen realistic fictional prompts for discovery, matching, approval, handoff, and uncertainty | Original ten and all eight added scenarios have cross-format host evidence | Implemented and validated |
 | 5. Onboarding resources | Generic private-profile setup and manual handoff templates | Private-profile, exact-review, and handoff templates are packaged | Implemented |
 | 6. Compatibility hardening | Host capability matrix and repeated release validation | Documented hosts load the skill without implying unavailable tools | Implemented |
-| 7. Bounded multi-agent orchestration | Five specialist roles, delegation/result contracts, claim ledger, privacy minimization, and sequential fallback | Specialists cannot exceed role capabilities or bypass validation and approval | Implemented; behavioral validation pending |
+| 7. Bounded multi-agent orchestration | Five specialist roles, delegation/result contracts, claim ledger, privacy minimization, and sequential fallback | Contracts reject unauthorized declared inputs and outputs; host permissions enforce actual tool access; approval remains main-only | Implemented; behavioral validation pending |
 
 ## Skill behavior gates
 

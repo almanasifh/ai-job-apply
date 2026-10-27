@@ -16,7 +16,7 @@ import stage_plugin
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILL_ROOT = REPO_ROOT / ".agents" / "skills" / "manage-job-applications"
 DIST_ROOT = REPO_ROOT / "dist"
-BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".sqlite", ".sqlite3", ".db"}
+BLOCKED_SUFFIXES = {".doc", ".docx", ".pdf", ".pem", ".key", ".p12", ".pfx", ".sqlite", ".sqlite3", ".db"}
 BLOCKED_PARTS = {".git", "private", "credentials", "cookies", "sessions", "auth", "secrets"}
 SECRET_PATTERNS = {
     "email address": re.compile(rb"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
@@ -119,6 +119,8 @@ def scan_tree(root: Path) -> None:
             raise ValueError(f"Release contains a blocked path: {relative}")
         if path.suffix.lower() in BLOCKED_SUFFIXES:
             raise ValueError(f"Release contains a blocked file type: {relative}")
+        if path.name.lower().startswith(".env"):
+            raise ValueError(f"Release contains a blocked environment file: {relative}")
         content = path.read_bytes()
         for label, pattern in SECRET_PATTERNS.items():
             if pattern.search(content):

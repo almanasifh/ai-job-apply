@@ -17,6 +17,8 @@ The portable Markdown file is non-executable. It embeds policy, contracts, ficti
 
 Compatibility means the host can load and follow the skill. Multi-agent behavior is capability-gated: hosts with subagents may use bounded delegation, while other hosts execute the same roles sequentially. It does not mean the repository installs an application runtime or grants the host new account access.
 
+For contributors using a source checkout in current Codex releases, `.codex/agents/` defines five project-scoped job-workflow specialists and `.codex/config.toml` enables up to five concurrent spawned threads besides the main thread. Those repository development defaults are intentionally not bundled in the Codex compatibility plugin; the plugin contains the canonical skill and role references instead. The formal architecture ceiling remains nineteen specialists plus the main orchestrator, but the lower host/configuration limit always wins. Custom-agent instructions inherit the parent session's tools and permissions; they do not create per-agent filesystem or network isolation.
+
 ## Capability boundaries
 
 - No OpenAI API key is required for local validation or packaging.

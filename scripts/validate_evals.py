@@ -24,7 +24,9 @@ REQUIRED_RISK_TAGS = {
     "approval_expiry", "approval_timing", "required_answer",
     "security_challenge", "outcome_separation", "artifact_qa",
     "delegation_privacy", "delegation_authority", "late_result",
-    "delegated_claim", "delegated_outcome",
+    "delegated_claim", "delegated_outcome", "native_spawn",
+    "sequential_fallback", "delegation_dedup", "output_conflict",
+    "delegation_capacity", "release_privacy",
 }
 SCENARIO_FIELDS = {
     "id", "title", "prompt", "available_capabilities", "fixture_refs",

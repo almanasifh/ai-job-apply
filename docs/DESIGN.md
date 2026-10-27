@@ -48,9 +48,11 @@ Load only the references relevant to the current mode.
 
 ## Multi-agent boundary
 
-Five specialist roles may be delegated: Scout, Matcher, Drafter, Verifier, and Outcome Auditor. The main agent remains the privacy projector, coordinator, approval holder, external actor, and checkpoint writer. Specialists receive immutable input references, digests, minimum capabilities, and only the permitted facts required for their role.
+Five specialist roles may be delegated: Scout, Matcher, Drafter, Verifier, and Tracker. The main agent remains the privacy projector, coordinator, approval holder, external actor, and checkpoint writer. Specialists receive immutable input references, digests, minimum capabilities, and only the permitted facts required for their role.
 
 Parallelism is limited to independent vacancies, sources, or non-conflicting artifacts. Dependent work for one application preserves Scout -> Matcher -> Drafter -> Verifier order. All required results fan in before deterministic validation and human approval.
+
+The architecture permits at most 19 specialist delegations in one run, for 20 total slots including the main orchestrator. This is a ceiling rather than a concurrency guarantee. The host's lower thread limit controls active work, so the main orchestrator schedules bounded waves and rejects duplicate tasks or colliding output ownership.
 
 ## End-to-end flow
 

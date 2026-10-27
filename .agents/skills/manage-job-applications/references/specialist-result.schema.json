@@ -7,6 +7,8 @@
   "required": [
     "schema_version",
     "run_id",
+    "task_id",
+    "attempt_id",
     "role",
     "task_digest",
     "status",
@@ -15,6 +17,8 @@
     "output_refs",
     "output_digests",
     "evidence_ids",
+    "unresolved",
+    "external_action_taken",
     "result_digest"
   ],
   "properties": {
@@ -25,13 +29,21 @@
       "type": "string",
       "pattern": "^run_[a-z0-9-]+$"
     },
+    "task_id": {
+      "type": "string",
+      "pattern": "^task_[a-z0-9-]+$"
+    },
+    "attempt_id": {
+      "type": "string",
+      "pattern": "^attempt_[a-z0-9-]+$"
+    },
     "role": {
       "enum": [
         "SCOUT",
         "MATCHER",
         "DRAFTER",
         "VERIFIER",
-        "OUTCOME_AUDITOR"
+        "TRACKER"
       ]
     },
     "task_digest": {
@@ -43,7 +55,8 @@
         "COMPLETED",
         "BLOCKED",
         "FAILED",
-        "CANCELLED"
+        "CANCELLED",
+        "TIMED_OUT"
       ]
     },
     "started_at": {
@@ -77,6 +90,17 @@
         "type": "string",
         "minLength": 1
       }
+    },
+    "unresolved": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "external_action_taken": {
+      "const": false
     },
     "result_digest": {
       "type": "string",
