@@ -4,11 +4,43 @@ Use append-only JSON Lines. Each line is one event. Sequence numbers are contigu
 
 ## Workflow statuses
 
-`RESEARCHED`, `ROUTED`, `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SUBMISSION_UNCERTAIN`, `SENT`, `SUBMITTED`, `DELIVERY_FAILED`, `SUBMISSION_FAILED`, `SKIPPED`.
+Use only these statuses. Never create compound or descriptive alternatives.
+
+- `RESEARCHED`: the vacancy is captured and recorded, and no application route has been selected yet.
+- `ROUTED`: a channel and destination are selected. Package preparation is not complete.
+- `PREPARING`: drafting and artifact work before a complete package is validated and reviewed.
+- `READY`: a complete validated package is awaiting approval, submission, or manual handoff.
+- `NEEDS_INPUT`: a required answer or decision is unknown and must come from the user.
+- `NEEDS_VERIFICATION`: a source, fact, or identity still needs confirmation.
+- `TECHNICAL_HOLD`: authentication, a CAPTCHA, a provider restriction, or a missing host tool stopped the affected action.
+- `SUBMISSION_UNCERTAIN`: the action may have occurred, but confirmation is missing.
+- `SENT`: an email provider accepted the send request.
+- `SUBMITTED`: first-party evidence confirms an application submission.
+- `DELIVERY_FAILED`: the provider reports that a send was not delivered. This is not an employer outcome.
+- `SUBMISSION_FAILED`: the attempt definitively did not submit.
+- `SKIPPED`: the user or an explicit policy chooses not to pursue the vacancy.
 
 `DUPLICATE` is a review disposition, not a workflow status. Approval state, attempt state, delivery state, and employer outcome are orthogonal fields or events.
 
-Use only the listed workflow statuses; never create compound or descriptive alternatives. `PREPARING` covers drafting and artifact work before a complete package is validated and reviewed. `READY` requires a complete validated package that is awaiting approval, submission, or manual handoff.
+The first event is `RESEARCHED` or `SKIPPED`. A later event may move only to a status in this table. A status may repeat only when it lists itself.
+
+| From | Allowed next statuses |
+| --- | --- |
+| `RESEARCHED` | `ROUTED`, `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SKIPPED` |
+| `ROUTED` | `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SKIPPED` |
+| `PREPARING` | `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SKIPPED` |
+| `READY` | `READY`, `PREPARING`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SENT`, `SUBMITTED`, `SUBMISSION_UNCERTAIN`, `SUBMISSION_FAILED`, `SKIPPED` |
+| `NEEDS_INPUT` | `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SKIPPED` |
+| `NEEDS_VERIFICATION` | `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `TECHNICAL_HOLD`, `SKIPPED` |
+| `TECHNICAL_HOLD` | `TECHNICAL_HOLD`, `PREPARING`, `READY`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `SKIPPED` |
+| `SENT` | `SUBMITTED`, `DELIVERY_FAILED`, `SUBMISSION_UNCERTAIN`, `TECHNICAL_HOLD` |
+| `SUBMITTED` | `DELIVERY_FAILED`, `TECHNICAL_HOLD` |
+| `DELIVERY_FAILED` | `TECHNICAL_HOLD`, `NEEDS_VERIFICATION`, `SKIPPED` |
+| `SUBMISSION_FAILED` | `PREPARING`, `READY`, `TECHNICAL_HOLD`, `NEEDS_INPUT`, `NEEDS_VERIFICATION`, `SKIPPED` |
+| `SUBMISSION_UNCERTAIN` | `SENT`, `SUBMITTED`, `DELIVERY_FAILED`, `SUBMISSION_FAILED`, `TECHNICAL_HOLD`, `NEEDS_VERIFICATION` |
+| `SKIPPED` | none |
+
+`SKIPPED` is terminal. An event after `SUBMISSION_UNCERTAIN` must reuse that same attempt identifier and may move only to a reconciled outcome above. Do not open a new attempt from an uncertain result.
 
 ## Hash chain
 

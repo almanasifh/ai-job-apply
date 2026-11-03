@@ -124,8 +124,25 @@ def validate_catalog(catalog: Any, *, repo_root: Path = REPO_ROOT) -> None:
 
 
 def load_catalog(path: Path) -> Any:
+    def reject_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise EvaluationError(f"{path} contains duplicate JSON key: {key}")
+            result[key] = value
+        return result
+
+    def reject_nonfinite(value: str) -> None:
+        raise EvaluationError(f"{path} contains unsupported numeric constant: {value}")
+
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=reject_duplicates,
+            parse_constant=reject_nonfinite,
+        )
+    except EvaluationError:
+        raise
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise EvaluationError(f"Cannot read evaluation catalog {path}: {exc}") from exc
 

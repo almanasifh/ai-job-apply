@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import timedelta
 from pathlib import Path
 from unittest import mock
 
@@ -160,6 +161,35 @@ class ContractTests(unittest.TestCase):
         job["content_digest"] = "0" * 64
         with self.assertRaisesRegex(ValidationError, "content_digest"):
             validate_job(job)
+
+    def test_job_without_channel_is_rejected(self) -> None:
+        job = load_json(ASSETS / "job.json")
+        job.pop("channel", None)
+        with self.assertRaisesRegex(ValidationError, "channel"):
+            validate_job(job)
+
+    def test_closed_or_unknown_vacancy_is_rejected_at_action_time(self) -> None:
+        checked_at = parse_datetime(
+            load_json(ASSETS / "job.json")["checked_at"], "job.checked_at"
+        )
+        for availability in ("CLOSED", "UNKNOWN"):
+            with self.subTest(availability=availability):
+                job = load_json(ASSETS / "job.json")
+                job["availability"] = availability
+                job["content_digest"] = canonical_digest(job, omit={"content_digest"})
+                with self.assertRaisesRegex(ValidationError, "OPEN"):
+                    validate_job(job, at=checked_at)
+
+    def test_vacancy_check_older_than_24_hours_is_rejected(self) -> None:
+        job = load_json(ASSETS / "job.json")
+        checked_at = parse_datetime(job["checked_at"], "job.checked_at")
+        with self.assertRaisesRegex(ValidationError, "24 hours"):
+            validate_job(job, at=checked_at + timedelta(hours=24, seconds=1))
+
+    def test_open_vacancy_at_24_hour_boundary_is_accepted(self) -> None:
+        job = load_json(ASSETS / "job.json")
+        checked_at = parse_datetime(job["checked_at"], "job.checked_at")
+        validate_job(job, at=checked_at + timedelta(hours=24))
 
     def test_application_answer_must_match_schema_type(self) -> None:
         application = load_json(ASSETS / "application.json")

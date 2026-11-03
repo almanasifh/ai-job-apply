@@ -6,6 +6,8 @@
   "employer": "Example Systems",
   "role": "Software Support Specialist",
   "location": "Remote",
+  "channel": "PORTAL",
+  "availability": "OPEN",
   "captured_at": "2026-01-02T10:00:00Z",
   "checked_at": "2026-01-02T10:05:00Z",
   "requirements": [
@@ -20,6 +22,6 @@
       "text": "Experience automating workflows with Python"
     }
   ],
-  "content_digest": "31554c1c18aeabd32d856f60efacd89757a4e2d955736da2cbbda6115b0f6850",
+  "content_digest": "89c747460a5a20197a1b747f4f23edfe518dd55d7999d63fc62a0c9de6910529",
   "canonical_identity": "example-systems|software-support-specialist|remote|EX-101"
 }

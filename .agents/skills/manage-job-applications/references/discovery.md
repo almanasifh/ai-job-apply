@@ -5,10 +5,12 @@ Capture a vacancy only from a user-authorized source. Store both `captured_at` a
 ## Required capture
 
 - Source URL and source job identifier when available
-- Employer, role, location, and channel
+- Employer, role, location, and channel (`EMAIL`, `PORTAL`, `LINKEDIN`, or `MANUAL`)
 - Mandatory and preferred requirements
 - Full-content digest and a canonical identity
-- Availability or verification state
+- Availability: `OPEN`, `CLOSED`, or `UNKNOWN`
+
+An external action may use the vacancy only when `availability` is `OPEN` and `checked_at` is no more than 24 hours before the action time. A closed, unknown, or older check needs a fresh review before any send or submission. Preparation and contract checks may still inspect an older capture.
 
 ## Duplicate checks
 
