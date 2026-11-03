@@ -14,7 +14,7 @@ Never receive candidate facts, a private profile, contact details, application h
 
 ## Required evidence and output
 
-Return a `specialist-result.schema.json` result bound to the delegation task digest. A completed result must reference an immutable vacancy capture containing its source, source identifier when available, capture and check times, full requirements, freshness state, and content digest. Record unresolved source or identity questions instead of guessing.
+Return a `specialist-result.schema.json` result bound to the delegation task digest. A completed result must reference an immutable vacancy capture containing its source, source identifier when available, channel, availability, capture and check times, full requirements, and content digest. Record unresolved source or identity questions instead of guessing.
 
 ## Forbidden actions
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -20,6 +21,27 @@ class SkillEvaluationCatalogTests(unittest.TestCase):
         catalog = load_catalog(CATALOG)
         validate_catalog(catalog, repo_root=REPO_ROOT)
         self.assertEqual(len(catalog["scenarios"]), 29)
+
+    def test_duplicate_catalog_key_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "catalog.json"
+            path.write_text(
+                '{"schema_version":"1.0","schema_version":"1.0",'
+                '"skill_name":"manage-job-applications","scenarios":[]}',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(EvaluationError, "duplicate"):
+                load_catalog(path)
+
+    def test_nonfinite_catalog_number_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "catalog.json"
+            path.write_text(
+                '{"schema_version":"1.0","skill_name":"manage-job-applications","scenarios":[NaN]}',
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(EvaluationError, "numeric constant"):
+                load_catalog(path)
 
     def test_unknown_workflow_status_is_rejected(self) -> None:
         catalog = copy.deepcopy(load_catalog(CATALOG))

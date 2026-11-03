@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +19,10 @@ from common import (
 )
 
 
-def validate_job(job: Any) -> None:
+ACTION_FRESHNESS = timedelta(hours=24)
+
+
+def validate_job(job: Any, *, at: datetime | None = None) -> None:
     validate_against_schema(job, "job.schema.json", "job")
     data = require_object(job, "job")
     captured_at = parse_datetime(data["captured_at"], "job.captured_at")
@@ -37,14 +41,24 @@ def validate_job(job: Any) -> None:
     expected_digest = canonical_digest(data, omit={"content_digest"})
     if data["content_digest"] != expected_digest:
         raise ValidationError("job.content_digest does not match canonical content")
+    if at is not None:
+        if data["availability"] != "OPEN":
+            raise ValidationError("job.availability must be OPEN at action time")
+        if at - checked_at > ACTION_FRESHNESS:
+            raise ValidationError("job.checked_at is older than 24 hours at action time")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a captured vacancy contract.")
     parser.add_argument("job", type=Path)
+    parser.add_argument(
+        "--at",
+        help="ISO 8601 action time; when set, require an OPEN vacancy checked within 24 hours",
+    )
     args = parser.parse_args()
     try:
-        validate_job(load_json(args.job))
+        action_time = parse_datetime(args.at, "--at") if args.at else None
+        validate_job(load_json(args.job), at=action_time)
     except ValidationError as exc:
         print(f"INVALID: {exc}", file=sys.stderr)
         return 1

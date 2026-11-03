@@ -44,7 +44,7 @@ Missing host capabilities result in analysis, preparation, validation, or a manu
 
 ### Phase 4 — Behavioral evaluations
 
-The fictional scenario catalog and deterministic catalog validator are implemented. Version 0.2.0 recorded portable-host and isolated Codex-host evidence for the original ten scenarios. Version 0.3.0 expands the catalog to eighteen scenarios, including exclusions, shortlist authority, approval timing, required answers, security challenges, outcome separation, and artifact QA. All eight added scenarios passed isolated canonical-skill and standalone portable evaluation.
+The fictional scenario catalog and deterministic catalog validator are implemented. Version 0.2.0 recorded portable-host and isolated Codex-host evidence for the original ten scenarios. Version 0.3.0 expands the catalog to eighteen scenarios, including exclusions, shortlist authority, approval timing, required answers, security challenges, outcome separation, and artifact QA. All eight added scenarios passed isolated canonical-skill and standalone portable evaluation. The current catalog contains twenty-nine scenarios. The earlier eighteen keep their cross-host evidence, and the later scenarios are covered by the version 0.4.0 contract gates.
 
 ### Phase 5 — Onboarding and handoff assets
 

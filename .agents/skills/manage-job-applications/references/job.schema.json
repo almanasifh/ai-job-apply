@@ -4,7 +4,7 @@
   "title": "Captured vacancy",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "job_id", "source_url", "source_job_id", "employer", "role", "location", "captured_at", "checked_at", "requirements", "content_digest", "canonical_identity"],
+  "required": ["schema_version", "job_id", "source_url", "source_job_id", "employer", "role", "location", "channel", "availability", "captured_at", "checked_at", "requirements", "content_digest", "canonical_identity"],
   "properties": {
     "schema_version": { "const": "1.0" },
     "job_id": { "type": "string", "pattern": "^job_[a-z0-9-]+$" },
@@ -13,6 +13,8 @@
     "employer": { "type": "string", "minLength": 1 },
     "role": { "type": "string", "minLength": 1 },
     "location": { "type": "string", "minLength": 1 },
+    "channel": { "enum": ["EMAIL", "PORTAL", "LINKEDIN", "MANUAL"] },
+    "availability": { "enum": ["OPEN", "CLOSED", "UNKNOWN"] },
     "captured_at": { "type": "string", "format": "date-time" },
     "checked_at": { "type": "string", "format": "date-time" },
     "requirements": {

@@ -11,11 +11,11 @@
     "job_example-support-101"
   ],
   "output_digests": [
-    "31554c1c18aeabd32d856f60efacd89757a4e2d955736da2cbbda6115b0f6850"
+    "89c747460a5a20197a1b747f4f23edfe518dd55d7999d63fc62a0c9de6910529"
   ],
   "evidence_ids": [],
   "unresolved": [],
   "external_action_taken": false,
-  "task_digest": "a9e9a518cced81b5988056527651f0da1241e772e5bd7f3fa36e728cdc1c9f3d",
-  "result_digest": "4605f8a71fdaa0a7e37e424efd4f82554bdae354f0e791eef40950f705a8c76b"
+  "task_digest": "8047f49faa704841993beded85df2ec69b603fa1303a4a384963839bdc1cf590",
+  "result_digest": "3c6e11f407eeb32e8584f3c42762e5a2592f1a34d4b79f4d23ec9a46fc8bac84"
 }

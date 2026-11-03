@@ -52,27 +52,42 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Test on Python 3.12
+      - name: Test and release-check on Python 3.12
         run: |
+          python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
           python -m compileall -q .agents/skills/manage-job-applications/scripts scripts tests
           python -m unittest discover -s tests -v
+          python scripts/build_portable.py
+          python scripts/stage_plugin.py
+          python scripts/validate_release.py
+          python scripts/validate_evals.py
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.13"
 
-      - name: Test on Python 3.13
+      - name: Test and release-check on Python 3.13
         run: |
+          python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
           python -m compileall -q .agents/skills/manage-job-applications/scripts scripts tests
           python -m unittest discover -s tests -v
+          python scripts/build_portable.py
+          python scripts/stage_plugin.py
+          python scripts/validate_release.py
+          python scripts/validate_evals.py
 
       - name: Set up Python 3.14
         uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.14"
 
-      - name: Test on Python 3.14
+      - name: Test and release-check on Python 3.14
         run: |
+          python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
           python -m compileall -q .agents/skills/manage-job-applications/scripts scripts tests
           python -m unittest discover -s tests -v
+          python scripts/build_portable.py
+          python scripts/stage_plugin.py
+          python scripts/validate_release.py
+          python scripts/validate_evals.py

@@ -497,6 +497,16 @@ class OrchestrationTests(unittest.TestCase):
                 ASSETS,
             )
 
+    def test_specialist_fixtures_share_one_run(self) -> None:
+        run_ids = {
+            load_json(ASSETS / "delegation.json")["run_id"],
+            load_json(ASSETS / "specialist-result.json")["run_id"],
+        }
+        for role in ("scout", "drafter", "verifier", "tracker"):
+            run_ids.add(load_json(ASSETS / f"delegation-{role}.json")["run_id"])
+            run_ids.add(load_json(ASSETS / f"specialist-result-{role}.json")["run_id"])
+        self.assertEqual(run_ids, {"run_example-support-101"})
+
     def test_all_specialist_role_fixtures_are_valid(self) -> None:
         at = parse_datetime("2099-01-01T00:05:00Z", "test time")
         pairs = []
